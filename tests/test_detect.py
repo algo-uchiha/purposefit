@@ -199,6 +199,36 @@ def test_unkeyed_hash_of_identifier_inherits_its_label(tmp_path):
     assert "131052" not in json.dumps(findings)
 
 
+def test_hash_of_messy_hetu_matches_after_canonicalising(tmp_path):
+    import hashlib
+
+    # Mostly clean, as in the unseen file, plus label prefixes, a missing century sign,
+    # lower case and a stray space. The hash is always of the canonical HETU.
+    canonical = ["131052-308T", "010101A123N", "311299-999E", "150590-123J", "131052-308T",
+                 "010101A123N", "311299-999E", "150590-123J"]  # fmt: skip
+    messy = ["131052-308T", "010101A123N", "311299-999E", "150590-123J", "HETU 131052-308T",
+             "010101a123n", "311299999E", "hetu: 150590 123J"]  # fmt: skip
+    df = pd.DataFrame({
+        "row_id": [str(i) for i in range(400)],
+        "c1": messy * 50,
+        "c2": [hashlib.sha256(h.encode()).hexdigest().upper() for h in canonical * 50],
+    })  # fmt: skip
+    labels, _, findings = _dataset(tmp_path, df)
+    got = {lab.column: lab for lab in labels}
+    assert (got["c2"].privacy_role, got["c2"].subtype) == ("direct_identifier", "NATIONAL_ID")
+    assert findings[0]["kind"] == "unkeyed_hash" and findings[0]["match_rate"] == 1.0
+    assert findings[0]["variant"] == "canonical_hetu"
+    assert "131052" not in json.dumps(findings)
+
+
+def test_canonical_candidates_try_every_century_sign():
+    from api.pipeline.detect import HETU_CENTURY_SIGNS, _canon_candidates
+
+    got = _canon_candidates("311299999E", "hetu")
+    assert got == ["311299" + c + "999E" for c in HETU_CENTURY_SIGNS] and len(got) == 13
+    assert _canon_candidates("IBAN fi21 1234 5600 0007 85", "iban") == ["FI2112345600000785"]
+
+
 def test_random_hex_is_not_called_a_hash(tmp_path):
     import secrets
 

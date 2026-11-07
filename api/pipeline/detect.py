@@ -19,6 +19,9 @@ import time
 from dataclasses import dataclass, replace
 from pathlib import Path
 
+from stdnum import iban as std_iban
+from stdnum.fi import hetu as std_hetu
+
 from api.pipeline import io
 from api.pipeline.contracts import PRIVACY_ROLES, SUBTYPES, ColumnProfile, FieldLabel
 
@@ -575,6 +578,36 @@ def _digest(fn, v: str) -> str:
     return fn(v.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
+# Century signs of a Finnish personal identity code (HETU), 1800s, 1900s and 2000s.
+HETU_CENTURY_SIGNS = "-AYXWVUBCDEF+"
+_LABEL_PREFIX = re.compile(r"^[^\W\d_]{2,10}(\s*[:#]\s*|\s+)")
+_HETU_NO_SIGN = re.compile(r"^\d{9}[0-9A-Y]$")
+
+
+def _canon_kind(p: ColumnProfile) -> str | None:
+    """Which canonical form to hash a source column in, from its detected subtype."""
+    if max(_hits(p, "hetu"), _hits(p, "hetu_like")) >= 0.5:
+        return "hetu"
+    if _hits(p, "iban") >= 0.5:
+        return "iban"
+    return None
+
+
+def _canon_candidates(v: str, kind: str) -> list[str]:
+    """Canonical spellings of one source value: label prefix gone, upper case, no spaces.
+
+    A 10-character HETU without its century sign yields one candidate per sign.
+    """
+    t = _LABEL_PREFIX.sub("", v.strip().replace("\u00a0", " "))
+    t = re.sub(r"\s+", "", t).upper()
+    if kind == "hetu":
+        t = std_hetu.compact(t)
+        if _HETU_NO_SIGN.match(t):
+            return [t[:6] + c + t[6:] for c in HETU_CENTURY_SIGNS]
+        return [t]
+    return [std_iban.compact(t)]
+
+
 def _is_zero_or_empty(v: str) -> bool:
     t = v.strip().replace(" ", "").replace("\u00a0", "").replace(",", ".")
     if not t:
@@ -621,6 +654,15 @@ def data_pass(labels: list[FieldLabel], profiles: list[ColumnProfile], seed: int
                                   == target[mask]).mean())  # fmt: skip
                     if rate > best[0]:
                         best = (rate, j, variant)
+                kind = _canon_kind(profiles[j])
+                if kind and best[0] < 1.0:
+                    for variant, case in ((f"canonical_{kind}", str.upper),
+                                          (f"canonical_{kind}_lower", str.lower)):  # fmt: skip
+                        hit = [any(_digest(fn, case(c)) == t for c in _canon_candidates(v, kind))
+                               for v, t in zip(src[mask], target[mask], strict=True)]  # fmt: skip
+                        rate = sum(hit) / len(hit)
+                        if rate > best[0]:
+                            best = (rate, j, variant)
             if best[0] > HASH_MATCH_RATE:
                 srclab = out[best[1]]
                 out[i] = replace(out[i], privacy_role=srclab.privacy_role,
