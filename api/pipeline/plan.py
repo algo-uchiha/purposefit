@@ -144,10 +144,12 @@ def build_plan(scenario: dict, labels: list[FieldLabel], profiles: list[ColumnPr
                 hit = prof[(lab.table, lab.column)].validator_hits.get("timestamp", 0.0) \
                     if (lab.table, lab.column) in prof else 0.0
                 level = gen.level_for(lab.subtype, hit)
-                note = (f"; generalised to {level} (B2 rule)" if level != gen.EXACT
-                        else "; no fixed rule for this subtype, kept exact")  # fmt: skip
-                action = "generalise" if level != gen.EXACT else "keep"
+                ladder = gen.ladder_for(lab.subtype, hit)
+                note = ("; level chosen by the search in transform" if len(ladder) > 1
+                        else "; one level only for this subtype, kept exact")  # fmt: skip
+                action = "generalise" if len(ladder) > 1 else "keep"
                 policies.append(_policy(lab, action, used_by + note, tasks=tids, level=level,
+                                        fallback_level=level, ladder=ladder,
                                         quasi_identifier=True))  # fmt: skip
             elif lab.privacy_role == "free_text":
                 policies.append(_policy(lab, "redact", used_by + "; text kept for the "

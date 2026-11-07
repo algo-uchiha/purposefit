@@ -230,3 +230,72 @@ def test_plan_table_lists_every_field_without_em_dashes():
 def test_plan_stage_needs_detect_first(capsys):
     assert cli.main(["plan", "--run", "r1", "--scenario", "CS-S1"]) == 2
     assert "run the detect stage" in capsys.readouterr().err
+
+
+# ---------------------------------------------------------------- level search
+
+
+def _ages():
+    # 200 rows: every exact age 5 times; all timestamps on one day, one per minute.
+    return pd.DataFrame({"age": [str(20 + i % 40) for i in range(200)],
+                         "ts": [f"2025-03-03 {i % 24:02d}:{i % 60:02d}:00" for i in range(200)]})
+
+
+def test_search_tries_every_combination_and_picks_best_utility():
+    ladders = {"age": gen.LADDERS["AGE"], "ts": gen.LADDERS["TIMESTAMP"]}
+
+    def score(cand):  # exact ages are worth more; timestamps do not matter
+        return 0.5 if cand["age"].str.contains("-").any() else 1.0
+
+    r = gen.search_levels(_ages(), ladders, score)
+    assert r["tried"] == 16 and r["scored"] == r["qualifying"] >= 2
+    assert r["chosen"]["levels"] == {"age": "exact", "ts": "day"}  # tie with week: finer wins
+    assert r["runner_up"]["levels"] == {"age": "exact", "ts": "week"}
+    assert gen.class_sizes(r["release"], list(ladders)).min() >= 5
+
+
+def test_search_without_scorer_prefers_fewest_suppressed_then_finest():
+    # Five singleton ages 81 to 85: exact and 5-year bands need 5 suppressed rows (budget 4).
+    df = pd.DataFrame({"age": [str(20 + i % 40) for i in range(200)] + [str(a) for a in range(81, 86)]})
+    r = gen.search_levels(df, {"age": gen.LADDERS["AGE"]}, None)
+    assert r["row_budget"] == 4 and r["qualifying"] == 2
+    assert r["chosen"]["levels"] == {"age": "10-year band"} and r["chosen"]["rows_suppressed"] == 0
+
+
+def test_search_reports_no_qualifying_combination():
+    df = pd.DataFrame({"q": [str(i) for i in range(100)]})
+    r = gen.search_levels(df, {"q": ["exact"]}, None)
+    assert r["qualifying"] == 0 and r["chosen"] is None and r["release"] is None
+
+
+def test_transform_records_chosen_levels_and_runner_up(data, tmp_path):
+    run = tmp_path / "runs" / "r"
+    calls = []
+
+    def utility(prot):
+        calls.append(1)
+        return 1.0 if prot["convs"]["started_ts"].str.len().max() == 16 else 0.5
+
+    plan, _ = tr.apply_plan(_plan(S2), run, tmp_path / "runs" / "private" / "r", "key",
+                            utility=utility)  # fmt: skip
+    k = _by(plan)[("convs", "*")].params
+    assert k["method"] == "level search" and k["search"]["tried"] == 4 and calls
+    assert k["search"]["runner_up"] is not None and k["cells_blanked"] == {}
+    assert k["k"] >= 5 and k["k_pycanon"] == k["k"]
+    ts = _by(plan)[("convs", "started_ts")]
+    assert ts.params["level"] == k["search"]["chosen"]["levels"]["started_ts"]
+    assert "chosen by search, runner-up" in ts.reason
+    assert "release" not in json.dumps(k["search"])
+
+
+def test_transform_falls_back_and_says_so(data, tmp_path, monkeypatch):
+    none = {"tried": 4, "qualifying": 0, "scored": 0, "row_budget": 8, "chosen": None,
+            "runner_up": None, "release": None}  # fmt: skip
+    monkeypatch.setattr(gen, "search_levels", lambda *a, **k: none)
+    run = tmp_path / "runs" / "r"
+    plan, _ = tr.apply_plan(_plan(S2), run, tmp_path / "runs" / "private" / "r", "key")
+    k = _by(plan)[("convs", "*")].params
+    assert k["method"].startswith("fallback") and k["search"]["qualifying"] == 0
+    assert k["k"] >= 5 and k["k_pycanon"] == k["k"]
+    ts = _by(plan)[("convs", "started_ts")]
+    assert ts.params["level"] == "hour" and "no level combination reached k >= 5" in ts.reason

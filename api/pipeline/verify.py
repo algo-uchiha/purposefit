@@ -67,3 +67,40 @@ def append_leaderboard(path: Path, row: dict) -> None:
         if new:
             w.writeheader()
         w.writerow(row)
+
+
+def make_utility(dataset: str, scenario_id: str):
+    """A scorer for the level search: mean of the scenario's required pets-eval utility tasks
+    (unanswerable counts 0, as in the composite). Candidate tables are written and re-read the
+    way the scorecard reads a release, so the search sees what the scorer will see."""
+    import io as _io
+
+    import pandas as pd
+
+    _pets_eval()
+    from pets_eval import io as pe_io
+    from pets_eval.utility import all_tasks
+
+    scen = pe_io.get_scenario(scenario_id, proving_ground_root())
+    required = set(scen.get("utility_requirements", []))
+    tasks = [t for t in all_tasks([dataset]) if t.id in required]
+    orig = pe_io.load_tables(io.data_root() / dataset)
+
+    def as_read(df: pd.DataFrame) -> pd.DataFrame:
+        text = df.to_csv(index=False)
+        dtype = {c: str for c in df.columns if pe_io._STRINGY.search(str(c))}
+        return pd.read_csv(_io.StringIO(text), dtype=dtype, low_memory=False,
+                           keep_default_na=True)  # fmt: skip
+
+    def utility(prot: dict) -> float | None:
+        p = {t: as_read(df) for t, df in prot.items()}
+        scores = []
+        for t in tasks:
+            try:
+                s = t.fn(orig, p)["score"]
+            except Exception:  # noqa: BLE001  # nosec B112 (a failing task scores 0)
+                s = None
+            scores.append(0.0 if s is None else float(s))
+        return sum(scores) / len(scores) if scores else None
+
+    return utility

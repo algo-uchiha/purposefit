@@ -184,7 +184,17 @@ def cmd_transform(args: argparse.Namespace, key: str) -> int:
     run_path = runs_dir() / args.run
     _need(run_path / "03_plan.json", "plan")
     plan = pl.read_plan(run_path / "03_plan.json")
-    plan, _ = tr.apply_plan(plan, run_path, runs_dir() / "private" / args.run, key)
+    utility = None
+    if any(p.action == "suppress_k" for p in plan.policies):
+        from api.pipeline import verify as vf
+
+        try:
+            utility = vf.make_utility(plan.dataset, plan.scenario_id)
+        except (ImportError, OSError):
+            log.warning(json.dumps({"run_id": args.run, "stage": "transform",
+                                    "event": "utility_scorer_unavailable"}))  # fmt: skip
+    plan, _ = tr.apply_plan(plan, run_path, runs_dir() / "private" / args.run, key,
+                            utility=utility)  # fmt: skip
     pl.write_plan(plan, run_path / "03_plan.json")
     return 0
 
@@ -200,7 +210,8 @@ def cmd_verify(args: argparse.Namespace, key: str) -> int:
                            runs_dir() / "private" / args.run, run_path / "06_scorecard_ours")  # fmt: skip
     ks = [p.params for p in plan.policies if p.action == "suppress_k"]
     kp = [q["k_pycanon"] for q in ks if q.get("k_pycanon") is not None]
-    row = vf.leaderboard_row(rep, args.run, git_hash(), args.method, k=plan.k,
+    row = vf.leaderboard_row(rep, args.run, git_hash(), args.method,
+                             k=plan.k if ks else None,
                              k_pycanon=min(kp) if kp else None, note=args.note)  # fmt: skip
     vf.append_leaderboard(runs_dir() / "leaderboard.csv", row)
     print(json.dumps({c: row[c] for c in ("scenario", "privacy", "utility", "composite",

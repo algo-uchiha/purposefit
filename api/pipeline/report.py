@@ -42,4 +42,18 @@ def plan_table(plan: PolicyPlan) -> str:
                      f"achieved k {q.get('k')}, pyCANON k {q.get('k_pycanon')}, "
                      f"rows suppressed {q.get('rows_suppressed')} (budget {q.get('row_budget')}), "
                      f"cells blanked: {blanked}.")  # fmt: skip
+        se = q.get("search")
+        if se:
+            def lv(r):
+                return ", ".join(f"{c} {v}" for c, v in r["levels"].items()) + \
+                    f" (utility {r['utility']}, rows suppressed {r['rows_suppressed']})"
+            line = (f"Level search: {se['tried']} combinations tried, {se['qualifying']} reach "
+                    f"k {q['k_target']} within the row budget with no cell blanking, "
+                    f"{se['scored']} scored. Method: {q.get('method')}.")  # fmt: skip
+            if se.get("chosen"):
+                line += f" Chosen: {lv(se['chosen'])}."
+            if se.get("runner_up"):
+                line += f" Runner-up: {lv(se['runner_up'])}."
+            lines.append("")
+            lines.append(line)
     return "\n".join(lines)

@@ -12,6 +12,7 @@ import hmac
 import json
 import logging
 import time
+from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
 
@@ -43,7 +44,11 @@ def _apply_column(col: pd.Series, p: FieldPolicy, key: str) -> pd.Series:
 
 
 def apply_plan(plan: PolicyPlan, run_path: Path, private_dir: Path, key: str,
-               root: Path | None = None) -> tuple[PolicyPlan, dict]:  # fmt: skip
+               root: Path | None = None,
+               utility: Callable[[dict[str, pd.DataFrame]], float | None] | None = None,
+               ) -> tuple[PolicyPlan, dict]:  # fmt: skip
+    """`utility` scores a candidate release (dict of tables) for the level search; without it
+    the search keeps the qualifying combination with the fewest suppressed rows, then the finest."""
     t0 = time.monotonic()
     base = (root or io.data_root()) / plan.dataset
     release = run_path / "04_release"
@@ -70,22 +75,56 @@ def apply_plan(plan: PolicyPlan, run_path: Path, private_dir: Path, key: str,
     pd.DataFrame(gaz, columns=["table", "column", "subtype", "value"]).to_csv(
         private_dir / "gazetteer_values.csv", index=False)
 
+    # First pass: every released table with its non-k transforms; kept quasi-identifiers raw.
     out: dict[str, pd.DataFrame] = {}
-    keep_rows: dict[str, pd.Series] = {}
-    k_results: dict[str, dict] = {}
     for t in plan.released_tables:
         df = tables[t]
         cols = [p for p in by_table[t] if p.column != "*"
                 and p.action not in ("drop", "withhold_table")]  # fmt: skip
-        res = pd.DataFrame({p.column: _apply_column(df[p.column], p, key) for p in cols},
-                           index=df.index)  # fmt: skip
+        out[t] = pd.DataFrame({p.column: df[p.column] if p.params.get("quasi_identifier")
+                               else _apply_column(df[p.column], p, key) for p in cols},
+                              index=df.index)  # fmt: skip
+
+    # Second pass: level search per table with kept quasi-identifiers; fallback if none fits.
+    keep_rows: dict[str, pd.Series] = {}
+    k_results: dict[str, dict] = {}
+    chosen_levels: dict[tuple[str, str], str] = {}
+    for t in plan.released_tables:
         kp = next((p for p in by_table[t] if p.action == "suppress_k"), None)
-        if kp:
-            res, mask, stats = gen.enforce_k(res, kp.params["qis"], kp.params["k_target"],
-                                             kp.params["max_row_suppression"])  # fmt: skip
-            stats["k_pycanon"] = gen.pycanon_k(res, kp.params["qis"])
-            k_results[t] = stats
-            keep_rows[t] = mask
+        if not kp:
+            continue
+        qis, kt, mr = kp.params["qis"], kp.params["k_target"], kp.params["max_row_suppression"]
+        qpol = {p.column: p for p in by_table[t] if p.column in qis}
+        ladders = {q: qpol[q].params.get("ladder") or [qpol[q].params["level"]] for q in qis}
+        score = None
+        if utility is not None:
+            def score(cand: pd.DataFrame, t=t) -> float | None:
+                return utility({**out, t: cand})
+        found = gen.search_levels(out[t], ladders, score, kt, mr)
+        search = {k_: v for k_, v in found.items() if k_ != "release"}
+        if found["chosen"]:
+            res = found["release"]
+            levels = found["chosen"]["levels"]
+            mask = out[t].index.isin(res.index)
+            stats = {"qis": qis, "rows_suppressed": int((~mask).sum()),
+                     "row_budget": found["row_budget"], "cells_blanked": {},
+                     "k": int(gen.class_sizes(res, qis).min()) if len(res) else None,
+                     "method": "level search"}  # fmt: skip
+        else:
+            levels = {q: qpol[q].params["fallback_level"] if "fallback_level" in qpol[q].params
+                      else qpol[q].params["level"] for q in qis}  # fmt: skip
+            fixed = out[t].copy()
+            for q, lv in levels.items():
+                fixed[q] = gen.apply_level(fixed[q], lv)
+            res, mask, stats = gen.enforce_k(fixed, qis, kt, mr)
+            stats["method"] = "fallback: fixed B2 levels and cell blanking"
+            mask = mask.to_numpy()
+        stats["k_pycanon"] = gen.pycanon_k(res, qis)
+        stats["search"] = search
+        for q, lv in levels.items():
+            chosen_levels[(t, q)] = lv
+        k_results[t] = stats
+        keep_rows[t] = pd.Series(mask, index=out[t].index)
         out[t] = res
 
     # A suppressed row takes its child rows with it: drop rows whose join key points at it.
@@ -119,7 +158,20 @@ def apply_plan(plan: PolicyPlan, run_path: Path, private_dir: Path, key: str,
             p = replace(p, params={**p.params, "k": r["k"], "k_pycanon": r["k_pycanon"],
                                    "rows_suppressed": r["rows_suppressed"],
                                    "row_budget": r["row_budget"],
-                                   "cells_blanked": r["cells_blanked"]})  # fmt: skip
+                                   "cells_blanked": r["cells_blanked"],
+                                   "method": r["method"], "search": r["search"]})  # fmt: skip
+        elif (p.table, p.column) in chosen_levels:
+            lv = chosen_levels[(p.table, p.column)]
+            r = k_results[p.table]
+            used = p.reason.split(";")[0]
+            if r["method"] == "level search":
+                ru = (r["search"].get("runner_up") or {}).get("levels", {}).get(p.column)
+                why = f"{used}; level {lv} chosen by search" + (
+                    f", runner-up {ru}" if ru else "")  # fmt: skip
+            else:
+                why = f"{used}; no level combination reached k >= 5, fixed B2 level {lv}"
+            p = replace(p, action="keep" if lv == gen.EXACT else "generalise", reason=why,
+                        params={**p.params, "level": lv})  # fmt: skip
         policies.append(p)
     ks = [r["k"] for r in k_results.values() if r["k"] is not None]
     plan = replace(plan, policies=policies, k=min(ks) if ks else plan.k)
