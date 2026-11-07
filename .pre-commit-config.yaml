@@ -1,0 +1,19 @@
+# Runs on every commit. Install once with: uv run pre-commit install
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff
+        entry: uv run ruff check
+        language: system
+        types: [python]
+      - id: bandit
+        name: bandit
+        entry: uv run bandit -q -c pyproject.toml
+        language: system
+        types: [python]
+        exclude: ^(tests|spike|vendor)/

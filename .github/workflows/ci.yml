@@ -1,0 +1,39 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  # Dummy values: CI has no .env, never calls a model and spends no credit.
+  PURPOSEFIT_HMAC_KEY: ci-dummy-key-not-secret
+  LLM_PROVIDER: none
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run bandit -q -r api scripts -c pyproject.toml
+      - run: uv run pytest -q -rs
+      - run: uv run pip-audit --skip-editable
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: npm audit
+        run: |
+          if [ -f web/package.json ]; then
+            cd web && npm ci && npm audit --omit=dev
+          else
+            echo "web/package.json not found, npm audit skipped until Phase 9"
+          fi
