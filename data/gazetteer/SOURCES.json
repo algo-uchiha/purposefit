@@ -1,0 +1,24 @@
+{
+  "dataset": "Väestötietojärjestelmän suomalaisten nimiaineistot",
+  "publisher": "DVV",
+  "licence": "Creative Commons Attribution 4.0",
+  "page": "https://www.avoindata.fi/data/en/dataset/none",
+  "files": [
+    {
+      "kind": "first_names",
+      "file": "etunimitilasto-2026-08-04-dvv.xlsx",
+      "url": "https://avoindata.suomi.fi/data/dataset/57282ad6-3ab1-48fb-983a-8aba5ff8d29a/resource/08c89936-a230-42e9-a9fc-288632e234f5/download/etunimitilasto-2026-08-04-dvv.xlsx",
+      "modified": "2026-08-04T07:51:37.219730",
+      "bytes": 909948,
+      "sha256": "52f2ae71ca63592e0df0a0a5831c1cb69af7eb85a5e32545d673894490ee2e84"
+    },
+    {
+      "kind": "surnames",
+      "file": "sukunimitilasto-2026-08-04-dvv.xlsx",
+      "url": "https://avoindata.suomi.fi/data/dataset/57282ad6-3ab1-48fb-983a-8aba5ff8d29a/resource/26c2d0fc-c27d-4c8a-b646-95155f9b6e59/download/sukunimitilasto-2026-08-04-dvv.xlsx",
+      "modified": "2026-08-04T07:53:02.899804",
+      "bytes": 447936,
+      "sha256": "ecda3e4d79767cda23fac3c26f017bbaccf62417ca001b98fe981f4976e59a82"
+    }
+  ]
+}

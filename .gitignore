@@ -1,0 +1,43 @@
+# Proving ground: never committed (contains truth/ and adversary/)
+vendor/
+**/truth/
+**/adversary/
+**/pii_spans/
+field_catalog.csv
+
+# Run outputs and row maps
+runs/
+**/rowmap*
+*rowmap*.csv
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Spreadsheet caches (DVV lists are re-downloaded by scripts/fetch_gazetteer.py)
+*.xlsx
+~$*
+
+# Python and tooling
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+dist/
+build/
+
+# Web
+node_modules/
+web/dist/
+
+# OS and editors
+.DS_Store
+.idea/
+.vscode/
+
+# Organiser material, not redistributed
+docs/challenge/
