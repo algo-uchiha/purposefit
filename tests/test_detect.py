@@ -3,10 +3,11 @@ import re
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from api.pipeline import detect as det
 from api.pipeline import profile as prof
-from api.pipeline.contracts import PRIVACY_ROLES, SUBTYPES
+from api.pipeline.contracts import PRIVACY_ROLES, SUBTYPES, ColumnProfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -67,7 +68,7 @@ def test_every_label_is_valid_and_has_reason():
 
 def test_frozen_settings():
     assert det.LLM_CONFIDENCE_THRESHOLD == 0.6
-    assert len(det.RULE_FAMILIES) == 15
+    assert len(det.RULE_FAMILIES) == 16
 
 
 class FakeResp:
@@ -281,3 +282,19 @@ def test_llm_prompt_carries_readme(tmp_path):
     det.llm_pass(labels, client, 1, tmp_path)
     assert client.prompts[0]["dataset_description"] == "Care company HR export."
     assert "trade union" in det.LLM_SYSTEM and "shift" in det.LLM_SYSTEM
+
+
+@pytest.mark.parametrize(("name", "expected"), [
+    ("handle_time_s", True), ("duration_s", True), ("los_minutes", True), ("response_ms", True),
+    ("puhelun_kesto", True), ("kestoaika", True), ("dwell_seconds", True),
+    ("wind_ms", False), ("temp_min", False), ("visits", False), ("time_of_day", False),
+])  # fmt: skip
+def test_duration_names(name, expected):
+    assert bool(det._duration_token(det.tokens(name))) is expected
+
+
+def test_numeric_duration_is_not_a_quasi_identifier():
+    p = ColumnProfile("ds", "t", "handle_time_s", 100, 1.0, 0.5, 2, 4, 3.0, {},
+                      {"integer": 1.0, "decimal": 1.0})  # fmt: skip
+    r = det.classify(p, 3)
+    assert (r.role, r.subtype, r.family) == ("non_sensitive", "DURATION", "name_duration")

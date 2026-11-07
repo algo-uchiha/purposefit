@@ -38,6 +38,7 @@ RULE_FAMILIES = (
     "name_technical",    # technical identifier name tokens
     "name_free_text",    # free text name tokens
     "name_sensitive",    # sensitive attribute name tokens
+    "name_duration",     # numeric durations by name (time_s, duration, _minutes, kesto)
     "name_quasi",        # quasi-identifier name tokens
     "value_text",        # long multi-word values
     "value_quasi",       # dates, timestamps, postcodes, coordinates by value
@@ -177,6 +178,27 @@ QUASI = [
     ({"date", "pvm", "päivä", "datum", "week", "since", "expiry", "start", "end",
       "session", "issued"}, "DATE"),
 ]  # fmt: skip
+# Durations: a long unit alone is enough; a short unit (s, ms) needs a time word too, because
+# wind_ms is a speed in metres per second, not milliseconds.
+DURATION_WORDS = {"duration", "kesto", "varaktighet"}
+DURATION_LONG_UNITS = {"seconds", "secs", "minutes", "mins", "hours"}
+DURATION_SHORT_UNITS = {"s", "ms", "sec"}
+DURATION_TIME_WORDS = {"time", "aika", "tid", "duration", "latency", "elapsed", "response",
+                       "wait"}  # fmt: skip
+
+
+def _duration_token(toks: list[str]) -> str | None:
+    for t in toks:
+        if t in DURATION_WORDS or t.startswith("kesto") or t.endswith("kesto"):
+            return t
+    t = _has(toks, DURATION_LONG_UNITS)
+    if t:
+        return t
+    if toks and toks[-1] in DURATION_SHORT_UNITS and _has(toks[:-1], DURATION_TIME_WORDS):
+        return "_".join(toks[-2:])
+    return None
+
+
 QUASI_PHRASES = {"job_title": "OCCUPATION", "created_utc": "TIMESTAMP"}
 LOCATION_PREFIX = {"merchant", "geo", "pos", "store", "home"}
 
@@ -274,6 +296,11 @@ def _name_rule(toks: list[str], p: ColumnProfile) -> Rule | None:
         if t:
             return Rule("name_sensitive", "sensitive_attribute", sub,
                         f"column name has '{t}'", 0.75)  # fmt: skip
+    # durations: how long something took, not when; not a quasi-identifier by default
+    t = _duration_token(toks)
+    if t and _numeric(p):
+        return Rule("name_duration", "non_sensitive", "DURATION",
+                    f"numeric values and column name has '{t}', a duration", 0.7)  # fmt: skip
     # quasi-identifiers
     for phrase, sub in QUASI_PHRASES.items():
         if _joined(toks, {phrase}):
