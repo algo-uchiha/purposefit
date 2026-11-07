@@ -2,11 +2,13 @@
 
 One interface (`LLMClient.complete`) over three providers:
 
-- `gemma` (default): Google's open-weights Gemma 3 model, served through the Gemini API
-  for the demo. google-genai SDK, model `gemma-3-27b-it`, key `GEMINI_API_KEY`.
+- `gemma` (default): Google's open-weights Gemma 4 model, served through the Gemini API
+  for the demo. google-genai SDK, model `gemma-4-31b-it`, key `GEMINI_API_KEY`.
 - `featherless` (optional): LumiOpen/Llama-Poro-2-8B-Instruct through Featherless's
   OpenAI-compatible API, key `FEATHERLESS_API_KEY`.
 - `none`: every call raises `LLMDisabled`. Selected by `LLM_PROVIDER=none` or `--no-llm`.
+
+`LLM_MODEL` (optional) overrides the provider's default model name.
 
 Rules (CLAUDE.md, PROJECT_BRIEF.md section 7):
 
@@ -36,7 +38,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CACHE_DIR = PROJECT_ROOT / "runs" / "cache" / "llm"
 DEFAULT_PROVIDER = "gemma"
 
-GEMMA_MODEL = "gemma-3-27b-it"
+GEMMA_MODEL = "gemma-4-31b-it"
 FEATHERLESS_MODEL = "LumiOpen/Llama-Poro-2-8B-Instruct"
 FEATHERLESS_BASE_URL = "https://api.featherless.ai/v1"
 
@@ -68,7 +70,7 @@ def _require_env(var: str) -> str:
 
 
 class GemmaProvider:
-    """Gemma 3 27B through the Gemini API (google-genai SDK)."""
+    """Gemma 4 31B through the Gemini API (google-genai SDK)."""
 
     name = "gemma"
 
@@ -134,7 +136,7 @@ class NoneProvider:
         raise LLMDisabled("LLM layer is disabled")
 
 
-PROVIDERS: dict[str, Callable[[], Provider]] = {
+PROVIDERS: dict[str, Callable[..., Provider]] = {
     "gemma": GemmaProvider,
     "featherless": FeatherlessProvider,
     "none": NoneProvider,
@@ -306,9 +308,15 @@ class LLMClient:
 def get_client(
     provider: str | None = None, *, no_llm: bool = False, cache_dir: Path | None = None
 ) -> LLMClient:
-    """Build the client from `LLM_PROVIDER` (default `gemma`). `no_llm=True` forces `none`."""
+    """Build the client from `LLM_PROVIDER` (default `gemma`). `no_llm=True` forces `none`.
+
+    `LLM_MODEL`, if set, overrides the provider's default model name (for example when
+    Google retires a Gemma version). It has no effect on `none`.
+    """
     name = "none" if no_llm else (provider or os.environ.get("LLM_PROVIDER") or DEFAULT_PROVIDER)
     name = name.strip().lower()
     if name not in PROVIDERS:
         raise LLMError(f"Unknown LLM_PROVIDER {name!r}; use one of {sorted(PROVIDERS)}")
-    return LLMClient(PROVIDERS[name](), cache_dir=cache_dir or DEFAULT_CACHE_DIR)
+    model = os.environ.get("LLM_MODEL", "").strip()
+    impl = PROVIDERS[name](model=model) if model and name != "none" else PROVIDERS[name]()
+    return LLMClient(impl, cache_dir=cache_dir or DEFAULT_CACHE_DIR)

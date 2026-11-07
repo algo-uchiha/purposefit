@@ -136,10 +136,11 @@ def test_none_provider_and_no_llm(tmp_path, monkeypatch):
 
 def test_default_provider_is_gemma(tmp_path, monkeypatch):
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.delenv("LLM_MODEL", raising=False)
     monkeypatch.setenv("GEMINI_API_KEY", "test-not-a-real-key")
     client = llm.get_client(cache_dir=tmp_path)
     assert client.provider.name == "gemma"
-    assert client.provider.model == "gemma-3-27b-it"
+    assert client.provider.model == "gemma-4-31b-it"
 
 
 def test_featherless_provider_configures(tmp_path, monkeypatch):
@@ -177,7 +178,24 @@ def test_gemma_folds_system_into_prompt(monkeypatch):
 
     monkeypatch.setattr(prov._client.models, "generate_content", fake_generate_content)
     assert prov.generate("question", system="rules", temperature=0.0, max_tokens=5) == "ok"
-    assert seen["model"] == "gemma-3-27b-it"
+    assert seen["model"] == "gemma-4-31b-it"
     assert seen["contents"] == "rules\n\nquestion"
     assert seen["config"].system_instruction is None
     assert seen["config"].max_output_tokens == 5
+
+
+def test_llm_model_overrides_default(tmp_path, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test-not-a-real-key")
+    monkeypatch.setenv("LLM_MODEL", "gemma-4-26b-a4b-it")
+    client = llm.get_client("gemma", cache_dir=tmp_path)
+    assert client.provider.model == "gemma-4-26b-a4b-it"
+    assert llm.get_client("none", cache_dir=tmp_path).provider.model == "none"
+
+
+def test_featherless_and_gemma_cache_keys_differ(tmp_path, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test-not-a-real-key")
+    monkeypatch.setenv("FEATHERLESS_API_KEY", "test-not-a-real-key")
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    g = llm.get_client("gemma", cache_dir=tmp_path)
+    f = llm.get_client("featherless", cache_dir=tmp_path)
+    assert g.cache_key("p", None, 0.0, 5) != f.cache_key("p", None, 0.0, 5)
