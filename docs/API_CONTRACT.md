@@ -8,7 +8,7 @@ For the front-end agent and for whoever builds `api/main.py` in Phase 9. The JSO
 | --- | --- |
 | Manifest, labels, findings, plan, transform stats, pets-eval scorecard, leaderboard rows | Real. Produced by the pipeline today. |
 | Scenario list with utility tasks | Real. Read from the public `scenarios.json` and the pets-eval task registry. |
-| `gate`, `residual_risks`, `k` summary | Shape fixed here. The pipeline does not produce them yet. Fixture values are computed by the exporter from the real scorecard with the rule in section 4.5. The gate limit (0.02) is a placeholder. |
+| `gate`, `residual_risks`, `k` summary | Shape fixed here. The pipeline does not produce them yet. The gate is produced by `verify.build_gate` with the rule in section 4.5 (thresholds in `api/pipeline/config.py`). Fixtures are exported from the real scorecards. |
 | `ablation` | Shape fixed here. Always `[]` until Phase 7. |
 | `spans`, `per_label`, `surrogate_text` in the redact stage | Shape fixed here. Empty until Phase 5. Text is released unredacted today. |
 | `policy_card` in the report stage | Shape not fixed yet. `null` until Phase 8. |
@@ -314,20 +314,28 @@ Notes for the UI:
 - `utility` has one entry per task of the scenario. `required` is `true` for the scenario's own tasks. `score` is `null` with `metric: "not answerable"` when columns the task needs were removed.
 - `summary.privacy`, `utility` and `composite` are the headline numbers. They carry the `label` above.
 
-**Gate** (placeholder rule, see section 0):
+**Gate** (the release gate of `docs/ARCHITECTURE.md`; thresholds live in `api/pipeline/config.py`):
 
 ```json
-{"passed": false, "scenario_id": "CS-S1", "blocking": ["risk.turns_free_text_identifier_leakage"],
+{"passed": false, "scenario_id": "CS-S1", "blocking": ["risk_vs_baseline", "text_leakage"],
  "checks": [
-   {"id": "risk.turns_free_text_identifier_leakage", "name": "turns: free-text identifier leakage",
-    "kind": "risk", "status": "fail", "value": 1.0, "threshold": 0.02, "comparison": "at_most",
-    "source": "pets-eval risk component"},
-   {"id": "k.conversations", "name": "k-anonymity of conversations", "kind": "k", "status": "pass",
-    "value": 751, "threshold": 5, "comparison": "at_least", "source": "pyCANON"}
+   {"id": "direct_identifiers", "name": "Residual direct identifiers", "kind": "direct_identifiers",
+    "status": "pass", "value": 0.0, "threshold": 0.0, "comparison": "at_most",
+    "reason": "No direct identifier is retained in any released table.", "source": "pets-eval"},
+   {"id": "k_anonymity", "name": "k-anonymity", "kind": "k", "status": "pass", "value": 751,
+    "threshold": 5, "comparison": "at_least",
+    "reason": "pyCANON finds k = 751 on the released quasi-identifiers.", "source": "pyCANON"},
+   {"id": "risk_vs_baseline", "name": "Risk components against B2-k", "kind": "baseline",
+    "status": "fail", "value": 1, "threshold": 0, "comparison": "at_most",
+    "reason": "Not lower than B2-k: turns: free-text identifier leakage.", "source": "pets-eval",
+    "details": [{"name": "turns: free-text identifier leakage", "ours": 1.0, "baseline": 0.8012, "ok": false}]},
+   {"id": "text_leakage", "name": "Identifying leakage in free text", "kind": "text",
+    "status": "fail", "value": 1.0, "threshold": 0.1, "comparison": "at_most",
+    "reason": "Identifying leakage is 1.000 in turns.text, above the limit of 0.10.", "source": "pets-eval"}
  ]}
 ```
 
-`passed` is `true` when `blocking` is empty. `checks` has one `risk` check per key of `ours.risk_components` and one `k` check per released table that keeps quasi-identifiers. `status` is `pass` or `fail`. `comparison` is `at_most` or `at_least`. Show a failed gate as an error notification that names the checks in `blocking`.
+Always exactly four checks, in this order, ids fixed: `direct_identifiers` (every "direct identifiers retained" component is 0), `k_anonymity` (pyCANON k at least 5 for every released table with quasi-identifiers; passes with `value: null` when none is released), `risk_vs_baseline` (every risk component that ours and B2-k both measure is lower than B2-k's, or both are 0; `value` is the number of components that are not; `details` lists each compared component; fails when no B2-k scorecard exists) and `text_leakage` (identifying leakage of every released free-text column at most 0.10; `value` is the worst rate, `null` when no text column is released). `reason` is a plain sentence written by the server, shown as is. `passed` is `true` when `blocking` is empty. `status` is `pass` or `fail`. `comparison` is `at_most`, `at_least`. Show a failed gate as an error notification that names the checks in `blocking`. The gate is also written to `06_gate.json`.
 
 **KSummary**: `{"table": "conversations", "qis": ["language"], "pipeline_k": 751, "pycanon_k": 751, "method": "level search"}`. The list is empty when no quasi-identifier is kept. Show `pycanon_k` next to `pipeline_k`.
 

@@ -58,11 +58,7 @@
       "identifying_leakage_rate": 0.0
      }
     },
-    "regex_residuals": {
-     "conversation_id": {
-      "PHONE": 2
-     }
-    },
+    "regex_residuals": {},
     "risks": {
      "direct identifiers retained": 0.0,
      "free-text identifier leakage": 0.0
@@ -200,9 +196,6 @@
      }
     },
     "regex_residuals": {
-     "conversation_id": {
-      "PHONE": 12
-     },
      "text": {
       "NATIONAL_ID": 379,
       "IBAN": 145,
@@ -753,55 +746,91 @@
   "scenario_id": "CS-S1",
   "checks": [
    {
-    "id": "risk.conversations_direct_identifiers_retained",
-    "name": "conversations: direct identifiers retained",
-    "kind": "risk",
+    "id": "direct_identifiers",
+    "name": "Residual direct identifiers",
+    "kind": "direct_identifiers",
     "status": "pass",
     "value": 0.0,
-    "threshold": 0.02,
+    "threshold": 0.0,
     "comparison": "at_most",
-    "source": "pets-eval risk component"
+    "reason": "No direct identifier is retained in any released table.",
+    "source": "pets-eval"
    },
    {
-    "id": "risk.conversations_free_text_identifier_leakage",
-    "name": "conversations: free-text identifier leakage",
-    "kind": "risk",
+    "id": "k_anonymity",
+    "name": "k-anonymity",
+    "kind": "k",
     "status": "pass",
-    "value": 0.0,
-    "threshold": 0.02,
-    "comparison": "at_most",
-    "source": "pets-eval risk component"
+    "value": null,
+    "threshold": 5,
+    "comparison": "at_least",
+    "reason": "No quasi-identifier is released, so there is nothing to group.",
+    "source": "plan"
    },
    {
-    "id": "risk.turns_direct_identifiers_retained",
-    "name": "turns: direct identifiers retained",
-    "kind": "risk",
-    "status": "pass",
-    "value": 0.0,
-    "threshold": 0.02,
+    "id": "risk_vs_baseline",
+    "name": "Risk components against B2-k",
+    "kind": "baseline",
+    "status": "fail",
+    "value": 1,
+    "threshold": 0,
     "comparison": "at_most",
-    "source": "pets-eval risk component"
+    "reason": "Not lower than B2-k: turns: free-text identifier leakage.",
+    "source": "pets-eval",
+    "details": [
+     {
+      "name": "conversations: direct identifiers retained",
+      "ours": 0.0,
+      "baseline": 0.0,
+      "ok": true
+     },
+     {
+      "name": "conversations: free-text identifier leakage",
+      "ours": 0.0,
+      "baseline": 0.8286,
+      "ok": true
+     },
+     {
+      "name": "turns: direct identifiers retained",
+      "ours": 0.0,
+      "baseline": 0.0,
+      "ok": true
+     },
+     {
+      "name": "turns: free-text identifier leakage",
+      "ours": 1.0,
+      "baseline": 0.8012,
+      "ok": false
+     }
+    ]
    },
    {
-    "id": "risk.turns_free_text_identifier_leakage",
-    "name": "turns: free-text identifier leakage",
-    "kind": "risk",
+    "id": "text_leakage",
+    "name": "Identifying leakage in free text",
+    "kind": "text",
     "status": "fail",
     "value": 1.0,
-    "threshold": 0.02,
+    "threshold": 0.1,
     "comparison": "at_most",
-    "source": "pets-eval risk component"
+    "reason": "Identifying leakage is 1.000 in turns.text, above the limit of 0.10.",
+    "source": "pets-eval"
    }
   ],
   "blocking": [
-   "risk.turns_free_text_identifier_leakage"
+   "risk_vs_baseline",
+   "text_leakage"
   ]
  },
  "k": [],
  "residual_risks": [
   {
-   "id": "risk.turns_free_text_identifier_leakage",
-   "text": "turns: free-text identifier leakage: 1.00 (pets-eval), above the gate limit of 0.02.",
+   "id": "risk_vs_baseline",
+   "text": "Not lower than B2-k: turns: free-text identifier leakage.",
+   "source": "pets-eval"
+  },
+  {
+   "id": "text_leakage",
+   "text": "Identifying leakage is 1.000 in turns.text, above the limit of 0.10.",
    "source": "pets-eval"
   },
   {

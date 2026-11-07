@@ -6,8 +6,8 @@ Usage (after the p4-CS-S1 and p4-CS-S3 runs exist and runs/leaderboard.csv is cu
 Shapes are described in docs/API_CONTRACT.md. Reads: runs/<run>/ stage files, the two B2-k
 scorecard.json files, runs/leaderboard.csv, the public scenarios and the customer_service
 turns. Never reads row maps. Checks the output for the HMAC key, row-map names and local paths.
-Parts the pipeline does not produce yet (gate, residual risks, ablation, spans) are
-placeholders computed here and marked in docs/API_CONTRACT.md.
+The gate comes from verify.build_gate. Parts the pipeline does not produce yet (residual
+risks, ablation, spans) are placeholders computed here and marked in docs/API_CONTRACT.md.
 """
 
 from __future__ import annotations
@@ -20,13 +20,12 @@ from pathlib import Path
 
 from api.pipeline import io
 from api.pipeline import plan as pl
+from api.pipeline import verify as vf
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNS = ROOT / "runs"
 OUT = ROOT / "web" / "fixtures"
 SCENARIOS = ("CS-S1", "CS-S3")
-GATE_MAX_RISK = 0.02  # placeholder, see docs/API_CONTRACT.md (gate)
-GATE_MIN_K = 5
 N_TURNS = 20
 STAGES = ("run", "profile", "detect", "plan", "transform", "redact", "verify", "report")
 
@@ -51,35 +50,16 @@ def clean_scorecard(rep: dict, protected_label: str, dataset: str) -> dict:
     return out
 
 
-def gate_for(ours: dict, plan: dict) -> dict:
-    checks = []
-    for name, value in ours["risk_components"].items():
-        ok = value is not None and value <= GATE_MAX_RISK
-        checks.append({"id": f"risk.{slug(name)}", "name": name, "kind": "risk",
-                       "status": "pass" if ok else "fail", "value": value,
-                       "threshold": GATE_MAX_RISK, "comparison": "at_most",
-                       "source": "pets-eval risk component"})  # fmt: skip
-    for pol in plan["policies"]:
-        if pol["action"] == "suppress_k":
-            p = pol["params"]
-            ok = p.get("k_pycanon") is not None and p["k_pycanon"] >= GATE_MIN_K
-            checks.append({"id": f"k.{slug(pol['table'])}", "name": f"k-anonymity of {pol['table']}",
-                           "kind": "k", "status": "pass" if ok else "fail",
-                           "value": p.get("k_pycanon"), "threshold": GATE_MIN_K,
-                           "comparison": "at_least", "source": "pyCANON"})  # fmt: skip
-    failed = [c["id"] for c in checks if c["status"] == "fail"]
-    return {"passed": not failed, "scenario_id": plan["scenario_id"], "checks": checks,
-            "blocking": failed}  # fmt: skip
+def gate_for(ours: dict, b2k: dict, plan: dict) -> dict:
+    return vf.build_gate(ours, b2k, plan["policies"], plan["scenario_id"])
 
 
 def residual_risks(ours: dict, plan: dict, gate: dict) -> list[dict]:
     """Plain statements. Wording follows docs/FACTS.md; numbers come from the scorecard."""
     out = []
     for c in gate["checks"]:
-        if c["status"] == "fail" and c["kind"] == "risk":
-            out.append({"id": c["id"], "text": f"{c['name']}: {c['value']:.2f} (pets-eval), "
-                        f"above the gate limit of {c['threshold']:.2f}.",
-                        "source": "pets-eval"})  # fmt: skip
+        if c["status"] == "fail":
+            out.append({"id": c["id"], "text": c["reason"], "source": c["source"]})
     out.append({"id": "pseudonymised_is_personal_data",
                 "text": "Pseudonymised data is still personal data (GDPR Recital 26).",
                 "source": "docs/FACTS.md"})  # fmt: skip
@@ -174,7 +154,7 @@ def export() -> list[str]:
         b2k = clean_scorecard(
             load(RUNS / "private" / "baselines" / f"b2k_{sid}" / "scorecard.json"),
             "B2-k baseline release", "customer_service")  # fmt: skip
-        gate = gate_for(ours, plan)
+        gate = gate_for(ours, b2k, plan)
         stats = load(run / "04_transform_stats.json")
         write(f"plan.{sid}.json", plan)
         write(f"scorecard.ours.{sid}.json", ours)

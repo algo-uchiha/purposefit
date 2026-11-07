@@ -18,26 +18,41 @@ from pathlib import Path
 
 import pandas as pd
 
+from api.pipeline import config, io
 from api.pipeline import generalise as gen
-from api.pipeline import io
 from api.pipeline.contracts import FieldPolicy, PolicyPlan
 
 log = logging.getLogger("purposefit.transform")
 
-TOKEN_HEX = 20
+PREFIXES = {"conversation_id": "cv", "customer_id": "cu", "patient_id": "pt", "account_id": "ac",
+            "employee_id": "em", "student_id": "st", "card_id": "cd", "device_id": "dv",
+            "session_id": "ss", "user_id": "us", "turn_id": "tn"}  # fmt: skip
 
 
-def pseudonym(key: str, value: str) -> str:
-    """Keyed pseudonym of one value. Equal inputs give equal outputs in every table."""
+def prefix_for(column: str) -> str:
+    """Two lowercase letters naming the column, never digits, so a pseudonym cannot pass for
+    a phone number, card or other identifier. Known columns use PREFIXES; others take the
+    first two letters of the name."""
+    known = PREFIXES.get(column.strip().lower())
+    if known:
+        return known
+    letters = [c for c in column.lower() if "a" <= c <= "z"]
+    return ("".join(letters[:2]) or "id").ljust(2, "x")
+
+
+def pseudonym(key: str, value: str, column: str = "id") -> str:
+    """Keyed pseudonym of one value: a letter prefix per column, then lowercase hex.
+    Equal inputs give equal outputs in every table that uses the same column name."""
     v = value.strip()
     if not v:
         return ""
-    return hmac.new(key.encode(), v.encode("utf-8"), hashlib.sha256).hexdigest()[:TOKEN_HEX]
+    digest = hmac.new(key.encode(), v.encode("utf-8"), hashlib.sha256).hexdigest()
+    return f"{prefix_for(column)}_{digest[:config.PSEUDONYM_HEX]}"
 
 
 def _apply_column(col: pd.Series, p: FieldPolicy, key: str) -> pd.Series:
     if p.action == "hmac":
-        return col.map(lambda v: pseudonym(key, v))
+        return col.map(lambda v: pseudonym(key, v, p.column))
     if p.action == "generalise":
         return gen.apply_level(col, p.params["level"])
     return col

@@ -8,7 +8,7 @@
  "turns": [
   {
    "record_id": "T0000001",
-   "conversation_id": "e814fabe647694efd49d",
+   "conversation_id": "cv_e814fabe647694efd49d",
    "original_text": "aallokko kundtjänst det är stefan hur kan jag hjälpa till",
    "protected_text": "aallokko kundtjänst det är stefan hur kan jag hjälpa till",
    "surrogate_text": null,
@@ -16,7 +16,7 @@
   },
   {
    "record_id": "T0000002",
-   "conversation_id": "e814fabe647694efd49d",
+   "conversation_id": "cv_e814fabe647694efd49d",
    "original_text": "hej jag heter oscar lindberg det är fel på avbetalningen för telefonen månadsbeloppet har höjts",
    "protected_text": "hej jag heter oscar lindberg det är fel på avbetalningen för telefonen månadsbeloppet har höjts",
    "surrogate_text": null,
@@ -24,7 +24,7 @@
   },
   {
    "record_id": "T0000003",
-   "conversation_id": "e814fabe647694efd49d",
+   "conversation_id": "cv_e814fabe647694efd49d",
    "original_text": "kan jag få ditt kundnummer eller personbeteckning",
    "protected_text": "kan jag få ditt kundnummer eller personbeteckning",
    "surrogate_text": null,
@@ -32,7 +32,7 @@
   },
   {
    "record_id": "T0000004",
-   "conversation_id": "e814fabe647694efd49d",
+   "conversation_id": "cv_e814fabe647694efd49d",
    "original_text": "oscar lindberg personbeteckningen är 070889 streck 965 2",
    "protected_text": "oscar lindberg personbeteckningen är 070889 streck 965 2",
    "surrogate_text": null,
@@ -40,7 +40,7 @@
   },
   {
    "record_id": "T0000005",
-   "conversation_id": "e814fabe647694efd49d",
+   "conversation_id": "cv_e814fabe647694efd49d",
    "original_text": "tack oscar nu är du verifierad",
    "protected_text": "tack oscar nu är du verifierad",
    "surrogate_text": null,
@@ -48,7 +48,7 @@
   },
   {
    "record_id": "T0000006",
-   "conversation_id": "e814fabe647694efd49d",
+   "conversation_id": "cv_e814fabe647694efd49d",
    "original_text": "det återstår 156,01 euro på avbetalningen",
    "protected_text": "det återstår 156,01 euro på avbetalningen",
    "surrogate_text": null,
@@ -56,7 +56,7 @@
   },
   {
    "record_id": "T0000007",
-   "conversation_id": "e814fabe647694efd49d",
+   "conversation_id": "cv_e814fabe647694efd49d",
    "original_text": "jag vill betala allt nu",
    "protected_text": "jag vill betala allt nu",
    "surrogate_text": null,
@@ -64,7 +64,7 @@
   },
   {
    "record_id": "T0000008",
-   "conversation_id": "e814fabe647694efd49d",
+   "conversation_id": "cv_e814fabe647694efd49d",
    "original_text": "jag skickar en slutfaktura",
    "protected_text": "jag skickar en slutfaktura",
    "surrogate_text": null,
@@ -72,7 +72,7 @@
   },
   {
    "record_id": "T0000009",
-   "conversation_id": "e814fabe647694efd49d",
+   "conversation_id": "cv_e814fabe647694efd49d",
    "original_text": "var det något mer ja jag kan hjälpa till med",
    "protected_text": "var det något mer ja jag kan hjälpa till med",
    "surrogate_text": null,
@@ -80,7 +80,7 @@
   },
   {
    "record_id": "T0000010",
-   "conversation_id": "e814fabe647694efd49d",
+   "conversation_id": "cv_e814fabe647694efd49d",
    "original_text": "nej det var alltså allt tack",
    "protected_text": "nej det var alltså allt tack",
    "surrogate_text": null,
@@ -88,7 +88,7 @@
   },
   {
    "record_id": "T0000011",
-   "conversation_id": "0faaf1d94828c9d77fc4",
+   "conversation_id": "cv_0faaf1d94828c9d77fc4",
    "original_text": "Welcome to Aallokko chat! Type your question and I'll connect you to the right team.",
    "protected_text": "Welcome to Aallokko chat! Type your question and I'll connect you to the right team.",
    "surrogate_text": null,
@@ -96,7 +96,7 @@
   },
   {
    "record_id": "T0000012",
-   "conversation_id": "0faaf1d94828c9d77fc4",
+   "conversation_id": "cv_0faaf1d94828c9d77fc4",
    "original_text": "My spot-price electricity bill for December was €113.67, is that right?",
    "protected_text": "My spot-price electricity bill for December was €113.67, is that right?",
    "surrogate_text": null,
@@ -104,7 +104,7 @@
   },
   {
    "record_id": "T0000013",
-   "conversation_id": "0faaf1d94828c9d77fc4",
+   "conversation_id": "cv_0faaf1d94828c9d77fc4",
    "original_text": "Got it. Connecting you to a specialist, please hold on.",
    "protected_text": "Got it. Connecting you to a specialist, please hold on.",
    "surrogate_text": null,
@@ -112,7 +112,7 @@
   },
   {
    "record_id": "T0000014",
-   "conversation_id": "0faaf1d94828c9d77fc4",
+   "conversation_id": "cv_0faaf1d94828c9d77fc4",
    "original_text": "Hi, this is Kristina from Aallokko 👋 I've read your message, let's sort this out.",
    "protected_text": "Hi, this is Kristina from Aallokko 👋 I've read your message, let's sort this out.",
    "surrogate_text": null,
@@ -120,7 +120,7 @@
   },
   {
    "record_id": "T0000015",
-   "conversation_id": "0faaf1d94828c9d77fc4",
+   "conversation_id": "cv_0faaf1d94828c9d77fc4",
    "original_text": "First I need to verify your identity. Could you give me your full name and personal identity code?",
    "protected_text": "First I need to verify your identity. Could you give me your full name and personal identity code?",
    "surrogate_text": null,
@@ -128,7 +128,7 @@
   },
   {
    "record_id": "T0000016",
-   "conversation_id": "0faaf1d94828c9d77fc4",
+   "conversation_id": "cv_0faaf1d94828c9d77fc4",
    "original_text": "251263-976J",
    "protected_text": "251263-976J",
    "surrogate_text": null,
@@ -136,7 +136,7 @@
   },
   {
    "record_id": "T0000017",
-   "conversation_id": "0faaf1d94828c9d77fc4",
+   "conversation_id": "cv_0faaf1d94828c9d77fc4",
    "original_text": "Thank you, I've found your account.",
    "protected_text": "Thank you, I've found your account.",
    "surrogate_text": null,
@@ -144,7 +144,7 @@
   },
   {
    "record_id": "T0000018",
-   "conversation_id": "0faaf1d94828c9d77fc4",
+   "conversation_id": "cv_0faaf1d94828c9d77fc4",
    "original_text": "The fixed price is 8.9 c/kWh for 12 months.",
    "protected_text": "The fixed price is 8.9 c/kWh for 12 months.",
    "surrogate_text": null,
@@ -152,7 +152,7 @@
   },
   {
    "record_id": "T0000019",
-   "conversation_id": "0faaf1d94828c9d77fc4",
+   "conversation_id": "cv_0faaf1d94828c9d77fc4",
    "original_text": "Sounds good.",
    "protected_text": "Sounds good.",
    "surrogate_text": null,
@@ -160,7 +160,7 @@
   },
   {
    "record_id": "T0000020",
-   "conversation_id": "0faaf1d94828c9d77fc4",
+   "conversation_id": "cv_0faaf1d94828c9d77fc4",
    "original_text": "You'll get a confirmation email.",
    "protected_text": "You'll get a confirmation email.",
    "surrogate_text": null,

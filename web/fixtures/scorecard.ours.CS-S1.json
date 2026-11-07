@@ -56,11 +56,7 @@
      "identifying_leakage_rate": 0.0
     }
    },
-   "regex_residuals": {
-    "conversation_id": {
-     "PHONE": 2
-    }
-   },
+   "regex_residuals": {},
    "risks": {
     "direct identifiers retained": 0.0,
     "free-text identifier leakage": 0.0
@@ -198,9 +194,6 @@
     }
    },
    "regex_residuals": {
-    "conversation_id": {
-     "PHONE": 12
-    },
     "text": {
      "NATIONAL_ID": 379,
      "IBAN": 145,

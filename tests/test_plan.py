@@ -306,3 +306,14 @@ def test_worst_risk_names_nothing_when_all_risks_are_zero():
 
     assert vf.worst_risk({"risk_components": {"a": 0.0, "b": 0.0}}) == (0.0, "")
     assert vf.worst_risk({"risk_components": {"a": 0.2, "b": 0.7}}) == (0.7, "b")
+
+
+def test_pseudonym_has_letter_prefix_and_lowercase_hex():
+    import re
+
+    tok = tr.pseudonym("k1", "C1", "conversation_id")
+    assert re.fullmatch(r"cv_[0-9a-f]{20}", tok)
+    assert tr.pseudonym("k1", "C1", "customer_id").startswith("cu_")
+    assert re.fullmatch(r"[a-z]{2}_[0-9a-f]{20}", tr.pseudonym("k1", "C1", "Weird Column"))
+    assert not re.search(r"\d{6}", tok.split("_")[0])
+    assert tr.pseudonym("k1", "C1", "conversation_id") == tr.pseudonym("k1", " C1 ", "conversation_id")

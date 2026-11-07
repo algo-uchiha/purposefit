@@ -80,11 +80,7 @@
      "identifying_leakage_rate": 0.0
     }
    },
-   "regex_residuals": {
-    "conversation_id": {
-     "PHONE": 2
-    }
-   },
+   "regex_residuals": {},
    "risks": {
     "direct identifiers retained": 0.0,
     "records with k<5": 0.0,
