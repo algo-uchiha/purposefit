@@ -1,0 +1,73 @@
+{
+ "run_id": "p4-CS-S1",
+ "dataset": "customer_service",
+ "scenario_id": "CS-S1",
+ "status": "done",
+ "created_utc": "2026-11-07T23:40:04+00:00",
+ "git_hash": "8c60fac",
+ "key_id": "39ffd61450cc",
+ "seed": 20261107,
+ "llm": {
+  "provider": "none",
+  "model": "none"
+ },
+ "layers": {
+  "llm": false,
+  "ner": false,
+  "gazetteer": false
+ },
+ "stages": [
+  {
+   "stage": "run",
+   "status": "done",
+   "duration_ms": null
+  },
+  {
+   "stage": "profile",
+   "status": "done",
+   "duration_ms": null
+  },
+  {
+   "stage": "detect",
+   "status": "done",
+   "duration_ms": null
+  },
+  {
+   "stage": "plan",
+   "status": "done",
+   "duration_ms": null
+  },
+  {
+   "stage": "transform",
+   "status": "done",
+   "duration_ms": 942
+  },
+  {
+   "stage": "redact",
+   "status": "pending",
+   "duration_ms": null
+  },
+  {
+   "stage": "verify",
+   "status": "done",
+   "duration_ms": null
+  },
+  {
+   "stage": "report",
+   "status": "done",
+   "duration_ms": null
+  }
+ ],
+ "gate": {
+  "passed": false,
+  "blocking": [
+   "risk.turns_free_text_identifier_leakage"
+  ]
+ },
+ "headline": {
+  "privacy": 0.375,
+  "utility": 1.0,
+  "composite": 0.5238
+ },
+ "error": null
+}

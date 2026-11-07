@@ -1,0 +1,403 @@
+{
+ "dataset": "customer_service",
+ "labels": [
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "conversation_id",
+   "privacy_role": "record_key",
+   "subtype": "RECORD_ID",
+   "confidence": 0.9,
+   "reason": "first column with a unique value in every row [record_key]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "customer_id",
+   "privacy_role": "technical_identifier",
+   "subtype": "CUSTOMER_ID",
+   "confidence": 0.8,
+   "reason": "identifier that links to another record [foreign_key]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "agent_id",
+   "privacy_role": "technical_identifier",
+   "subtype": "EMPLOYEE_ID",
+   "confidence": 0.8,
+   "reason": "identifier that links to another record [foreign_key]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "agent_name",
+   "privacy_role": "direct_identifier",
+   "subtype": "PERSON_NAME",
+   "confidence": 0.85,
+   "reason": "column name has 'name' with 'agent' [name_direct]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "channel",
+   "privacy_role": "non_sensitive",
+   "subtype": "CATEGORY",
+   "confidence": 0.4,
+   "reason": "no name or value rule matched [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "language",
+   "privacy_role": "quasi_identifier",
+   "subtype": "LANGUAGE",
+   "confidence": 0.75,
+   "reason": "column name has 'language' [name_quasi]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "started_ts",
+   "privacy_role": "quasi_identifier",
+   "subtype": "TIMESTAMP",
+   "confidence": 0.75,
+   "reason": "column name has 'ts' [name_quasi]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "intent",
+   "privacy_role": "non_sensitive",
+   "subtype": "CATEGORY",
+   "confidence": 0.4,
+   "reason": "no name or value rule matched [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "sentiment",
+   "privacy_role": "non_sensitive",
+   "subtype": "CATEGORY",
+   "confidence": 0.4,
+   "reason": "no name or value rule matched [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "csat",
+   "privacy_role": "non_sensitive",
+   "subtype": "MEASUREMENT",
+   "confidence": 0.4,
+   "reason": "numeric values, no name match [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "resolved",
+   "privacy_role": "non_sensitive",
+   "subtype": "CATEGORY",
+   "confidence": 0.4,
+   "reason": "no name or value rule matched [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "handle_time_s",
+   "privacy_role": "non_sensitive",
+   "subtype": "DURATION",
+   "confidence": 0.7,
+   "reason": "numeric values and column name has 'time_s', a duration [name_duration]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "n_turns",
+   "privacy_role": "non_sensitive",
+   "subtype": "MEASUREMENT",
+   "confidence": 0.4,
+   "reason": "numeric values, no name match [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "split",
+   "privacy_role": "non_sensitive",
+   "subtype": "CATEGORY",
+   "confidence": 0.4,
+   "reason": "no name or value rule matched [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "conversations",
+   "column": "agent_note",
+   "privacy_role": "free_text",
+   "subtype": "FREE_TEXT",
+   "confidence": 0.85,
+   "reason": "column name has 'note' and values are text [name_free_text]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "customer_id",
+   "privacy_role": "record_key",
+   "subtype": "CUSTOMER_ID",
+   "confidence": 0.9,
+   "reason": "first column with a unique value in every row [record_key]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "customer_number",
+   "privacy_role": "direct_identifier",
+   "subtype": "CUSTOMER_ID",
+   "confidence": 0.85,
+   "reason": "column name has 'customer_number' [name_direct]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "full_name",
+   "privacy_role": "direct_identifier",
+   "subtype": "PERSON_NAME",
+   "confidence": 0.85,
+   "reason": "column name has 'name' with 'full' [name_direct]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "hetu",
+   "privacy_role": "direct_identifier",
+   "subtype": "NATIONAL_ID",
+   "confidence": 0.9,
+   "reason": "values pass the HETU checksum (100% of sampled values) [value_strong]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "street_address",
+   "privacy_role": "direct_identifier",
+   "subtype": "STREET_ADDRESS",
+   "confidence": 0.8,
+   "reason": "values look like street addresses [value_strong]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "postcode",
+   "privacy_role": "quasi_identifier",
+   "subtype": "POSTCODE",
+   "confidence": 0.75,
+   "reason": "column name has 'postcode' [name_quasi]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "city",
+   "privacy_role": "quasi_identifier",
+   "subtype": "MUNICIPALITY",
+   "confidence": 0.75,
+   "reason": "column name has 'city' [name_quasi]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "email",
+   "privacy_role": "direct_identifier",
+   "subtype": "EMAIL",
+   "confidence": 0.9,
+   "reason": "values are email addresses (100% of sampled values) [value_strong]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "phone",
+   "privacy_role": "direct_identifier",
+   "subtype": "PHONE",
+   "confidence": 0.9,
+   "reason": "values are Finnish phone numbers (100% of sampled values) [value_strong]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "preferred_language",
+   "privacy_role": "quasi_identifier",
+   "subtype": "LANGUAGE",
+   "confidence": 0.75,
+   "reason": "column name has 'language' [name_quasi]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "customer_since",
+   "privacy_role": "quasi_identifier",
+   "subtype": "DATE",
+   "confidence": 0.75,
+   "reason": "column name has 'since' [name_quasi]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "products",
+   "privacy_role": "non_sensitive",
+   "subtype": "CATEGORY",
+   "confidence": 0.4,
+   "reason": "no name or value rule matched [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "contract_number",
+   "privacy_role": "direct_identifier",
+   "subtype": "ACCOUNT_ID",
+   "confidence": 0.85,
+   "reason": "column name has 'contract_number' [name_direct]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "payment_method",
+   "privacy_role": "non_sensitive",
+   "subtype": "CATEGORY",
+   "confidence": 0.4,
+   "reason": "no name or value rule matched [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "iban",
+   "privacy_role": "direct_identifier",
+   "subtype": "IBAN",
+   "confidence": 0.9,
+   "reason": "values pass the IBAN mod 97 check (100% of sampled values) [value_strong]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "marketing_consent",
+   "privacy_role": "non_sensitive",
+   "subtype": "CATEGORY",
+   "confidence": 0.4,
+   "reason": "no name or value rule matched [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "payment_default_flag",
+   "privacy_role": "sensitive_attribute",
+   "subtype": "FINANCIAL_DATA",
+   "confidence": 0.75,
+   "reason": "column name has 'default' [name_sensitive]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "customers",
+   "column": "accessibility_needs",
+   "privacy_role": "sensitive_attribute",
+   "subtype": "HEALTH_DATA",
+   "confidence": 0.75,
+   "reason": "column name has 'accessibility' [name_sensitive]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "turns",
+   "column": "turn_id",
+   "privacy_role": "record_key",
+   "subtype": "RECORD_ID",
+   "confidence": 0.9,
+   "reason": "first column with a unique value in every row [record_key]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "turns",
+   "column": "conversation_id",
+   "privacy_role": "technical_identifier",
+   "subtype": "RECORD_ID",
+   "confidence": 0.8,
+   "reason": "identifier that links to another record [foreign_key]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "turns",
+   "column": "seq",
+   "privacy_role": "non_sensitive",
+   "subtype": "MEASUREMENT",
+   "confidence": 0.4,
+   "reason": "numeric values, no name match [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "turns",
+   "column": "speaker",
+   "privacy_role": "non_sensitive",
+   "subtype": "CATEGORY",
+   "confidence": 0.4,
+   "reason": "no name or value rule matched [default]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "turns",
+   "column": "ts",
+   "privacy_role": "quasi_identifier",
+   "subtype": "TIMESTAMP",
+   "confidence": 0.75,
+   "reason": "column name has 'ts' [name_quasi]",
+   "source": "rule"
+  },
+  {
+   "dataset": "customer_service",
+   "table": "turns",
+   "column": "text",
+   "privacy_role": "free_text",
+   "subtype": "FREE_TEXT",
+   "confidence": 0.85,
+   "reason": "column name has 'text' and values are text [name_free_text]",
+   "source": "rule"
+  }
+ ],
+ "findings": [],
+ "stats": {
+  "columns": 39,
+  "llm": {
+   "status": "off"
+  },
+  "llm_threshold": 0.6
+ }
+}

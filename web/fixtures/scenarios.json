@@ -1,0 +1,1005 @@
+{
+ "datasets": [
+  {
+   "id": "customer_service",
+   "available": true,
+   "scenario_ids": [
+    "CS-S1",
+    "CS-S2",
+    "CS-S3"
+   ]
+  },
+  {
+   "id": "cyber",
+   "available": false,
+   "scenario_ids": [
+    "CYBER-S1",
+    "CYBER-S2",
+    "CYBER-S3"
+   ]
+  },
+  {
+   "id": "education",
+   "available": false,
+   "scenario_ids": [
+    "EDU-S1",
+    "EDU-S2",
+    "EDU-S3"
+   ]
+  },
+  {
+   "id": "energy",
+   "available": false,
+   "scenario_ids": [
+    "ENERGY-S1",
+    "ENERGY-S2",
+    "ENERGY-S3"
+   ]
+  },
+  {
+   "id": "finance",
+   "available": false,
+   "scenario_ids": [
+    "FIN-S1",
+    "FIN-S2",
+    "FIN-S3"
+   ]
+  },
+  {
+   "id": "health",
+   "available": false,
+   "scenario_ids": [
+    "HEALTH-S1",
+    "HEALTH-S2",
+    "HEALTH-S3"
+   ]
+  },
+  {
+   "id": "mobility",
+   "available": false,
+   "scenario_ids": [
+    "MOB-S1",
+    "MOB-S2",
+    "MOB-S3"
+   ]
+  },
+  {
+   "id": "public_admin",
+   "available": false,
+   "scenario_ids": [
+    "PUB-S1",
+    "PUB-S2",
+    "PUB-S3"
+   ]
+  },
+  {
+   "id": "smart_city",
+   "available": false,
+   "scenario_ids": [
+    "CITY-S1",
+    "CITY-S2",
+    "CITY-S3"
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "HEALTH-S1",
+   "dataset": "health",
+   "title": "Secondary-use research in a controlled environment",
+   "recipient": "University research group studying ED crowding and revisits",
+   "purpose": "Analyse length of stay, revisits and diagnosis patterns",
+   "trust_level": "controlled_research",
+   "threat_model": "Researcher with access to public_directory, news_clips_health and social_posts_health; may try record linkage on QIs (age, sex, municipality, arrival time).",
+   "suggested_privacy_targets": "No direct identifiers; consistent pseudonymous patient key; QIs generalised so that k>=5 on (age band, sex, municipality, arrival week); free text redacted (recall >=0.95 on PERSON/PHONE/ADDRESS/NATIONAL_ID).",
+   "utility_tasks": [
+    {
+     "id": "H-U2",
+     "table": "ed_visits",
+     "kind": "aggregate",
+     "description": "Median length of stay by triage level"
+    },
+    {
+     "id": "H-U4",
+     "table": "ed_visits",
+     "kind": "distribution",
+     "description": "Diagnosis-group mix in the eight largest municipalities"
+    },
+    {
+     "id": "H-U6",
+     "table": "ed_visits",
+     "kind": "relationship",
+     "description": "30-day revisit rate by age band (needs readmit_30d or a consistent patient pseudonym)"
+    },
+    {
+     "id": "H-U7",
+     "table": "lab_results",
+     "kind": "relationship",
+     "description": "CRP vs temperature relationship and CRP by diagnosis group (needs visit join)"
+    },
+    {
+     "id": "H-U8",
+     "table": "ed_visits",
+     "kind": "distribution",
+     "description": "Hour-of-day arrival curve"
+    }
+   ]
+  },
+  {
+   "id": "HEALTH-S2",
+   "dataset": "health",
+   "title": "Public weekly dashboard",
+   "recipient": "Anyone (open data portal)",
+   "purpose": "Weekly ED load, influenza-like illness and injury trends by age band and municipality",
+   "trust_level": "public",
+   "threat_model": "Any outsider with news clips, social posts and the public directory; can download every weekly release and difference them.",
+   "suggested_privacy_targets": "Aggregate only; differential privacy with a stated mechanism and ε (e.g. ε<=1 per weekly release, documented composition) or suppression of cells <5 with complementary suppression.",
+   "utility_tasks": [
+    {
+     "id": "H-U1",
+     "table": "ed_visits",
+     "kind": "aggregate",
+     "description": "Weekly influenza-like-illness visits by 10-year age band"
+    },
+    {
+     "id": "H-U8",
+     "table": "ed_visits",
+     "kind": "distribution",
+     "description": "Hour-of-day arrival curve"
+    },
+    {
+     "id": "H-DP",
+     "table": "ed_visits",
+     "kind": "aggregate",
+     "description": "DP query workload (metadata/dp_query_workload_health.json): mean relative error"
+    }
+   ]
+  },
+  {
+   "id": "HEALTH-S3",
+   "dataset": "health",
+   "title": "AI vendor training a triage-support model",
+   "recipient": "External AI vendor under a data-processing agreement",
+   "purpose": "Train a model predicting admission from triage-time information",
+   "trust_level": "contractual",
+   "threat_model": "Vendor staff or a breach; membership inference on synthetic data; memorised rare patients.",
+   "suggested_privacy_targets": "Fully synthetic or strongly generalised training table without free text; membership-inference AUC close to 0.5 against holdout; no record closer to a real one than real records are to each other.",
+   "utility_tasks": [
+    {
+     "id": "H-U3",
+     "table": "ed_visits",
+     "kind": "model",
+     "description": "Admission prediction: train on protected, test on original/holdout (AUC ratio)"
+    },
+    {
+     "id": "H-U5",
+     "table": "ed_visits",
+     "kind": "distribution",
+     "description": "Distributions of systolic BP, heart rate, temperature and SpO2"
+    },
+    {
+     "id": "H-U2",
+     "table": "ed_visits",
+     "kind": "aggregate",
+     "description": "Median length of stay by triage level"
+    }
+   ]
+  },
+  {
+   "id": "MOB-S1",
+   "dataset": "mobility",
+   "title": "Open data: public-transport origin-destination matrices",
+   "recipient": "Anyone (municipal open data portal, CC BY 4.0)",
+   "purpose": "Publish weekly OD flows between areas by hour band for journey planners, researchers and citizens.",
+   "trust_level": "public",
+   "threat_model": "Any outsider with public_directory, social_checkins and fitness_app_leak; can see a neighbour at a stop.",
+   "suggested_privacy_targets": "No row-level data; no card ids; suppress or noise OD cells < 10 trips; consider ε-DP counts per release.",
+   "utility_tasks": [
+    {
+     "id": "MOB-U1",
+     "table": "taps",
+     "kind": "aggregate",
+     "description": "Weekday OD matrix area x area x hour band (trip chaining)"
+    },
+    {
+     "id": "MOB-U2",
+     "table": "taps",
+     "kind": "aggregate",
+     "description": "Weekday boardings by line x hour"
+    },
+    {
+     "id": "MOB-U3",
+     "table": "taps",
+     "kind": "aggregate",
+     "description": "Daily boardings time series (school break dip, weekends)"
+    }
+   ]
+  },
+  {
+   "id": "MOB-S2",
+   "dataset": "mobility",
+   "title": "Urban planning consultancy: row-level journeys under contract",
+   "recipient": "Planning consultancy (processor under a data processing agreement)",
+   "purpose": "Redesign of the bus network: transfers, commuting corridors, peak loads.",
+   "trust_level": "contractual",
+   "threat_model": "Curious analyst with public_directory + social_checkins; must not be able to single out riders.",
+   "suggested_privacy_targets": "Keyed (HMAC) card pseudonyms rotated per week; no holder fields; times rounded to 5-15 min; trajectory unicity < 5 % with 4 known points.",
+   "utility_tasks": [
+    {
+     "id": "MOB-U1",
+     "table": "taps",
+     "kind": "aggregate",
+     "description": "Weekday OD matrix area x area x hour band (trip chaining)"
+    },
+    {
+     "id": "MOB-U2",
+     "table": "taps",
+     "kind": "aggregate",
+     "description": "Weekday boardings by line x hour"
+    },
+    {
+     "id": "MOB-U4",
+     "table": "bike_trips",
+     "kind": "distribution",
+     "description": "Bike trip duration distribution"
+    },
+    {
+     "id": "MOB-U5",
+     "table": "taps",
+     "kind": "relationship",
+     "description": "Home-area -> work-area commuting flows (card-days)"
+    }
+   ]
+  },
+  {
+   "id": "MOB-S3",
+   "dataset": "mobility",
+   "title": "Academic research on mobility and bikes",
+   "recipient": "University research group (controlled research environment)",
+   "purpose": "Study mode choice between bus and city bike, weather effects, commuting distances.",
+   "trust_level": "controlled_research",
+   "threat_model": "Researcher with all public adversary files; private evaluation adds colleague knowledge (employer + arrival time).",
+   "suggested_privacy_targets": "No email-like accounts; GPS start/end snapped to ≥250 m grid or zones; k ≥ 5 on (home area, work area, card type).",
+   "utility_tasks": [
+    {
+     "id": "MOB-U4",
+     "table": "bike_trips",
+     "kind": "distribution",
+     "description": "Bike trip duration distribution"
+    },
+    {
+     "id": "MOB-U6",
+     "table": "bike_trips",
+     "kind": "aggregate",
+     "description": "Bike zone demand: starts by zone x hour band"
+    },
+    {
+     "id": "MOB-U7",
+     "table": "bike_trips",
+     "kind": "distribution",
+     "description": "Bike ridden-distance distribution"
+    },
+    {
+     "id": "MOB-U8",
+     "table": "cards",
+     "kind": "distribution",
+     "description": "Card-type mix (fare policy)"
+    }
+   ]
+  },
+  {
+   "id": "CITY-S1",
+   "dataset": "smart_city",
+   "title": "Open data: city-centre footfall",
+   "recipient": "Anyone (open data portal)",
+   "purpose": "Publish hourly footfall by zone for businesses, events and citizens.",
+   "trust_level": "public",
+   "threat_model": "Outsider with public plate_sightings and knowledge of when a neighbour walks home.",
+   "suggested_privacy_targets": "Hourly zone-level counts only; suppress or noise counts < 5 (night-time); no MACs, no SSIDs.",
+   "utility_tasks": [
+    {
+     "id": "CITY-U1",
+     "table": "footfall_15min",
+     "kind": "aggregate",
+     "description": "Footfall by zone x hour x weekday/weekend"
+    },
+    {
+     "id": "CITY-U5",
+     "table": "footfall_15min",
+     "kind": "aggregate",
+     "description": "Black Friday uplift vs previous Friday"
+    }
+   ]
+  },
+  {
+   "id": "CITY-S2",
+   "dataset": "smart_city",
+   "title": "Share with the city-centre retail association",
+   "recipient": "Retail association (contract, marketing analytics)",
+   "purpose": "Dwell time, repeat visits, Black Friday and Christmas market effects, parking demand.",
+   "trust_level": "contractual",
+   "threat_model": "Association member with its own loyalty-app device list (private adversary) and plate sightings.",
+   "suggested_privacy_targets": "Daily-rotating keyed pseudonyms for MACs and plates; drop SSIDs and payment fields; coarsen times to 15 min.",
+   "utility_tasks": [
+    {
+     "id": "CITY-U1",
+     "table": "footfall_15min",
+     "kind": "aggregate",
+     "description": "Footfall by zone x hour x weekday/weekend"
+    },
+    {
+     "id": "CITY-U2",
+     "table": "wifi_probes",
+     "kind": "distribution",
+     "description": "Dwell-time distribution per device-day"
+    },
+    {
+     "id": "CITY-U3",
+     "table": "anpr_parking",
+     "kind": "aggregate",
+     "description": "Mean car-park occupancy by hour of day"
+    },
+    {
+     "id": "CITY-U4",
+     "table": "anpr_parking",
+     "kind": "relationship",
+     "description": "Share of repeat visitors (plates seen on >=2 days)"
+    },
+    {
+     "id": "CITY-U5",
+     "table": "footfall_15min",
+     "kind": "aggregate",
+     "description": "Black Friday uplift vs previous Friday"
+    },
+    {
+     "id": "CITY-U6",
+     "table": "anpr_parking",
+     "kind": "distribution",
+     "description": "Parking duration distribution"
+    }
+   ]
+  },
+  {
+   "id": "CITY-S3",
+   "dataset": "smart_city",
+   "title": "Request from police / parking enforcement",
+   "recipient": "Police or parking enforcement unit",
+   "purpose": "A request for all plates and payment details at P-Riverside over two weeks, 'for an investigation'.",
+   "trust_level": "internal",
+   "threat_model": "Function creep: data collected for parking fees reused for surveillance.",
+   "suggested_privacy_targets": "Show what a minimal, case-specific disclosure would contain versus the bulk request; log the disclosure.",
+   "utility_tasks": [
+    {
+     "id": "CITY-U3",
+     "table": "anpr_parking",
+     "kind": "aggregate",
+     "description": "Mean car-park occupancy by hour of day"
+    }
+   ]
+  },
+  {
+   "id": "ENERGY-S1",
+   "dataset": "energy",
+   "title": "Open data: neighbourhood electricity load",
+   "recipient": "Anyone (municipal open-data portal)",
+   "purpose": "Urban energy planning, journalism, research on heating transition.",
+   "trust_level": "public",
+   "threat_model": "Public: vacation_posts + public_directory; neighbours who know their own consumption (differencing).",
+   "suggested_privacy_targets": "Aggregate ≥10 metering points per cell; no individual series; consider DP noise on hourly sums (state ε).",
+   "utility_tasks": [
+    {
+     "id": "ENERGY-U1",
+     "table": "meter_readings_hourly",
+     "kind": "aggregate",
+     "description": "Mean load per 3-digit postcode area × hour of day"
+    },
+    {
+     "id": "ENERGY-U2",
+     "table": "meter_readings_hourly",
+     "kind": "aggregate",
+     "description": "System peak hours (top 50) and daily peak hour"
+    },
+    {
+     "id": "ENERGY-U3",
+     "table": "meter_readings_hourly",
+     "kind": "relationship",
+     "description": "Temperature sensitivity (kWh/day per °C) by heating type"
+    }
+   ]
+  },
+  {
+   "id": "ENERGY-S2",
+   "dataset": "energy",
+   "title": "Row-level hourly data to a flexibility aggregator",
+   "recipient": "Demand-response aggregator (processor under contract)",
+   "purpose": "Identify flexible loads (heat pumps, EV) and forecast them.",
+   "trust_level": "contractual",
+   "threat_model": "Curious insider at the recipient with public_directory and vacation_posts; private: neighbour_knowledge.",
+   "suggested_privacy_targets": "No names/addresses/contacts; keyed pseudonym for metering point; generalise location to ≥3-digit postcode; coarsen or suppress rare attributes; assess absence inference.",
+   "utility_tasks": [
+    {
+     "id": "ENERGY-U2",
+     "table": "meter_readings_hourly",
+     "kind": "aggregate",
+     "description": "System peak hours (top 50) and daily peak hour"
+    },
+    {
+     "id": "ENERGY-U4",
+     "table": "meter_readings_hourly",
+     "kind": "model",
+     "description": "Heating-type classifier: train on protected, test on original"
+    },
+    {
+     "id": "ENERGY-U5",
+     "table": "meter_readings_hourly",
+     "kind": "distribution",
+     "description": "Weekday load-profile clusters (k=5) agreement"
+    },
+    {
+     "id": "ENERGY-U6",
+     "table": "meter_readings_hourly",
+     "kind": "model",
+     "description": "Day-ahead forecast of mean load per meter"
+    }
+   ]
+  },
+  {
+   "id": "ENERGY-S3",
+   "dataset": "energy",
+   "title": "Energy-poverty research dataset",
+   "recipient": "University research group (controlled research environment)",
+   "purpose": "Relate heating type, payment problems and winter consumption.",
+   "trust_level": "controlled_research",
+   "threat_model": "Researcher with public_directory; private: broker_profiles.",
+   "suggested_privacy_targets": "k≥5 on {postcode area, heating_type, floor area band, ev, solar}; remove or noise medical flag; daily rather than hourly values may suffice.",
+   "utility_tasks": [
+    {
+     "id": "ENERGY-U3",
+     "table": "meter_readings_hourly",
+     "kind": "relationship",
+     "description": "Temperature sensitivity (kWh/day per °C) by heating type"
+    },
+    {
+     "id": "ENERGY-U4",
+     "table": "meter_readings_hourly",
+     "kind": "model",
+     "description": "Heating-type classifier: train on protected, test on original"
+    },
+    {
+     "id": "ENERGY-U7",
+     "table": "customers",
+     "kind": "relationship",
+     "description": "Winter consumption by late-payment group × electric heating"
+    }
+   ]
+  },
+  {
+   "id": "FIN-S1",
+   "dataset": "finance",
+   "title": "Cross-bank fraud consortium",
+   "recipient": "Fraud data-sharing consortium of several banks",
+   "purpose": "Pool card transactions to detect fraud patterns that span banks.",
+   "trust_level": "contractual",
+   "threat_model": "Consortium member analyst with receipt_photos_ocr and public_directory; private: merchant_knowledge.",
+   "suggested_privacy_targets": "Keyed tokens (HMAC with consortium key) for PAN/device/IP so the same card links across banks; drop names/contacts; coarsen time to minute; no raw PAN.",
+   "utility_tasks": [
+    {
+     "id": "FIN-U1",
+     "table": "card_transactions",
+     "kind": "model",
+     "description": "Fraud model: train on protected Jul–Oct, test on original Nov–Dec (PR-AUC ratio)"
+    },
+    {
+     "id": "FIN-U5",
+     "table": "transfers",
+     "kind": "detection",
+     "description": "AML rule hits (structuring, rapid pass-through)"
+    }
+   ]
+  },
+  {
+   "id": "FIN-S2",
+   "dataset": "finance",
+   "title": "External AI vendor builds a fraud / spending model",
+   "recipient": "AI vendor (processor)",
+   "purpose": "Train and evaluate a fraud model and a spending-category model.",
+   "trust_level": "contractual",
+   "threat_model": "Vendor staff with public receipts and directory; private: merchant_knowledge, broker_profiles.",
+   "suggested_privacy_targets": "No direct identifiers; tokenised card; generalise merchant to MCC group for sensitive MCCs; k-anonymity on customer profile; consider synthetic data with DCR/MIA checks.",
+   "utility_tasks": [
+    {
+     "id": "FIN-U1",
+     "table": "card_transactions",
+     "kind": "model",
+     "description": "Fraud model: train on protected Jul–Oct, test on original Nov–Dec (PR-AUC ratio)"
+    },
+    {
+     "id": "FIN-U4",
+     "table": "card_transactions",
+     "kind": "distribution",
+     "description": "Card spending-profile segmentation (k=6) agreement"
+    },
+    {
+     "id": "FIN-U6",
+     "table": "customers",
+     "kind": "relationship",
+     "description": "Mean monthly card spend by income band × age band"
+    }
+   ]
+  },
+  {
+   "id": "FIN-S3",
+   "dataset": "finance",
+   "title": "Statistics office: consumer spending statistics",
+   "recipient": "National statistics office / public release",
+   "purpose": "Monthly spending by category and region; payday and seasonal effects.",
+   "trust_level": "public",
+   "threat_model": "Anyone with public receipts; differencing between releases.",
+   "suggested_privacy_targets": "Aggregate tables with ≥10 cardholders per cell; dominance rule for merchants; DP noise on sums (state ε and clipping bound).",
+   "utility_tasks": [
+    {
+     "id": "FIN-U2",
+     "table": "card_transactions",
+     "kind": "aggregate",
+     "description": "Spend by MCC group × merchant city × month"
+    },
+    {
+     "id": "FIN-U3",
+     "table": "card_transactions",
+     "kind": "relationship",
+     "description": "Payday effect: spend by day of month"
+    },
+    {
+     "id": "FIN-U6",
+     "table": "customers",
+     "kind": "relationship",
+     "description": "Mean monthly card spend by income band × age band"
+    }
+   ]
+  },
+  {
+   "id": "CYBER-S1",
+   "dataset": "cyber",
+   "title": "Outsource 24/7 monitoring to an external MSSP",
+   "recipient": "Managed security service provider under a data processing agreement",
+   "purpose": "Detect and investigate threats across sign-in, VPN, proxy, DNS, EDR and e-mail telemetry",
+   "trust_level": "contractual",
+   "threat_model": "Curious MSSP analyst with company_website_staff.csv (public) and general OSINT; may try to learn who is who or what employees browse.",
+   "suggested_privacy_targets": "Keyed (HMAC) pseudonyms for users, hosts and internal IPs, consistent across all tables; secrets and e-mails removed from URLs and command lines; sensitive web categories generalised; re-identification only by the company holding the key.",
+   "utility_tasks": [
+    {
+     "id": "CYBER-U1",
+     "table": "signin_logs",
+     "kind": "detection",
+     "description": "Impossible-travel detection on sign-ins (reference rule, F1 vs labels T1078.004/T1621)."
+    },
+    {
+     "id": "CYBER-U2",
+     "table": "signin_logs",
+     "kind": "detection",
+     "description": "MFA-fatigue detection: >=5 denied pushes in 30 min then approval (labels T1621)."
+    },
+    {
+     "id": "CYBER-U3",
+     "table": "signin_logs",
+     "kind": "detection",
+     "description": "Password-spray detection: failures from one /24 against >=10 accounts per hour (T1110.003)."
+    },
+    {
+     "id": "CYBER-U4",
+     "table": "proxy_logs",
+     "kind": "detection",
+     "description": "Exfiltration detection: >1 GB uploaded from one source to one domain within 4 h (T1567.002)."
+    },
+    {
+     "id": "CYBER-U5",
+     "table": "email_gateway+proxy_logs",
+     "kind": "detection",
+     "description": "Phishing chain: bulk mail from a rare domain followed by recipients' clicks (needs consistent user pseudonyms across e-mail and proxy)."
+    },
+    {
+     "id": "CYBER-U6",
+     "table": "vpn_logs+edr_alerts",
+     "kind": "detection",
+     "description": "Lateral movement: VPN from a never-seen country followed by server alerts within 24 h."
+    },
+    {
+     "id": "CYBER-U7",
+     "table": "proxy_logs+edr_alerts",
+     "kind": "detection",
+     "description": "Insider: per-user daily intranet downloads > 4x own median (and >=100) plus removable-media alerts."
+    },
+    {
+     "id": "CYBER-U9",
+     "table": "*",
+     "kind": "relationship",
+     "description": "Cross-log join consistency of user identifiers (keyed pseudonyms pass, random tokens fail)."
+    },
+    {
+     "id": "CYBER-U10",
+     "table": "signin_logs",
+     "kind": "distribution",
+     "description": "Sign-in volume by hour (capacity / anomaly baselines)."
+    },
+    {
+     "id": "CYBER-U11",
+     "table": "edr_alerts",
+     "kind": "distribution",
+     "description": "Alert triage statistics: distribution of rule x verdict x severity."
+    }
+   ]
+  },
+  {
+   "id": "CYBER-S2",
+   "dataset": "cyber",
+   "title": "Share indicators with the national CERT / sector ISAC",
+   "recipient": "National CERT and other logistics companies (threat-intelligence sharing community)",
+   "purpose": "Share attacker infrastructure and TTPs from campaigns C1 and C2 so others can block them",
+   "trust_level": "controlled_research",
+   "threat_model": "Other community members are competitors; anything about Meridian staff, customers or internal network layout is out of scope.",
+   "suggested_privacy_targets": "Only external attacker IoCs (IPs, domains, user agents, hashes, techniques, timestamps); no employee identifiers, no internal IPs or hostnames, victim count only as aggregate.",
+   "utility_tasks": [
+    {
+     "id": "CYBER-U3",
+     "table": "signin_logs",
+     "kind": "detection",
+     "description": "Password-spray detection: failures from one /24 against >=10 accounts per hour (T1110.003)."
+    },
+    {
+     "id": "CYBER-U4",
+     "table": "proxy_logs",
+     "kind": "detection",
+     "description": "Exfiltration detection: >1 GB uploaded from one source to one domain within 4 h (T1567.002)."
+    },
+    {
+     "id": "CYBER-U8",
+     "table": "*",
+     "kind": "aggregate",
+     "description": "Indicators of compromise (attacker IPs, phishing domain, attacker device, tool user agents) kept verbatim for sharing."
+    }
+   ]
+  },
+  {
+   "id": "CYBER-S3",
+   "dataset": "cyber",
+   "title": "Publish an open research dataset for detection research",
+   "recipient": "Anyone (public download)",
+   "purpose": "Benchmark for detection of phishing chains, spraying and insider exfiltration",
+   "trust_level": "public",
+   "threat_model": "Motivated outsider with company_website_staff.csv and breach/OSINT data (private broker file used in evaluation) trying to identify employees, their browsing, sick leaves or the insider.",
+   "suggested_privacy_targets": "No direct identifiers or secrets; prefix-preserving IP anonymisation with a discarded key; time-shifted or coarsened timestamps; sensitive categories and subjects removed; check that no employee is unique on (department, job_title, site, shift); e-mail subjects and ticket text removed or fully redacted.",
+   "utility_tasks": [
+    {
+     "id": "CYBER-U1",
+     "table": "signin_logs",
+     "kind": "detection",
+     "description": "Impossible-travel detection on sign-ins (reference rule, F1 vs labels T1078.004/T1621)."
+    },
+    {
+     "id": "CYBER-U2",
+     "table": "signin_logs",
+     "kind": "detection",
+     "description": "MFA-fatigue detection: >=5 denied pushes in 30 min then approval (labels T1621)."
+    },
+    {
+     "id": "CYBER-U3",
+     "table": "signin_logs",
+     "kind": "detection",
+     "description": "Password-spray detection: failures from one /24 against >=10 accounts per hour (T1110.003)."
+    },
+    {
+     "id": "CYBER-U5",
+     "table": "email_gateway+proxy_logs",
+     "kind": "detection",
+     "description": "Phishing chain: bulk mail from a rare domain followed by recipients' clicks (needs consistent user pseudonyms across e-mail and proxy)."
+    },
+    {
+     "id": "CYBER-U6",
+     "table": "vpn_logs+edr_alerts",
+     "kind": "detection",
+     "description": "Lateral movement: VPN from a never-seen country followed by server alerts within 24 h."
+    },
+    {
+     "id": "CYBER-U9",
+     "table": "*",
+     "kind": "relationship",
+     "description": "Cross-log join consistency of user identifiers (keyed pseudonyms pass, random tokens fail)."
+    },
+    {
+     "id": "CYBER-U10",
+     "table": "signin_logs",
+     "kind": "distribution",
+     "description": "Sign-in volume by hour (capacity / anomaly baselines)."
+    }
+   ]
+  },
+  {
+   "id": "EDU-S1",
+   "dataset": "education",
+   "title": "Statistics publication for the education authority",
+   "recipient": "Public (published statistics tables)",
+   "purpose": "Publish grade, completion and drop-out statistics by school, programme, sex and language group.",
+   "trust_level": "public",
+   "threat_model": "Anyone, with graduation lists and sports rosters (public adversary files); differencing between tables.",
+   "suggested_privacy_targets": "No cell below 5 unless noise-protected; no microdata; state ε if DP is used; consistent totals across tables.",
+   "utility_tasks": [
+    {
+     "id": "EDU-U1",
+     "table": "course_grades",
+     "kind": "aggregate",
+     "description": "Mean grade (4-10 scale) by school x subject"
+    },
+    {
+     "id": "EDU-U5",
+     "table": "matriculation_results",
+     "kind": "distribution",
+     "description": "Matriculation grade distribution by subject"
+    },
+    {
+     "id": "EDU-U6",
+     "table": "students",
+     "kind": "aggregate",
+     "description": "Drop-out rate by programme"
+    },
+    {
+     "id": "EDU-U3",
+     "table": "course_grades",
+     "kind": "relationship",
+     "description": "Gender gap in maths module grades"
+    }
+   ]
+  },
+  {
+   "id": "EDU-S2",
+   "dataset": "education",
+   "title": "Ed-tech vendor training a drop-out early-warning model",
+   "recipient": "External ed-tech company under a data processing agreement",
+   "purpose": "Train a model that predicts drop-out risk from grades and absences.",
+   "trust_level": "contractual",
+   "threat_model": "Vendor staff with classmate-level knowledge (private adversary) and public lists.",
+   "suggested_privacy_targets": "No direct identifiers or free text; religion/S2/support removed or justified; k>=5 on (school, programme, start year, sex, birth year).",
+   "utility_tasks": [
+    {
+     "id": "EDU-U2",
+     "table": "students",
+     "kind": "model",
+     "description": "Drop-out prediction AUC: train on protected, test on original hold-out"
+    },
+    {
+     "id": "EDU-U4",
+     "table": "absences",
+     "kind": "relationship",
+     "description": "Spearman correlation of unexcused absence hours with mean grade"
+    }
+   ]
+  },
+  {
+   "id": "EDU-S3",
+   "dataset": "education",
+   "title": "Researcher studying grade gaps",
+   "recipient": "University research group in a controlled environment",
+   "purpose": "Analyse gender and language-group gaps in maths and matriculation results.",
+   "trust_level": "controlled_research",
+   "threat_model": "Researcher with access to public lists; risk of spontaneous recognition in small schools.",
+   "suggested_privacy_targets": "k>=10 on quasi-identifiers or synthetic microdata with documented fidelity; no notes text.",
+   "utility_tasks": [
+    {
+     "id": "EDU-U3",
+     "table": "course_grades",
+     "kind": "relationship",
+     "description": "Gender gap in maths module grades"
+    },
+    {
+     "id": "EDU-U5",
+     "table": "matriculation_results",
+     "kind": "distribution",
+     "description": "Matriculation grade distribution by subject"
+    },
+    {
+     "id": "EDU-U1",
+     "table": "course_grades",
+     "kind": "aggregate",
+     "description": "Mean grade (4-10 scale) by school x subject"
+    }
+   ]
+  },
+  {
+   "id": "PUB-S1",
+   "dataset": "public_admin",
+   "title": "Open data publication of citizen feedback",
+   "recipient": "Public (open data portal, CC BY)",
+   "purpose": "Publish requests with category, time, area, status and the text so residents and journalists can follow service quality.",
+   "trust_level": "public",
+   "threat_model": "Anyone: neighbours, forum users (public adversary: neighbourhood_forum_posts), permit registry (public).",
+   "suggested_privacy_targets": "No direct identifiers in any column or text; locations coarsened (e.g. 250 m grid or street level without house numbers); time to the hour or day; no account ids.",
+   "utility_tasks": [
+    {
+     "id": "PUB-U1",
+     "table": "service_requests",
+     "kind": "aggregate",
+     "description": "Request counts by area (3-digit postcode) x category x month"
+    },
+    {
+     "id": "PUB-U2",
+     "table": "service_requests",
+     "kind": "aggregate",
+     "description": "Median resolution time by category"
+    },
+    {
+     "id": "PUB-U3",
+     "table": "service_requests",
+     "kind": "distribution",
+     "description": "Hotspot map: top-50 1 km grid cells"
+    },
+    {
+     "id": "PUB-U4",
+     "table": "service_requests",
+     "kind": "text",
+     "description": "Category classifier trained on protected description text"
+    }
+   ]
+  },
+  {
+   "id": "PUB-S2",
+   "dataset": "public_admin",
+   "title": "Internal analytics team",
+   "recipient": "Service centre's own analysts",
+   "purpose": "Dashboards on workload, response times and repeat issues.",
+   "trust_level": "internal",
+   "threat_model": "Curious colleague with insider knowledge (private adversary).",
+   "suggested_privacy_targets": "Keyed pseudonyms for reporters (stable, so repeat reporting can be analysed); no contact details; text redacted.",
+   "utility_tasks": [
+    {
+     "id": "PUB-U1",
+     "table": "service_requests",
+     "kind": "aggregate",
+     "description": "Request counts by area (3-digit postcode) x category x month"
+    },
+    {
+     "id": "PUB-U2",
+     "table": "service_requests",
+     "kind": "aggregate",
+     "description": "Median resolution time by category"
+    },
+    {
+     "id": "PUB-U5",
+     "table": "service_requests",
+     "kind": "relationship",
+     "description": "Share of requests from repeat reporters (>=5 requests per account)"
+    },
+    {
+     "id": "PUB-U6",
+     "table": "building_permits",
+     "kind": "aggregate",
+     "description": "Permit counts by municipality x project type x quarter"
+    }
+   ]
+  },
+  {
+   "id": "PUB-S3",
+   "dataset": "public_admin",
+   "title": "Research group studying service equity",
+   "recipient": "University research group",
+   "purpose": "Do response times differ between areas and languages?",
+   "trust_level": "controlled_research",
+   "threat_model": "Researchers with public data (forum, permits).",
+   "suggested_privacy_targets": "k>=5 on (postcode, category, month, language); no text or redacted text; aggregated reporter activity.",
+   "utility_tasks": [
+    {
+     "id": "PUB-U1",
+     "table": "service_requests",
+     "kind": "aggregate",
+     "description": "Request counts by area (3-digit postcode) x category x month"
+    },
+    {
+     "id": "PUB-U2",
+     "table": "service_requests",
+     "kind": "aggregate",
+     "description": "Median resolution time by category"
+    },
+    {
+     "id": "PUB-U3",
+     "table": "service_requests",
+     "kind": "distribution",
+     "description": "Hotspot map: top-50 1 km grid cells"
+    }
+   ]
+  },
+  {
+   "id": "CS-S1",
+   "dataset": "customer_service",
+   "title": "Transcripts to an external LLM analytics vendor",
+   "recipient": "Cloud AI vendor (processor, outside the EU possible)",
+   "purpose": "Topic mining, contact-reason trends and agent-quality insights on all channels.",
+   "trust_level": "contractual",
+   "threat_model": "Vendor staff and model logs see all text; insider can link with leaked_customer_list.csv (public) or breach dumps (private evaluation).",
+   "suggested_privacy_targets": "No residual direct identifiers in text (recall ≥ 0.98 on NATIONAL_ID, PAYMENT_CARD, IBAN, SECRET); remove HEALTH mentions; consistent pseudonyms within a conversation; round timestamps to the hour.",
+   "utility_tasks": [
+    {
+     "id": "CS-U1",
+     "table": "turns",
+     "kind": "model",
+     "description": "Intent classifier (TF-IDF + logistic regression) trained on protected train text, tested on original eval text."
+    },
+    {
+     "id": "CS-U3",
+     "table": "conversations",
+     "kind": "distribution",
+     "description": "Contact-reason (intent) mix preserved."
+    },
+    {
+     "id": "CS-U5",
+     "table": "turns",
+     "kind": "text",
+     "description": "Ordinary vocabulary retained in text (redaction should remove identifiers, not meaning)."
+    },
+    {
+     "id": "CS-U4",
+     "table": "conversations",
+     "kind": "aggregate",
+     "description": "Average handle time by intent."
+    }
+   ]
+  },
+  {
+   "id": "CS-S2",
+   "dataset": "customer_service",
+   "title": "Train an internal intent model / chatbot",
+   "recipient": "Aallokko data science team (internal)",
+   "purpose": "Train an intent classifier and response suggestions.",
+   "trust_level": "internal",
+   "threat_model": "Model memorisation: verbatim identifiers in training text can be regurgitated by a generative model.",
+   "suggested_privacy_targets": "Replace identifiers with typed placeholders or realistic surrogates; no secrets or card numbers anywhere; free text k-anonymised for rare phrases optional.",
+   "utility_tasks": [
+    {
+     "id": "CS-U1",
+     "table": "turns",
+     "kind": "model",
+     "description": "Intent classifier (TF-IDF + logistic regression) trained on protected train text, tested on original eval text."
+    },
+    {
+     "id": "CS-U2",
+     "table": "conversations",
+     "kind": "relationship",
+     "description": "Relationship between sentiment and CSAT preserved."
+    },
+    {
+     "id": "CS-U5",
+     "table": "turns",
+     "kind": "text",
+     "description": "Ordinary vocabulary retained in text (redaction should remove identifiers, not meaning)."
+    }
+   ]
+  },
+  {
+   "id": "CS-S3",
+   "dataset": "customer_service",
+   "title": "Quality-audit samples to an outsourced BPO",
+   "recipient": "Quality assurance partner",
+   "purpose": "Score 500 conversations a month for compliance (identity verification done, card numbers refused).",
+   "trust_level": "contractual",
+   "threat_model": "Auditors are human readers; re-identification by recognising neighbours or public figures; linkage via customer_id and timestamps.",
+   "suggested_privacy_targets": "Mask identifiers but keep evidence that verification happened (e.g. '[NATIONAL_ID]' placeholder); drop customer_id; generalise started_ts to week.",
+   "utility_tasks": [
+    {
+     "id": "CS-U4",
+     "table": "conversations",
+     "kind": "aggregate",
+     "description": "Average handle time by intent."
+    },
+    {
+     "id": "CS-U6",
+     "table": "conversations",
+     "kind": "aggregate",
+     "description": "Contact volumes by channel × language."
+    },
+    {
+     "id": "CS-U7",
+     "table": "conversations",
+     "kind": "aggregate",
+     "description": "First-contact resolution rate by intent."
+    }
+   ]
+  }
+ ]
+}

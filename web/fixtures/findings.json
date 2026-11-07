@@ -1,0 +1,32 @@
+[
+ {
+  "kind": "unkeyed_hash",
+  "dataset": "cyber",
+  "table": "edr_alerts",
+  "column": "sha256",
+  "source_column": "command_line",
+  "algorithm": "SHA-256",
+  "variant": "trimmed",
+  "match_rate": 1.0,
+  "source_role": "free_text"
+ },
+ {
+  "kind": "dependency",
+  "dataset": "health",
+  "table": "ed_visits",
+  "column": "los_minutes",
+  "source_column": "heart_rate",
+  "agreement": 0.97
+ },
+ {
+  "kind": "unkeyed_hash",
+  "dataset": "unseen",
+  "table": "export_2025_q4",
+  "column": "c20",
+  "source_column": "c05",
+  "algorithm": "SHA-256",
+  "variant": "canonical_hetu",
+  "match_rate": 1.0,
+  "source_role": "direct_identifier"
+ }
+]

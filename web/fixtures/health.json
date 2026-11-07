@@ -1,0 +1,11 @@
+{
+ "status": "ok",
+ "git_hash": "8c60fac",
+ "key_id": "39ffd61450cc",
+ "llm": {
+  "provider": "none",
+  "model": "none",
+  "enabled": false
+ },
+ "proving_ground": true
+}

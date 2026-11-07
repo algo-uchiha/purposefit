@@ -1,0 +1,110 @@
+[
+ {
+  "created_utc": "2026-11-07T23:20:57+00:00",
+  "run_id": "p3-CS-S1",
+  "git_hash": "034bc5e",
+  "dataset": "customer_service",
+  "scenario": "CS-S1",
+  "method": "purposefit",
+  "privacy": 0.375,
+  "utility": 0.9281,
+  "composite": 0.5143,
+  "worst_risk": 1.0,
+  "worst_risk_component": "turns: free-text identifier leakage",
+  "k": 5,
+  "k_pycanon": 5,
+  "utility_tasks": {
+   "CS-U1": 1.0,
+   "CS-U3": 1.0,
+   "CS-U4": 0.7124,
+   "CS-U5": 1.0
+  },
+  "note": "structured only; text raw; rules-only labels"
+ },
+ {
+  "created_utc": "2026-11-07T23:20:58+00:00",
+  "run_id": "b2k_CS-S1",
+  "git_hash": "vendor",
+  "dataset": "customer_service",
+  "scenario": "CS-S1",
+  "method": "B2-k (rerun)",
+  "privacy": 0.4952,
+  "utility": 0.7475,
+  "composite": 0.5849,
+  "worst_risk": 0.8286,
+  "worst_risk_component": "conversations: free-text identifier leakage",
+  "k": 5,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": null,
+   "CS-U3": 1.0,
+   "CS-U4": 1.0,
+   "CS-U5": 0.9899
+  },
+  "note": "proving ground baseline; catalog labels; regex text"
+ },
+ {
+  "created_utc": "2026-11-07T23:31:38+00:00",
+  "run_id": "p4-CS-S1",
+  "git_hash": "9a5f9c6",
+  "dataset": "customer_service",
+  "scenario": "CS-S1",
+  "method": "purposefit",
+  "privacy": 0.375,
+  "utility": 1.0,
+  "composite": 0.5238,
+  "worst_risk": 1.0,
+  "worst_risk_component": "turns: free-text identifier leakage",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": 1.0,
+   "CS-U3": 1.0,
+   "CS-U4": 1.0,
+   "CS-U5": 1.0
+  },
+  "note": "phase 4 search; structured only; text raw; rules-only labels"
+ },
+ {
+  "created_utc": "2026-11-07T23:31:43+00:00",
+  "run_id": "p4-CS-S3",
+  "git_hash": "9a5f9c6",
+  "dataset": "customer_service",
+  "scenario": "CS-S3",
+  "method": "purposefit",
+  "privacy": 1.0,
+  "utility": 1.0,
+  "composite": 1.0,
+  "worst_risk": 0.0,
+  "worst_risk_component": null,
+  "k": 751,
+  "k_pycanon": 751,
+  "utility_tasks": {
+   "CS-U4": 1.0,
+   "CS-U6": 1.0,
+   "CS-U7": 1.0
+  },
+  "note": "phase 4 search; structured only; text raw; rules-only labels"
+ },
+ {
+  "created_utc": "2026-11-07T23:31:44+00:00",
+  "run_id": "b2k_CS-S3",
+  "git_hash": "vendor",
+  "dataset": "customer_service",
+  "scenario": "CS-S3",
+  "method": "B2-k (rerun)",
+  "privacy": 0.4952,
+  "utility": 1.0,
+  "composite": 0.6426,
+  "worst_risk": 0.8286,
+  "worst_risk_component": "conversations: free-text identifier leakage",
+  "k": 5,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U4": 1.0,
+   "CS-U6": 1.0,
+   "CS-U7": 1.0
+  },
+  "note": "proving ground baseline; catalog labels; regex text"
+ }
+]

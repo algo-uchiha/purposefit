@@ -1,0 +1,814 @@
+{
+ "scenario_id": "CS-S1",
+ "ours": {
+  "tool": "pets-eval 1.0.0",
+  "dataset": "customer_service",
+  "scenario": {
+   "id": "CS-S1",
+   "dataset": "customer_service",
+   "title": "Transcripts to an external LLM analytics vendor",
+   "recipient": "Cloud AI vendor (processor, outside the EU possible)",
+   "purpose": "Topic mining, contact-reason trends and agent-quality insights on all channels.",
+   "trust_level": "contractual",
+   "threat_model": "Vendor staff and model logs see all text; insider can link with leaked_customer_list.csv (public) or breach dumps (private evaluation).",
+   "legal_context": "Processor under GDPR Art. 28; transfer safeguards if outside EEA. Pseudonymised text is still personal data; aim for no direct identifiers and no special-category data in text.",
+   "utility_requirements": [
+    "CS-U1",
+    "CS-U3",
+    "CS-U5",
+    "CS-U4"
+   ],
+   "suggested_privacy_targets": "No residual direct identifiers in text (recall ≥ 0.98 on NATIONAL_ID, PAYMENT_CARD, IBAN, SECRET); remove HEALTH mentions; consistent pseudonyms within a conversation; round timestamps to the hour.",
+   "notes": "Keep the intent signal: do not delete whole utterances."
+  },
+  "original": "data/customer_service",
+  "protected": "runs/<run_id>/04_release",
+  "tables": {
+   "conversations": {
+    "table": "conversations",
+    "status": "released",
+    "rows_original": 11943,
+    "rows_protected": 11943,
+    "columns_dropped": [
+     "customer_id",
+     "agent_id",
+     "agent_name",
+     "channel",
+     "language",
+     "started_ts",
+     "sentiment",
+     "csat",
+     "resolved",
+     "n_turns",
+     "agent_note"
+    ],
+    "columns_added": [],
+    "direct_identifiers_retained": {},
+    "k_anonymity": {
+     "note": "no catalogued quasi-identifier kept"
+    },
+    "row_alignment": "row map",
+    "linkage": {
+     "note": "no attack spec targets this table (metadata/attack_specs.json)"
+    },
+    "free_text": {
+     "agent_note": {
+      "evaluated": true,
+      "status": "withheld",
+      "identifying_leakage_rate": 0.0
+     }
+    },
+    "regex_residuals": {
+     "conversation_id": {
+      "PHONE": 2
+     }
+    },
+    "risks": {
+     "direct identifiers retained": 0.0,
+     "free-text identifier leakage": 0.0
+    },
+    "seconds": 0.2
+   },
+   "customers": {
+    "table": "customers",
+    "status": "withheld",
+    "rows_original": 9591
+   },
+   "turns": {
+    "table": "turns",
+    "status": "released",
+    "rows_original": 140345,
+    "rows_protected": 140345,
+    "columns_dropped": [
+     "seq",
+     "speaker",
+     "ts"
+    ],
+    "columns_added": [],
+    "direct_identifiers_retained": {},
+    "k_anonymity": {
+     "note": "no catalogued quasi-identifier kept"
+    },
+    "row_alignment": "row map",
+    "linkage": {
+     "note": "no attack spec targets this table (metadata/attack_specs.json)"
+    },
+    "free_text": {
+     "text": {
+      "evaluated": true,
+      "leakage_rate": 1.0,
+      "leakage_rate_chars": 1.0,
+      "identifying_leakage_rate": 1.0,
+      "per_label": {
+       "ACCOUNT_NUMBER": {
+        "n": 3967,
+        "leaked": 3967,
+        "rate": 1.0
+       },
+       "ADDRESS": {
+        "n": 2388,
+        "leaked": 2388,
+        "rate": 1.0
+       },
+       "DATE": {
+        "n": 2837,
+        "leaked": 2837,
+        "rate": 1.0
+       },
+       "DEVICE_ID": {
+        "n": 572,
+        "leaked": 572,
+        "rate": 1.0
+       },
+       "EMAIL": {
+        "n": 1999,
+        "leaked": 1999,
+        "rate": 1.0
+       },
+       "HEALTH": {
+        "n": 700,
+        "leaked": 700,
+        "rate": 1.0
+       },
+       "IBAN": {
+        "n": 1473,
+        "leaked": 1473,
+        "rate": 1.0
+       },
+       "IP_ADDRESS": {
+        "n": 356,
+        "leaked": 356,
+        "rate": 1.0
+       },
+       "LICENSE_PLATE": {
+        "n": 27,
+        "leaked": 27,
+        "rate": 1.0
+       },
+       "LOCATION": {
+        "n": 1281,
+        "leaked": 1281,
+        "rate": 1.0
+       },
+       "NATIONAL_ID": {
+        "n": 5120,
+        "leaked": 5120,
+        "rate": 1.0
+       },
+       "ORG": {
+        "n": 1351,
+        "leaked": 1351,
+        "rate": 1.0
+       },
+       "PAYMENT_CARD": {
+        "n": 856,
+        "leaked": 856,
+        "rate": 1.0
+       },
+       "PERSON": {
+        "n": 19843,
+        "leaked": 19843,
+        "rate": 1.0
+       },
+       "PHONE": {
+        "n": 4217,
+        "leaked": 4217,
+        "rate": 1.0
+       },
+       "PROPERTY_ID": {
+        "n": 103,
+        "leaked": 103,
+        "rate": 1.0
+       },
+       "SECRET": {
+        "n": 466,
+        "leaked": 466,
+        "rate": 1.0
+       },
+       "URL": {
+        "n": 440,
+        "leaked": 440,
+        "rate": 1.0
+       },
+       "USERNAME": {
+        "n": 62,
+        "leaked": 62,
+        "rate": 1.0
+       }
+      },
+      "n_values": 48058
+     }
+    },
+    "regex_residuals": {
+     "conversation_id": {
+      "PHONE": 12
+     },
+     "text": {
+      "NATIONAL_ID": 379,
+      "IBAN": 145,
+      "PAYMENT_CARD": 77,
+      "IMEI": 52,
+      "EMAIL": 186,
+      "PHONE": 547,
+      "IP_ADDRESS": 54,
+      "LICENSE_PLATE": 1
+     }
+    },
+    "risks": {
+     "direct identifiers retained": 0.0,
+     "free-text identifier leakage": 1.0
+    },
+    "seconds": 0.9
+   }
+  },
+  "extra_protected_files": [],
+  "utility": [
+   {
+    "id": "CS-U1",
+    "table": "turns",
+    "kind": "model",
+    "description": "Intent classifier (TF-IDF + logistic regression) trained on protected train text, tested on original eval text.",
+    "required": true,
+    "score": 1.0,
+    "metric": "macro-F1 ratio (protected-trained / original-trained) on original eval",
+    "detail": {
+     "f1_original": 0.9452,
+     "f1_protected": 0.9452
+    }
+   },
+   {
+    "id": "CS-U3",
+    "table": "conversations",
+    "kind": "distribution",
+    "description": "Contact-reason (intent) mix preserved.",
+    "required": true,
+    "score": 1.0,
+    "metric": "1 - 2·TVD of intent distribution",
+    "detail": {
+     "tvd": 0.0
+    }
+   },
+   {
+    "id": "CS-U4",
+    "table": "conversations",
+    "kind": "aggregate",
+    "description": "Average handle time by intent.",
+    "required": true,
+    "score": 1.0,
+    "metric": "mean handle time by intent, MAPE (0.5 → score 0)",
+    "detail": {
+     "mape": 0.0
+    }
+   },
+   {
+    "id": "CS-U5",
+    "table": "turns",
+    "kind": "text",
+    "description": "Ordinary vocabulary retained in text (redaction should remove identifiers, not meaning).",
+    "required": true,
+    "score": 1.0,
+    "metric": "share of common (non-identifying) word tokens retained, matched by turn_id",
+    "detail": {
+     "retained": 1.0
+    }
+   }
+  ],
+  "summary": {
+   "privacy": 0.375,
+   "utility": 1.0,
+   "composite": 0.5238,
+   "label": "self-assessment, not the official judging score",
+   "method": "privacy = 1 - (0.5*worst + 0.5*mean risk); utility = mean task score (required unanswerable = 0); composite = weighted harmonic mean (privacy 30, utility 25)"
+  },
+  "risk_components": {
+   "conversations: direct identifiers retained": 0.0,
+   "conversations: free-text identifier leakage": 0.0,
+   "turns: direct identifiers retained": 0.0,
+   "turns: free-text identifier leakage": 1.0
+  }
+ },
+ "baseline": {
+  "tool": "pets-eval 1.0.0",
+  "dataset": "customer_service",
+  "scenario": {
+   "id": "CS-S1",
+   "dataset": "customer_service",
+   "title": "Transcripts to an external LLM analytics vendor",
+   "recipient": "Cloud AI vendor (processor, outside the EU possible)",
+   "purpose": "Topic mining, contact-reason trends and agent-quality insights on all channels.",
+   "trust_level": "contractual",
+   "threat_model": "Vendor staff and model logs see all text; insider can link with leaked_customer_list.csv (public) or breach dumps (private evaluation).",
+   "legal_context": "Processor under GDPR Art. 28; transfer safeguards if outside EEA. Pseudonymised text is still personal data; aim for no direct identifiers and no special-category data in text.",
+   "utility_requirements": [
+    "CS-U1",
+    "CS-U3",
+    "CS-U5",
+    "CS-U4"
+   ],
+   "suggested_privacy_targets": "No residual direct identifiers in text (recall ≥ 0.98 on NATIONAL_ID, PAYMENT_CARD, IBAN, SECRET); remove HEALTH mentions; consistent pseudonyms within a conversation; round timestamps to the hour.",
+   "notes": "Keep the intent signal: do not delete whole utterances."
+  },
+  "original": "data/customer_service",
+  "protected": "B2-k baseline release",
+  "tables": {
+   "conversations": {
+    "table": "conversations",
+    "status": "released",
+    "rows_original": 11943,
+    "rows_protected": 11943,
+    "columns_dropped": [
+     "agent_name"
+    ],
+    "columns_added": [],
+    "direct_identifiers_retained": {},
+    "k_anonymity": {
+     "qis": [
+      "language",
+      "started_ts"
+     ],
+     "n": 11943,
+     "n_classes": 529,
+     "min_k": 5,
+     "median_k": 2392.0,
+     "share_below": {
+      "k<2": 0.0,
+      "k<5": 0.0,
+      "k<10": 0.2457
+     },
+     "sample_uniqueness": 0.0
+    },
+    "k_anonymity_original": {
+     "qis": [
+      "language",
+      "started_ts"
+     ],
+     "n": 11943,
+     "n_classes": 11940,
+     "min_k": 1,
+     "median_k": 1.0,
+     "share_below": {
+      "k<2": 0.9995,
+      "k<5": 1.0,
+      "k<10": 1.0
+     },
+     "sample_uniqueness": 0.9995
+    },
+    "row_alignment": "row map",
+    "linkage": {
+     "note": "no attack spec targets this table (metadata/attack_specs.json)"
+    },
+    "free_text": {
+     "agent_note": {
+      "evaluated": true,
+      "leakage_rate": 0.8309,
+      "leakage_rate_chars": 0.8091,
+      "identifying_leakage_rate": 0.8286,
+      "per_label": {
+       "ACCOUNT_NUMBER": {
+        "n": 4712,
+        "leaked": 4712,
+        "rate": 1.0
+       },
+       "HEALTH": {
+        "n": 227,
+        "leaked": 227,
+        "rate": 1.0
+       },
+       "NATIONAL_ID": {
+        "n": 2460,
+        "leaked": 0,
+        "rate": 0.0
+       },
+       "PERSON": {
+        "n": 8980,
+        "leaked": 8980,
+        "rate": 1.0
+       },
+       "PHONE": {
+        "n": 372,
+        "leaked": 0,
+        "rate": 0.0
+       }
+      },
+      "n_values": 16751
+     }
+    },
+    "regex_residuals": {},
+    "risks": {
+     "direct identifiers retained": 0.0,
+     "records with k<5": 0.0,
+     "free-text identifier leakage": 0.8286
+    },
+    "seconds": 0.7
+   },
+   "customers": {
+    "table": "customers",
+    "status": "released",
+    "rows_original": 9591,
+    "rows_protected": 9591,
+    "columns_dropped": [
+     "full_name",
+     "street_address",
+     "email",
+     "phone"
+    ],
+    "columns_added": [],
+    "direct_identifiers_retained": {},
+    "k_anonymity": {
+     "qis": [
+      "postcode",
+      "city",
+      "preferred_language",
+      "customer_since"
+     ],
+     "n": 9591,
+     "n_classes": 135,
+     "min_k": 5,
+     "median_k": 168.0,
+     "share_below": {
+      "k<2": 0.0,
+      "k<5": 0.0,
+      "k<10": 0.0163
+     },
+     "sample_uniqueness": 0.0
+    },
+    "k_anonymity_original": {
+     "qis": [
+      "postcode",
+      "city",
+      "preferred_language",
+      "customer_since"
+     ],
+     "n": 9591,
+     "n_classes": 9542,
+     "min_k": 1,
+     "median_k": 1.0,
+     "share_below": {
+      "k<2": 0.9898,
+      "k<5": 1.0,
+      "k<10": 1.0
+     },
+     "sample_uniqueness": 0.9898
+    },
+    "l_diversity": {
+     "evaluated": true,
+     "sensitive": "payment_default_flag",
+     "qis": [
+      "postcode",
+      "city",
+      "preferred_language",
+      "customer_since"
+     ],
+     "min_distinct_l": 1,
+     "min_entropy_l": 1.0,
+     "share_records_l1": 0.0227,
+     "share_classes_l1": 0.1481,
+     "n_classes": 135
+    },
+    "row_alignment": "row map",
+    "linkage": {
+     "leaked_customer_list": {
+      "evaluated": true,
+      "qis_used": [
+       {
+        "kind": "exact",
+        "adversary": [
+         "city"
+        ],
+        "protected": [
+         "city"
+        ]
+       }
+      ],
+      "n_adversary_rows_tested": 2600,
+      "n_targets_in_data": 2345,
+      "reidentification_rate": 0.0,
+      "claim_precision": null,
+      "n_unique_claims": 0,
+      "share_targets_in_candidate_set_le5": 0.0,
+      "median_candidate_set": 4415.0,
+      "attribute_inference": {
+       "sensitive": "accessibility_needs",
+       "inferred": 3,
+       "base_rate_majority_guess": 0.0162,
+       "advantage_over_base_rate": 0.0,
+       "success_rate": 0.0013
+      },
+      "attack": "An old marketing list with names, emails, phones and cities.",
+      "baseline_reidentification_rate_original": 0.8392,
+      "risk_reduction": 1.0
+     }
+    },
+    "regex_residuals": {
+     "hetu": {
+      "PAYMENT_CARD": 1
+     },
+     "contract_number": {
+      "PAYMENT_CARD": 1
+     }
+    },
+    "risks": {
+     "direct identifiers retained": 0.0,
+     "records with k<5": 0.0,
+     "linkage re-identification": 0.0
+    },
+    "seconds": 1.0
+   },
+   "turns": {
+    "table": "turns",
+    "status": "released",
+    "rows_original": 140345,
+    "rows_protected": 140345,
+    "columns_dropped": [],
+    "columns_added": [],
+    "direct_identifiers_retained": {},
+    "k_anonymity": {
+     "qis": [
+      "ts"
+     ],
+     "n": 140345,
+     "n_classes": 2910,
+     "min_k": 5,
+     "median_k": 64.0,
+     "share_below": {
+      "k<2": 0.0,
+      "k<5": 0.0,
+      "k<10": 0.0046
+     },
+     "sample_uniqueness": 0.0
+    },
+    "k_anonymity_original": {
+     "qis": [
+      "ts"
+     ],
+     "n": 140345,
+     "n_classes": 139125,
+     "min_k": 1,
+     "median_k": 1.0,
+     "share_below": {
+      "k<2": 0.9827,
+      "k<5": 1.0,
+      "k<10": 1.0
+     },
+     "sample_uniqueness": 0.9827
+    },
+    "row_alignment": "row map",
+    "linkage": {
+     "note": "no attack spec targets this table (metadata/attack_specs.json)"
+    },
+    "free_text": {
+     "text": {
+      "evaluated": true,
+      "leakage_rate": 0.8267,
+      "leakage_rate_chars": 0.8078,
+      "identifying_leakage_rate": 0.8012,
+      "per_label": {
+       "ACCOUNT_NUMBER": {
+        "n": 3967,
+        "leaked": 3967,
+        "rate": 1.0
+       },
+       "ADDRESS": {
+        "n": 2388,
+        "leaked": 2388,
+        "rate": 1.0
+       },
+       "DATE": {
+        "n": 2837,
+        "leaked": 2837,
+        "rate": 1.0
+       },
+       "DEVICE_ID": {
+        "n": 572,
+        "leaked": 162,
+        "rate": 0.2832
+       },
+       "EMAIL": {
+        "n": 1999,
+        "leaked": 1072,
+        "rate": 0.5363
+       },
+       "HEALTH": {
+        "n": 700,
+        "leaked": 700,
+        "rate": 1.0
+       },
+       "IBAN": {
+        "n": 1473,
+        "leaked": 378,
+        "rate": 0.2566
+       },
+       "IP_ADDRESS": {
+        "n": 356,
+        "leaked": 0,
+        "rate": 0.0
+       },
+       "LICENSE_PLATE": {
+        "n": 27,
+        "leaked": 18,
+        "rate": 0.6667
+       },
+       "LOCATION": {
+        "n": 1281,
+        "leaked": 1281,
+        "rate": 1.0
+       },
+       "NATIONAL_ID": {
+        "n": 5120,
+        "leaked": 3283,
+        "rate": 0.6412
+       },
+       "ORG": {
+        "n": 1351,
+        "leaked": 1351,
+        "rate": 1.0
+       },
+       "PAYMENT_CARD": {
+        "n": 856,
+        "leaked": 470,
+        "rate": 0.5491
+       },
+       "PERSON": {
+        "n": 19843,
+        "leaked": 19843,
+        "rate": 1.0
+       },
+       "PHONE": {
+        "n": 4217,
+        "leaked": 1381,
+        "rate": 0.3275
+       },
+       "PROPERTY_ID": {
+        "n": 103,
+        "leaked": 103,
+        "rate": 1.0
+       },
+       "SECRET": {
+        "n": 466,
+        "leaked": 466,
+        "rate": 1.0
+       },
+       "URL": {
+        "n": 440,
+        "leaked": 0,
+        "rate": 0.0
+       },
+       "USERNAME": {
+        "n": 62,
+        "leaked": 31,
+        "rate": 0.5
+       }
+      },
+      "n_values": 48058
+     }
+    },
+    "regex_residuals": {
+     "text": {
+      "PHONE": 4
+     }
+    },
+    "risks": {
+     "direct identifiers retained": 0.0,
+     "records with k<5": 0.0,
+     "free-text identifier leakage": 0.8012
+    },
+    "seconds": 1.2
+   }
+  },
+  "extra_protected_files": [],
+  "utility": [
+   {
+    "id": "CS-U1",
+    "table": "turns",
+    "kind": "model",
+    "description": "Intent classifier (TF-IDF + logistic regression) trained on protected train text, tested on original eval text.",
+    "required": true,
+    "score": null,
+    "metric": "not answerable",
+    "detail": {
+     "missing": [
+      "train conversations"
+     ]
+    }
+   },
+   {
+    "id": "CS-U3",
+    "table": "conversations",
+    "kind": "distribution",
+    "description": "Contact-reason (intent) mix preserved.",
+    "required": true,
+    "score": 1.0,
+    "metric": "1 - 2·TVD of intent distribution",
+    "detail": {
+     "tvd": 0.0
+    }
+   },
+   {
+    "id": "CS-U4",
+    "table": "conversations",
+    "kind": "aggregate",
+    "description": "Average handle time by intent.",
+    "required": true,
+    "score": 1.0,
+    "metric": "mean handle time by intent, MAPE (0.5 → score 0)",
+    "detail": {
+     "mape": 0.0
+    }
+   },
+   {
+    "id": "CS-U5",
+    "table": "turns",
+    "kind": "text",
+    "description": "Ordinary vocabulary retained in text (redaction should remove identifiers, not meaning).",
+    "required": true,
+    "score": 0.9899494805749253,
+    "metric": "share of common (non-identifying) word tokens retained, matched by turn_id",
+    "detail": {
+     "retained": 0.9899
+    }
+   }
+  ],
+  "summary": {
+   "privacy": 0.4952,
+   "utility": 0.7475,
+   "composite": 0.5849,
+   "label": "self-assessment, not the official judging score",
+   "method": "privacy = 1 - (0.5*worst + 0.5*mean risk); utility = mean task score (required unanswerable = 0); composite = weighted harmonic mean (privacy 30, utility 25)"
+  },
+  "risk_components": {
+   "conversations: direct identifiers retained": 0.0,
+   "conversations: records with k<5": 0.0,
+   "conversations: free-text identifier leakage": 0.8286,
+   "customers: direct identifiers retained": 0.0,
+   "customers: records with k<5": 0.0,
+   "customers: linkage re-identification": 0.0,
+   "turns: direct identifiers retained": 0.0,
+   "turns: records with k<5": 0.0,
+   "turns: free-text identifier leakage": 0.8012
+  }
+ },
+ "baseline_name": "B2-k",
+ "gate": {
+  "passed": false,
+  "scenario_id": "CS-S1",
+  "checks": [
+   {
+    "id": "risk.conversations_direct_identifiers_retained",
+    "name": "conversations: direct identifiers retained",
+    "kind": "risk",
+    "status": "pass",
+    "value": 0.0,
+    "threshold": 0.02,
+    "comparison": "at_most",
+    "source": "pets-eval risk component"
+   },
+   {
+    "id": "risk.conversations_free_text_identifier_leakage",
+    "name": "conversations: free-text identifier leakage",
+    "kind": "risk",
+    "status": "pass",
+    "value": 0.0,
+    "threshold": 0.02,
+    "comparison": "at_most",
+    "source": "pets-eval risk component"
+   },
+   {
+    "id": "risk.turns_direct_identifiers_retained",
+    "name": "turns: direct identifiers retained",
+    "kind": "risk",
+    "status": "pass",
+    "value": 0.0,
+    "threshold": 0.02,
+    "comparison": "at_most",
+    "source": "pets-eval risk component"
+   },
+   {
+    "id": "risk.turns_free_text_identifier_leakage",
+    "name": "turns: free-text identifier leakage",
+    "kind": "risk",
+    "status": "fail",
+    "value": 1.0,
+    "threshold": 0.02,
+    "comparison": "at_most",
+    "source": "pets-eval risk component"
+   }
+  ],
+  "blocking": [
+   "risk.turns_free_text_identifier_leakage"
+  ]
+ },
+ "k": [],
+ "residual_risks": [
+  {
+   "id": "risk.turns_free_text_identifier_leakage",
+   "text": "turns: free-text identifier leakage: 1.00 (pets-eval), above the gate limit of 0.02.",
+   "source": "pets-eval"
+  },
+  {
+   "id": "pseudonymised_is_personal_data",
+   "text": "Pseudonymised data is still personal data (GDPR Recital 26).",
+   "source": "docs/FACTS.md"
+  }
+ ],
+ "ablation": []
+}

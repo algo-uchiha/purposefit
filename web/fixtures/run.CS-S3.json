@@ -1,0 +1,71 @@
+{
+ "run_id": "p4-CS-S3",
+ "dataset": "customer_service",
+ "scenario_id": "CS-S3",
+ "status": "done",
+ "created_utc": "2026-11-07T23:40:05+00:00",
+ "git_hash": "8c60fac",
+ "key_id": "39ffd61450cc",
+ "seed": 20261107,
+ "llm": {
+  "provider": "none",
+  "model": "none"
+ },
+ "layers": {
+  "llm": false,
+  "ner": false,
+  "gazetteer": false
+ },
+ "stages": [
+  {
+   "stage": "run",
+   "status": "done",
+   "duration_ms": null
+  },
+  {
+   "stage": "profile",
+   "status": "done",
+   "duration_ms": null
+  },
+  {
+   "stage": "detect",
+   "status": "done",
+   "duration_ms": null
+  },
+  {
+   "stage": "plan",
+   "status": "done",
+   "duration_ms": null
+  },
+  {
+   "stage": "transform",
+   "status": "done",
+   "duration_ms": 639
+  },
+  {
+   "stage": "redact",
+   "status": "pending",
+   "duration_ms": null
+  },
+  {
+   "stage": "verify",
+   "status": "done",
+   "duration_ms": null
+  },
+  {
+   "stage": "report",
+   "status": "done",
+   "duration_ms": null
+  }
+ ],
+ "gate": {
+  "passed": true,
+  "blocking": []
+ },
+ "headline": {
+  "privacy": 1.0,
+  "utility": 1.0,
+  "composite": 1.0
+ },
+ "error": null
+}

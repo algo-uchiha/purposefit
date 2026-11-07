@@ -1,0 +1,10 @@
+{
+ "dataset": "customer_service",
+ "table": null,
+ "redacted": false,
+ "layers_run": [],
+ "n_turns": 0,
+ "turns": [],
+ "per_label": [],
+ "span_labels_note": "transcripts are withheld in this scenario"
+}
