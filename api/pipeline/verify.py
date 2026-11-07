@@ -43,7 +43,7 @@ def worst_risk(rep: dict) -> tuple[float | None, str]:
     if not vals:
         return None, ""
     name = max(vals, key=vals.get)
-    return round(vals[name], 4), name
+    return round(vals[name], 4), name if vals[name] > 0 else ""
 
 
 def leaderboard_row(rep: dict, run_id: str, git_hash: str, method: str, k=None,

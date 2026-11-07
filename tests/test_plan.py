@@ -299,3 +299,10 @@ def test_transform_falls_back_and_says_so(data, tmp_path, monkeypatch):
     assert k["k"] >= 5 and k["k_pycanon"] == k["k"]
     ts = _by(plan)[("convs", "started_ts")]
     assert ts.params["level"] == "hour" and "no level combination reached k >= 5" in ts.reason
+
+
+def test_worst_risk_names_nothing_when_all_risks_are_zero():
+    from api.pipeline import verify as vf
+
+    assert vf.worst_risk({"risk_components": {"a": 0.0, "b": 0.0}}) == (0.0, "")
+    assert vf.worst_risk({"risk_components": {"a": 0.2, "b": 0.7}}) == (0.7, "b")
