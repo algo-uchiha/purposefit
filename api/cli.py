@@ -154,7 +154,73 @@ def cmd_detect(args: argparse.Namespace, key: str) -> int:
     return 0
 
 
-HANDLERS = {"run": cmd_run, "profile": cmd_profile, "detect": cmd_detect}
+def _need(path: Path, stage: str) -> None:
+    if not path.exists():
+        raise ConfigError(f"{path.name} is missing: run the {stage} stage for this run first")
+
+
+def cmd_plan(args: argparse.Namespace, key: str) -> int:
+    from api.pipeline import plan as pl
+    from api.pipeline.contracts import FieldLabel
+    from api.pipeline.profile import read_profiles
+
+    run_path = runs_dir() / args.run
+    for name in ("01_profiles.json", "02_labels_detail.json"):
+        _need(run_path / name, "detect")
+    labels = [FieldLabel(**d) for d in json.loads(
+        (run_path / "02_labels_detail.json").read_text(encoding="utf-8"))]  # fmt: skip
+    profiles = read_profiles(run_path / "01_profiles.json")
+    scenario = pl.load_scenario(args.scenario)
+    plan = pl.build_plan(scenario, labels, profiles, pl.load_tasks(scenario["dataset"]),
+                         key_id(key))  # fmt: skip
+    pl.write_plan(plan, run_path / "03_plan.json")
+    return 0
+
+
+def cmd_transform(args: argparse.Namespace, key: str) -> int:
+    from api.pipeline import plan as pl
+    from api.pipeline import transform as tr
+
+    run_path = runs_dir() / args.run
+    _need(run_path / "03_plan.json", "plan")
+    plan = pl.read_plan(run_path / "03_plan.json")
+    plan, _ = tr.apply_plan(plan, run_path, runs_dir() / "private" / args.run, key)
+    pl.write_plan(plan, run_path / "03_plan.json")
+    return 0
+
+
+def cmd_verify(args: argparse.Namespace, key: str) -> int:
+    from api.pipeline import plan as pl
+    from api.pipeline import verify as vf
+
+    run_path = runs_dir() / args.run
+    _need(run_path / "03_plan.json", "plan")
+    plan = pl.read_plan(run_path / "03_plan.json")
+    rep = vf.run_scorecard(plan.dataset, plan.scenario_id, run_path / "04_release",
+                           runs_dir() / "private" / args.run, run_path / "06_scorecard_ours")  # fmt: skip
+    ks = [p.params for p in plan.policies if p.action == "suppress_k"]
+    kp = [q["k_pycanon"] for q in ks if q.get("k_pycanon") is not None]
+    row = vf.leaderboard_row(rep, args.run, git_hash(), args.method, k=plan.k,
+                             k_pycanon=min(kp) if kp else None, note=args.note)  # fmt: skip
+    vf.append_leaderboard(runs_dir() / "leaderboard.csv", row)
+    print(json.dumps({c: row[c] for c in ("scenario", "privacy", "utility", "composite",
+                                          "worst_risk", "k", "k_pycanon")}))  # fmt: skip
+    return 0
+
+
+def cmd_report(args: argparse.Namespace, key: str) -> int:
+    from api.pipeline import plan as pl
+    from api.pipeline import report as rp
+
+    run_path = runs_dir() / args.run
+    _need(run_path / "03_plan.json", "plan")
+    plan = pl.read_plan(run_path / "03_plan.json")
+    (run_path / "07_plan_table.md").write_text(rp.plan_table(plan) + "\n", encoding="utf-8")
+    return 0
+
+
+HANDLERS = {"run": cmd_run, "profile": cmd_profile, "detect": cmd_detect, "plan": cmd_plan,
+            "transform": cmd_transform, "verify": cmd_verify, "report": cmd_report}
 
 
 def parser() -> argparse.ArgumentParser:
@@ -173,6 +239,11 @@ def parser() -> argparse.ArgumentParser:
             s.add_argument("--llm", action="store_true",
                            help="send low-confidence columns to the LLM (off by default)")
             s.add_argument("--unseen-out", help="also write column,privacy_role,subtype here")
+        if stage == "plan":
+            s.add_argument("--scenario", required=True, help="scenario id, e.g. CS-S1")
+        if stage == "verify":
+            s.add_argument("--method", default="purposefit", help="name for the leaderboard")
+            s.add_argument("--note", default="", help="short note for the leaderboard")
     return p
 
 
@@ -186,7 +257,11 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     start = time.monotonic()
     if args.stage in HANDLERS:
-        code = HANDLERS[args.stage](args, key)
+        try:
+            code = HANDLERS[args.stage](args, key)
+        except ConfigError as exc:
+            print(str(exc), file=sys.stderr)
+            code = 2
     else:
         print(f"Stage {args.stage} is not built yet.", file=sys.stderr)
         code = 3
