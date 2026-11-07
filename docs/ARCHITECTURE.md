@@ -23,8 +23,10 @@ One Docker container. A FastAPI backend runs the pipeline and serves the built R
         |                     |                         |
         v                     v                         v
   proving ground data    pets-eval + pyCANON      llm.py (optional)
-  (vendor/, read only)   (scoring, checks)        Featherless: Poro 2 8B
-                                                  fallback: Gemini
+  (vendor/, read only)   (scoring, checks)        default: Gemma 3 27B
+                                                  (Gemini API)
+                                                  optional: Poro 2 8B
+                                                  (Featherless)
 ```
 
 ## Repo layout
@@ -67,7 +69,7 @@ tests/
 3. `gazetteer`: controller values from detected direct identifier columns, and DVV public name lists. Two sources, reported separately.
 4. `cues`: "nimeni on", "jag heter", "my name is", relatives, password and PIN phrases.
 5. `ner`: GLiNER2-PII on sentences with no hit; Finnish fallback finbert-ner.
-6. `health`: Poro 2 flags sentences that mention health, prefiltered by cue words.
+6. `health`: the LLM (default Gemma 3 27B) flags sentences that mention health, prefiltered by cue words.
 
 Overlaps are merged: validated match first, then longest. Writes `05_spans.jsonl` and redacted text into the release. Deterministic except cached NER and LLM output.
 
@@ -77,7 +79,7 @@ Overlaps are merged: validated match first, then longest. Writes `05_spans.jsonl
 
 **Stage 8, export (`main.py`).** Zips the release without row maps.
 
-**LLM client (`llm.py`).** The only place that calls a model. Every call is logged by id, cached by input hash and can be disabled with `--no-llm`. The LLM never sets k, epsilon or any parameter and never edits released data directly.
+**LLM client (`llm.py`).** The only place that calls a model. One interface, three providers chosen by `LLM_PROVIDER`: `gemma` (default) is Gemma 3 27B, Google's open-weights Gemma 3 model, served through the Gemini API for the demo (google-genai SDK, model `gemma-3-27b-it`, key `GEMINI_API_KEY`); `featherless` is optional, Poro 2 8B through Featherless's OpenAI-compatible API (`https://api.featherless.ai/v1`, model `LumiOpen/Llama-Poro-2-8B-Instruct`, key `FEATHERLESS_API_KEY`); `none` disables the layer. Responses are cached in `runs/cache/llm/` and rate-limit errors are retried with backoff. Every call is logged by id, model and duration only, cached by input hash and can be disabled with `--no-llm`. The LLM never sets k, epsilon or any parameter and never edits released data directly.
 
 ## Shared contracts (`api/pipeline/contracts.py`)
 

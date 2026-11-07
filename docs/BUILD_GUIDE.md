@@ -15,7 +15,7 @@ PurposeFit is one container: a FastAPI backend that runs the privacy pipeline an
 | Name gazetteer | DVV first name and surname lists | CC BY 4.0 | Official Finnish population name statistics, independent of the synthetic data |
 | NER fallback | `fastino/gliner2-privacy-filter-PII-multi` | Apache 2.0 | Label-conditioned PII model, best span F1 on the SPY benchmark in its paper |
 | Finnish NER backup | `Kansallisarkisto/finbert-ner` | MIT | Trained on Finnish; covers names, organisations, places |
-| LLM (optional layer) | `LumiOpen/Llama-Poro-2-8B-Instruct` on Featherless | Llama 3.1 Community License | Finnish and English model built with TurkuNLP; served through an OpenAI-compatible API |
+| LLM (optional layer) | `gemma-3-27b-it` through the Gemini API (default); `LumiOpen/Llama-Poro-2-8B-Instruct` on Featherless (optional) | Gemma Terms of Use; Llama 3.1 Community License | Google's open-weights Gemma 3 model, served through the Gemini API for the demo; Featherless credits are used up, so Poro 2 stays an optional provider |
 | k-anonymity | Own full-domain generalisation search, verified with `pyCANON` and `pets-eval` | Apache 2.0 (pyCANON) | Interpretable bands judges can read; independent library confirms k |
 | Hosting | Google Cloud Run + Secret Manager | Credit: $300 | Public link for judges, keys never in the image or repo |
 | Security gates | gitleaks, ruff, bandit, pip-audit, npm audit, GitHub CodeQL, secret scanning, Dependabot, Claude Code `/security-review` | Free | Each covers a different failure: leaked keys, unsafe code, vulnerable dependencies |
@@ -92,7 +92,7 @@ Each module copies a published, working design rather than inventing one; the ta
 | Detector | Ordered rules on name tokens + profile, then LLM only for low-confidence columns with 20 sampled values | Proving ground baseline B1 (`baselines/`) as the floor to beat | Confidence and plain-language reason per column |
 | Text redactor | Recogniser registry, context-word boosting, conflict resolution by score then length | [Presidio design](https://microsoft.github.io/presidio/design): recognisers, context enhancement, decision process | Spoken-digit and spelled-email normalisers; controller and DVV gazetteers; per-span `layer` tag |
 | NER fallback | Label-conditioned span extraction on residual text | [GLiNER2-PII](https://arxiv.org/pdf/2605.09973), `pip install gliner2` | Run only on sentences with no rule hit; batch and cache |
-| Health mentions | Sentence classification with an LLM, constrained JSON output | [Staab et al.](https://proceedings.iclr.cc/paper_files/paper/2025/hash/f478b2e8ad9ff0756bf5b79fb31c330f-Abstract-Conference.html) adversarial loop, simplified | Poro 2 8B on Featherless; cue-word prefilter keeps calls few |
+| Health mentions | Sentence classification with an LLM, constrained JSON output | [Staab et al.](https://proceedings.iclr.cc/paper_files/paper/2025/hash/f478b2e8ad9ff0756bf5b79fb31c330f-Abstract-Conference.html) adversarial loop, simplified | Gemma 3 27B on the Gemini API (Poro 2 on Featherless optional); cue-word prefilter keeps calls few |
 | Scenario planner | Workload-aware minimisation: keep only columns a scenario task requires; HMAC on join keys | [LeFevre, Workload-aware anonymization](https://scilit.com/publications/13b4aefa68f67d8a19a33ee4660b2ba8) | Reads the proving ground's `scenarios.json` and task `requires` lists |
 | Generalisation | Full-domain generalisation lattice: each QI has levels (e.g. age: exact, 5 y, 10 y, 80+ top-coded); enumerate all level combinations, keep those with k ≥ 5 after at most 2 % row suppression, pick the one with the best scenario utility | Incognito and [ARX Lightning](https://www.tdp.cat/issues16/abs.a223a15.php) | After minimisation only 2 to 4 QIs remain, so exhaustive search is a few hundred combinations |
 | Alternative | Mondrian multidimensional partitioning | [Mondrian paper](https://personal.utdallas.edu/~mxk055100/courses/privacy08f_files/MultiDim.pdf); `polarfrost` row-preserving variant | Use only if lattice utility is poor |
@@ -107,7 +107,7 @@ Each module copies a published, working design rather than inventing one; the ta
 3. **Gazetteers (Aho-Corasick):** values from columns the detector labelled direct identifiers, plus DVV first names (5 or more bearers) and surnames (20 or more bearers). Report the two sources separately so the synthetic-pool effect is visible.
 4. **Cues:** "nimeni on", "jag heter", "my name is", relatives ("äitini", "my partner"), secrets ("salasana", "lösenord", "password", "PIN").
 5. **NER:** GLiNER2-PII, then finbert-ner for Finnish if GLiNER misses on the test sample.
-6. **Health:** Poro 2 sentence flags, prefiltered by health cue words.
+6. **Health:** LLM sentence flags (default Gemma 3 27B), prefiltered by health cue words.
 7. **Merge:** overlapping spans resolved by validator first, then longest span; each kept span stores `layer` and `score`.
 
 **Test GLiNER2 on Finnish before relying on it.** Its model card lists 7 languages and does not confirm Finnish; run it on 200 train turns and compare recall with finbert-ner.
@@ -124,7 +124,7 @@ A privacy tool with a leaked key or a vulnerable dependency loses the argument o
 | Code flaws | GitHub CodeQL default setup | Injection, path traversal, unsafe deserialisation | GitHub on every push | Settings, Code security, CodeQL, Default |
 | Vulnerable dependencies | Dependabot alerts, `pip-audit`, `npm audit --omit=dev` | Known CVEs | GitHub and CI | Enable Dependabot; add both audits to CI |
 | AI-assisted review | Claude Code `/security-review` and the `anthropics/claude-code-security-review` GitHub Action | Logic flaws: upload path traversal, SSRF, data written to logs | Laptop before each merge; CI on PRs | Run the command in the repo; add the action with your API key as a repo secret |
-| Runtime secrets | Google Secret Manager mounted into Cloud Run with `--set-secrets` | Keys baked into images or env files | Cloud Run | `PURPOSEFIT_HMAC_KEY`, `FEATHERLESS_API_KEY` |
+| Runtime secrets | Google Secret Manager mounted into Cloud Run with `--set-secrets` | Keys baked into images or env files | Cloud Run | `PURPOSEFIT_HMAC_KEY`, `GEMINI_API_KEY`, optional `FEATHERLESS_API_KEY` |
 | Data in logs | Our own rule: log ids, counts and timings, never cell values or text | Accidental PII in Cloud Logging | Code review + a pytest that greps logs | `tests/test_no_pii_in_logs.py` |
 | Upload safety | FastAPI: size cap (50 MB), CSV only, files written to a temp dir with random names, deleted after the run | Path traversal, zip bombs, disk fill | Backend | Covered by `/security-review` |
 
@@ -141,10 +141,10 @@ A privacy tool with a leaked key or a vulnerable dependency loses the argument o
 
 Do these by hand before starting any agent; agents should never see real keys.
 
-- [ ] Claim Featherless credit; create an API key; confirm `LumiOpen/Llama-Poro-2-8B-Instruct` answers a test call
+- [ ] Create a Gemini API key in Google AI Studio; confirm `gemma-3-27b-it` answers a test call (`uv run --env-file .env python -m scripts.check_llm`). Featherless is optional: its credits are used up
 - [ ] Claim Google Cloud credit; create project `purposefit`; enable Cloud Run, Artifact Registry, Secret Manager, Cloud Build
-- [ ] Create two secrets: `purposefit-hmac-key` (32 random bytes, `openssl rand -hex 32`) and `featherless-api-key`
-- [ ] Optional: Google AI Studio key for Gemini fallback; ElevenLabs account for narration
+- [ ] Create two secrets: `purposefit-hmac-key` (32 random bytes, `openssl rand -hex 32`) and `gemini-api-key`; `featherless-api-key` only if that provider is used
+- [ ] Optional: ElevenLabs account for narration
 - [ ] Public GitHub repo `purposefit`; enable secret scanning push protection, CodeQL default setup, Dependabot alerts
 - [ ] Local `.env` (git-ignored) with the same names; `.env.example` committed with empty values
 
@@ -180,7 +180,7 @@ purposefit/
 - Inside api/: never read vendor/proving_ground/truth, metadata/pii_spans, metadata/field_catalog.csv or adversary/. Only tests/ and verify.py may.
 - Row maps go to runs/private/ only. Never return them from the API, never log them.
 - Logs contain ids, counts and timings only. Never cell values or text.
-- Keys come from env: PURPOSEFIT_HMAC_KEY, FEATHERLESS_API_KEY. Refuse to start without the HMAC key.
+- Keys come from env: PURPOSEFIT_HMAC_KEY, GEMINI_API_KEY, optional FEATHERLESS_API_KEY. Refuse to start without the HMAC key.
 - All LLM calls go through api/pipeline/llm.py, are logged by id and can be disabled with --no-llm.
 - UI and report text may only state facts from docs/FACTS.md. No em dashes, no emoji, sentence case.
 - Every task ends with: pytest green, ruff clean, a short note of what changed and how to verify it.
@@ -258,12 +258,12 @@ Add per-layer flags. Write unit tests with hand-made sentences in Finnish, Swedi
 ```text
 Add ner.py using gliner2 (fastino/gliner2-privacy-filter-PII-multi) on sentences with no rule hit, labels person,
 street address, organisation, location. Add a finbert-ner fallback (Kansallisarkisto/finbert-ner) for Finnish.
-Add health.py: prefilter sentences with health cue words, send them through llm.py to Featherless
-(LumiOpen/Llama-Poro-2-8B-Instruct) asking for JSON {is_health: bool, span: str}; validate the span exists in
+Add health.py: prefilter sentences with health cue words, send them through llm.py (default provider gemma,
+gemma-3-27b-it on the Gemini API) asking for JSON {is_health: bool, span: str}; validate the span exists in
 the sentence. Cache all model outputs by sentence hash.
 ```
 
-**Check:** HEALTH leakage below 1.00 on train; total LLM calls per CS run logged and under your Featherless budget.
+**Check:** HEALTH leakage below 1.00 on train; total LLM calls per CS run logged and under the Gemini API rate limits for Gemma.
 
 ### Phase 7. Verify, leaderboard, ablation (1.5 h)
 
@@ -316,15 +316,15 @@ Four perks go into the build; the rest stay out because they would add surface w
 
 | Perk | Exact use | Setup |
 | --- | --- | --- |
-| Featherless ($25) | `llm.py` client for health flags, low-confidence column labels and report rewording, model `LumiOpen/Llama-Poro-2-8B-Instruct` | OpenAI SDK with `base_url="https://api.featherless.ai/v1"` and `FEATHERLESS_API_KEY`; cache every response by input hash |
-| Google AI Studio (Gemini) | Fallback provider in `llm.py` if Featherless is slow; also a second reviewer for long diffs | Same interface, `LLM_PROVIDER=gemini` |
+| Google AI Studio (Gemini API) | Default `llm.py` provider: Google's open-weights Gemma 3 model, served through the Gemini API for the demo, model `gemma-3-27b-it`, for health flags, low-confidence column labels and report rewording | google-genai SDK with `GEMINI_API_KEY`, `LLM_PROVIDER=gemma`; cache every response by input hash |
+| Featherless ($25, used up) | Optional `llm.py` provider, model `LumiOpen/Llama-Poro-2-8B-Instruct` | OpenAI SDK with `base_url="https://api.featherless.ai/v1"` and `FEATHERLESS_API_KEY`, `LLM_PROVIDER=featherless` |
 | Google Cloud ($300) | Cloud Run hosting, Secret Manager, Cloud Build | Region `europe-north1` (Finland), 4 GiB memory, min instances 1 during judging so the model is warm |
 | ElevenLabs Creator | Narration for the demo video; stretch: a synthetic support call with a spoken HETU, transcribed and redacted live | Script from the demo section; voice only on synthetic content |
 | Lovable Pro | Not for the product (Carbon is built by hand for consistency). Optional: a one-page landing site linking the demo and repo | Only if time remains |
 | n8n Cloud Pro | Pitch slide only: "new export lands, PurposeFit runs, DPO approves in Slack" | None |
 | Pruna AI, Copilot Student | Not used | None |
 
-The Poro 2 choice is worth one line in the pitch: a Finnish and English open model built with the University of Turku's TurkuNLP group, so no proprietary model reads the text.
+The Gemma choice is worth one line in the pitch: Google's open-weights Gemma 3 model, served through the Gemini API for the demo. Because the weights are open, the same model can run on the organisation's own hardware. Poro 2, a Finnish and English open model built with the University of Turku's TurkuNLP group, remains an optional provider.
 
 ## Making it a stronger entry
 
@@ -381,5 +381,5 @@ Checked on 7 Nov 2026. Challenge facts come from the challenge PDF, the FINAL\_R
 - HETU: [python-stdnum fi.hetu](https://arthurdejong.org/python-stdnum/doc/stdnum.fi.hetu) · [stdnum commit adding 2023 century signs](https://lists.arthurdejong.org/python-stdnum-commits/2023/msg00011.html) · [Valtioneuvosto announcement](https://valtioneuvosto.fi/en/-/10623/availability-of-sufficient-personal-identity-codes-to-be-ensured-using-new-intermediate-characters) · [Statistics Finland definition](https://stat.fi/meta/kas/hetu.html) · [Finlex decree 690/2022](https://finlex.fi/api/media/statute/17253/mainPdf/main.pdf) · [HETU generator](https://gist.github.com/ollipal/d27c33e011e45a6773870fea29279d91)
 - Names: [DVV Finnish name data on avoindata.fi](https://www.avoindata.fi/data/en/dataset/none)
 - Algorithms: [Presidio design](https://microsoft.github.io/presidio/design) · [GLiNER2-PII paper](https://arxiv.org/pdf/2605.09973) · [GLiNER2-PII model card mirror](https://huggingface.co/mateoopa/gliner2-privacy-filter-PII-multi) · [finbert-ner](https://huggingface.co/Kansallisarkisto/finbert-ner/blob/main/README.md?code=true) · [pyCANON](https://pypi.org/project/pycanon/) · [Mondrian](https://personal.utdallas.edu/~mxk055100/courses/privacy08f_files/MultiDim.pdf) · [polarfrost](https://pypi.org/project/polarfrost/) · [Workload-aware anonymization](https://scilit.com/publications/13b4aefa68f67d8a19a33ee4660b2ba8) · [ARX Lightning](https://www.tdp.cat/issues16/abs.a223a15.php) · [TAB benchmark](https://aclanthology.org/2022.cl-4.19) · [Staab et al., ICLR 2025](https://proceedings.iclr.cc/paper_files/paper/2025/hash/f478b2e8ad9ff0756bf5b79fb31c330f-Abstract-Conference.html) · [OpenDP](https://github.com/opendp/opendp)
-- Models and services: [Featherless API reference](https://featherless.ai/docs/api-reference) · [Poro 2 8B Instruct on Featherless](https://featherless.ai/models/LumiOpen/Llama-Poro-2-8B-Instruct) · [Poro 2 release](https://www.amd.com/en/blogs/2025/silo-ai-continued-pretraining-provides-blueprint-for-gla.html) · [Cloud Run secrets](https://cloud.Google.com/run/docs/configuring/secrets)
+- Models and services: [Gemma 3 on the Gemini API](https://ai.google.dev/gemma/docs/core/gemma_on_gemini_api) · [Featherless API reference](https://featherless.ai/docs/api-reference) · [Poro 2 8B Instruct on Featherless](https://featherless.ai/models/LumiOpen/Llama-Poro-2-8B-Instruct) · [Poro 2 release](https://www.amd.com/en/blogs/2025/silo-ai-continued-pretraining-provides-blueprint-for-gla.html) · [Cloud Run secrets](https://cloud.Google.com/run/docs/configuring/secrets)
 - Security: [Claude Code security review](https://support.claude.com/en/articles/11932705) · [gitleaks with pre-commit and CI](https://www.kunalganglani.com/blog/gitleaks-pre-commit-ci-setup) · [GitHub code security docs](https://docs.github.com/en/code-security/reference) · [Push protection free on public repos](https://github.blog/search/REST%20API/page/9)

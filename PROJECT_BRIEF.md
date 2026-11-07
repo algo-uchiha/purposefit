@@ -70,8 +70,10 @@ One Docker container. A FastAPI backend runs the pipeline and serves the built R
         |                     |                         |
         v                     v                         v
   proving ground data    pets-eval + pyCANON      llm.py (optional)
-  (vendor/, read only)   (scoring, checks)        Featherless: Poro 2 8B
-                                                  fallback: Gemini
+  (vendor/, read only)   (scoring, checks)        default: Gemma 3 27B
+                                                  (Gemini API)
+                                                  optional: Poro 2 8B
+                                                  (Featherless)
 ```
 
 ### 6.2 Stages, inputs and outputs
@@ -98,7 +100,7 @@ Run in this order. Merge overlapping spans: validated match first, then longest.
 3. `gazetteer`: controller values from detected direct identifier columns, and DVV public name lists. Two separate sources, reported separately.
 4. `cues`: "nimeni on", "jag heter", "my name is", relatives, password and PIN phrases.
 5. `ner`: GLiNER2-PII on sentences with no hit; Finnish fallback finbert-ner.
-6. `health`: Poro 2 flags sentences that mention health, prefiltered by cue words.
+6. `health`: the LLM (default Gemma 3 27B) flags sentences that mention health, prefiltered by cue words.
 
 ### 6.4 Shared contracts (`api/pipeline/contracts.py`)
 
@@ -123,6 +125,10 @@ Vocabulary for `privacy_role`, `subtype` and span labels comes from `vendor/prov
 - Hero: `customer_service`, scenario CS-S1 (external analytics vendor mining contact reasons).
 - Contrast: the same dataset with CS-S3 (aggregate volumes) to show the plan changes with purpose.
 - Stretch: `health`, HEALTH-S1.
+
+### 6.7 LLM provider
+
+The default LLM is Gemma 3 27B (`gemma-3-27b-it`): Google's open-weights Gemma 3 model, served through the Gemini API for the demo. It is called with the google-genai SDK and `GEMINI_API_KEY`. Poro 2 8B (`LumiOpen/Llama-Poro-2-8B-Instruct`) on Featherless stays available as an optional provider with `FEATHERLESS_API_KEY`. `LLM_PROVIDER` picks `gemma`, `featherless` or `none`; `--no-llm` forces `none`. All calls go through `api/pipeline/llm.py`, which caches every response by input hash in `runs/cache/llm/`, retries rate-limit errors with backoff and logs only call ids, model and duration.
 
 ## 7. Non-negotiables
 
