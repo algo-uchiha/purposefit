@@ -34,7 +34,7 @@ def test_manifest_names_gemma_without_needing_its_key(tmp_path, monkeypatch):
     assert m["llm"] == {"provider": "gemma", "model": "gemma-4-31b-it"}
 
 
-@pytest.mark.parametrize("stage", [s for s in cli.STAGES if s != "run"])
+@pytest.mark.parametrize("stage", [s for s in cli.STAGES if s not in cli.HANDLERS])
 def test_every_stage_accepts_run(stage, capsys):
     assert cli.main([stage, "--run", "r1"]) == 3
     assert "not built yet" in capsys.readouterr().err
@@ -53,3 +53,25 @@ def test_key_id_differs_per_key():
 def test_tests_cannot_reach_the_network():
     with pytest.raises(RuntimeError, match="network"):
         socket.create_connection(("example.com", 443), timeout=1)
+
+
+def test_manifest_defaults_to_gemini_flash(tmp_path, monkeypatch):
+    monkeypatch.delenv("LLM_PROVIDER")
+    assert cli.main(["run", "--run", "r3"]) == 0
+    m = json.loads((tmp_path / "runs" / "r3" / "00_manifest.json").read_text())
+    assert m["llm"] == {"provider": "gemini", "model": "gemini-3.6-flash"}
+
+
+def test_detect_continues_rules_only_without_llm_key(tmp_path, monkeypatch):
+    import pandas as pd
+
+    data = tmp_path / "data" / "ds"
+    data.mkdir(parents=True)
+    pd.DataFrame({"row_id": ["1", "2"], "x": ["a", "b"]}).to_csv(data / "t.csv", index=False)
+    monkeypatch.setenv("PURPOSEFIT_DATA_DIR", str(tmp_path / "data"))
+    monkeypatch.setenv("LLM_PROVIDER", "gemini")
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    assert cli.main(["detect", "--run", "r4", "--datasets", "ds", "--llm"]) == 0
+    stats = json.loads((tmp_path / "runs" / "r4" / "02_detect_stats.json").read_text())
+    assert stats["llm"] == {"status": "unavailable"}
+    assert (tmp_path / "runs" / "r4" / "02_labels.csv").read_text().count("\n") == 3

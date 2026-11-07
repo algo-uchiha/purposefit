@@ -365,74 +365,136 @@ def detect(profiles: list[ColumnProfile]) -> list[FieldLabel]:
 # ---- optional LLM pass ---------------------------------------------------------------
 
 LLM_SYSTEM = (
-    "You classify one column of a tabular dataset for privacy review. Answer with JSON only: "
-    '{"privacy_role": ..., "subtype": ...}. privacy_role must be one of: '
+    "You classify columns of tabular datasets for privacy review. You get a JSON object with a "
+    "list of columns, each with an id, table, column name and sample values. Answer with a JSON "
+    'list only, one item per column, in the same order: [{"id": ..., "privacy_role": ..., '
+    '"subtype": ...}]. privacy_role must be one of: '
     + ", ".join(sorted(PRIVACY_ROLES))
     + ". subtype must be one of: "
     + ", ".join(sorted(SUBTYPES))
     + ". Health, union membership, religion, ethnicity, income and similar protected facts are "
     "sensitive_attribute. Values that identify a person on their own are direct_identifier."
 )
+LLM_BATCH_SIZE = 20
+LLM_PARALLEL = 4
+LLM_TOKENS_PER_COLUMN = 40  # one JSON item is about 25 tokens
+LLM_VALUE_CHARS = 80
 
 
-def _parse_llm(text: str) -> tuple[str, str] | None:
-    m = re.search(r"\{.*?\}", text, re.DOTALL)
-    if not m:
-        return None
+def _parse_llm_batch(text: str, ids: list[int]) -> dict[int, tuple[str, str]]:
+    """Valid (role, subtype) per id. Items with unknown ids or non-taxonomy terms are dropped."""
+    start, end = text.find("["), text.rfind("]")
+    if start < 0 or end <= start:
+        return {}
     try:
-        obj = json.loads(m.group(0))
+        items = json.loads(text[start : end + 1])
     except json.JSONDecodeError:
-        return None
-    role = str(obj.get("privacy_role", "")).strip()
-    sub = str(obj.get("subtype", "")).strip()
-    if role in PRIVACY_ROLES and sub in SUBTYPES:
-        return role, sub
-    return None
+        return {}
+    out: dict[int, tuple[str, str]] = {}
+    wanted = set(ids)
+    for item in items if isinstance(items, list) else []:
+        if not isinstance(item, dict):
+            continue
+        try:
+            cid = int(item.get("id"))
+        except (TypeError, ValueError):
+            continue
+        role = str(item.get("privacy_role", "")).strip()
+        sub = str(item.get("subtype", "")).strip()
+        if cid in wanted and cid not in out and role in PRIVACY_ROLES and sub in SUBTYPES:
+            out[cid] = (role, sub)
+    return out
+
+
+def _table_samples(labels: list[FieldLabel], seed: int, root: Path | None
+                   ) -> dict[tuple[str, str, str], list[str]]:  # fmt: skip
+    """Up to LLM_SAMPLE_VALUES distinct values per column; each table is read once."""
+    by_table: dict[tuple[str, str], list[str]] = {}
+    for lab in labels:
+        by_table.setdefault((lab.dataset, lab.table), []).append(lab.column)
+    out = {}
+    for (dataset, table), cols in by_table.items():
+        df = io.read_csv((root or io.data_root()) / dataset / f"{table}.csv")
+        for c in cols:
+            col = df[c][df[c].str.strip() != ""].drop_duplicates()
+            n = min(LLM_SAMPLE_VALUES, len(col))
+            vals = col.sample(n=n, random_state=seed).str.slice(0, LLM_VALUE_CHARS).tolist()
+            out[(dataset, table, c)] = vals if n else []
+    return out
 
 
 def sample_values(dataset: str, table: str, column: str, seed: int, root: Path | None = None
                   ) -> list[str]:  # fmt: skip
-    path = (root or io.data_root()) / dataset / f"{table}.csv"
-    col = io.read_csv(path)[column]
-    col = col[col.str.strip() != ""].drop_duplicates()
-    n = min(LLM_SAMPLE_VALUES, len(col))
-    return col.sample(n=n, random_state=seed).str.slice(0, 120).tolist() if n else []
+    lab = FieldLabel(dataset, table, column, "non_sensitive", "OTHER", 0.0, "", "rule")
+    return _table_samples([lab], seed, root)[(dataset, table, column)]
 
 
 def llm_pass(labels: list[FieldLabel], client, seed: int, root: Path | None = None
              ) -> tuple[list[FieldLabel], dict[str, int]]:  # fmt: skip
-    """Relabel low-confidence columns with the LLM. Invalid answers keep the rule label."""
+    """Relabel low-confidence columns with the LLM, in batches, in parallel.
+
+    Invalid or missing answers keep the rule label.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+
     from api.pipeline.llm import LLMError
 
-    stats = {"sent": 0, "accepted": 0, "rejected": 0, "errors": 0, "changed": 0}
-    out = []
-    for lab in labels:
-        if lab.confidence >= LLM_CONFIDENCE_THRESHOLD:
-            out.append(lab)
-            continue
-        values = sample_values(lab.dataset, lab.table, lab.column, seed, root)
-        prompt = json.dumps({"table": lab.table, "column": lab.column, "sample_values": values},
-                            ensure_ascii=False)  # fmt: skip
-        stats["sent"] += 1
+    low = [i for i, lab in enumerate(labels) if lab.confidence < LLM_CONFIDENCE_THRESHOLD]
+    stats = {"sent": len(low), "calls": 0, "accepted": 0, "rejected": 0, "errors": 0,
+             "changed": 0, "fallback_calls": 0, "prompt_tokens": 0, "output_tokens": 0,
+             "thought_tokens": 0}  # fmt: skip
+    if not low:
+        return list(labels), {**stats, "status": "ok"}
+    start = time.monotonic()
+    samples = _table_samples([labels[i] for i in low], seed, root)
+    batches = [low[k : k + LLM_BATCH_SIZE] for k in range(0, len(low), LLM_BATCH_SIZE)]
+
+    def ask(batch: list[int]):
+        cols = [{"id": i, "table": labels[i].table, "column": labels[i].column,
+                 "sample_values": samples[(labels[i].dataset, labels[i].table,
+                                           labels[i].column)]} for i in batch]  # fmt: skip
+        prompt = json.dumps({"columns": cols}, ensure_ascii=False)
         try:
-            resp = client.complete(prompt, system=LLM_SYSTEM, max_tokens=200)
-        except LLMError:
-            stats["errors"] += 1
-            out.append(lab)
+            return batch, client.complete(
+                prompt, system=LLM_SYSTEM, max_tokens=LLM_TOKENS_PER_COLUMN * len(batch) + 64,
+                validate=lambda text: bool(_parse_llm_batch(text, batch)),
+            )
+        except Exception as exc:  # noqa: BLE001 (never block a run on the LLM)
+            if not isinstance(exc, LLMError):
+                log.warning(json.dumps({"stage": "detect_llm", "event": "llm_batch_failed",
+                                        "error": type(exc).__name__}))  # fmt: skip
+            return batch, None
+
+    with ThreadPoolExecutor(max_workers=LLM_PARALLEL) as pool:
+        results = list(pool.map(ask, batches))
+
+    out = list(labels)
+    for batch, resp in results:
+        stats["calls"] += 1
+        if resp is None:
+            stats["errors"] += len(batch)
             continue
-        parsed = _parse_llm(resp.text)
-        if parsed is None:
-            stats["rejected"] += 1
-            out.append(lab)
-            continue
-        stats["accepted"] += 1
-        if parsed != (lab.privacy_role, lab.subtype):
-            stats["changed"] += 1
-        out.append(replace(lab, privacy_role=parsed[0], subtype=parsed[1], confidence=0.7,
-                           source="llm",
-                           reason=f"LLM label ({resp.model}), call {resp.call_id}; "
-                                  f"rule said: {lab.reason}"))  # fmt: skip
-    log.info(json.dumps({"stage": "detect_llm", **stats}))
+        stats["fallback_calls"] += int(getattr(resp, "fallback", False))
+        for k in ("prompt_tokens", "output_tokens", "thought_tokens"):
+            stats[k] += getattr(resp, k, 0)
+        parsed = _parse_llm_batch(resp.text, batch)
+        for i in batch:
+            lab = labels[i]
+            if i not in parsed:
+                stats["rejected"] += 1
+                continue
+            stats["accepted"] += 1
+            if parsed[i] != (lab.privacy_role, lab.subtype):
+                stats["changed"] += 1
+            out[i] = replace(lab, privacy_role=parsed[i][0], subtype=parsed[i][1],
+                             confidence=0.7, source="llm",
+                             reason=f"LLM label ({resp.model}), call {resp.call_id}; "
+                                    f"rule said: {lab.reason}")  # fmt: skip
+    stats["duration_ms"] = int((time.monotonic() - start) * 1000)
+    stats["status"] = ("failed_rules_only" if stats["errors"] == stats["sent"]
+                       else "partial" if stats["errors"] else "ok")  # fmt: skip
+    level = logging.WARNING if stats["errors"] else logging.INFO
+    log.log(level, json.dumps({"stage": "detect_llm", **stats}))
     return out, stats
 
 

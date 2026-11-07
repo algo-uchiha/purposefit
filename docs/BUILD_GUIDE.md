@@ -15,7 +15,7 @@ PurposeFit is one container: a FastAPI backend that runs the privacy pipeline an
 | Name gazetteer | DVV first name and surname lists | CC BY 4.0 | Official Finnish population name statistics, independent of the synthetic data |
 | NER fallback | `fastino/gliner2-privacy-filter-PII-multi` | Apache 2.0 | Label-conditioned PII model, best span F1 on the SPY benchmark in its paper |
 | Finnish NER backup | `Kansallisarkisto/finbert-ner` | MIT | Trained on Finnish; covers names, organisations, places |
-| LLM (optional layer) | `gemma-4-31b-it` through the Gemini API (default); `LumiOpen/Llama-Poro-2-8B-Instruct` on Featherless (optional) | Gemma Terms of Use; Llama 3.1 Community License | Google's open-weights Gemma 4 model, served through the Gemini API for the demo; Featherless credits are used up, so Poro 2 stays an optional provider |
+| LLM (optional layer) | `gemini-3.6-flash` through the Gemini API, thinking off (default); `gemma-4-31b-it` and `LumiOpen/Llama-Poro-2-8B-Instruct` on Featherless (optional, env only) | Gemini API terms; Gemma Terms of Use; Llama 3.1 Community License | Fast, accepts thinking off, answered every call on 8 Nov 2026. The LLM step is optional and swappable; every release is also produced and verified with it switched off. |
 | k-anonymity | Own full-domain generalisation search, verified with `pyCANON` and `pets-eval` | Apache 2.0 (pyCANON) | Interpretable bands judges can read; independent library confirms k |
 | Hosting | Google Cloud Run + Secret Manager | Credit: $300 | Public link for judges, keys never in the image or repo |
 | Security gates | gitleaks, ruff, bandit, pip-audit, npm audit, GitHub CodeQL, secret scanning, Dependabot, Claude Code `/security-review` | Free | Each covers a different failure: leaked keys, unsafe code, vulnerable dependencies |
@@ -107,7 +107,7 @@ Each module copies a published, working design rather than inventing one; the ta
 3. **Gazetteers (Aho-Corasick):** values from columns the detector labelled direct identifiers, plus DVV first names (5 or more bearers) and surnames (20 or more bearers). Report the two sources separately so the synthetic-pool effect is visible.
 4. **Cues:** "nimeni on", "jag heter", "my name is", relatives ("äitini", "my partner"), secrets ("salasana", "lösenord", "password", "PIN").
 5. **NER:** GLiNER2-PII, then finbert-ner for Finnish if GLiNER misses on the test sample.
-6. **Health:** LLM sentence flags (default Gemma 4 31B), prefiltered by health cue words.
+6. **Health:** LLM sentence flags (default Gemini 3.6 Flash), prefiltered by health cue words.
 7. **Merge:** overlapping spans resolved by validator first, then longest span; each kept span stores `layer` and `score`.
 
 **Test GLiNER2 on Finnish before relying on it.** Its model card lists 7 languages and does not confirm Finnish; run it on 200 train turns and compare recall with finbert-ner.
@@ -141,7 +141,7 @@ A privacy tool with a leaked key or a vulnerable dependency loses the argument o
 
 Do these by hand before starting any agent; agents should never see real keys.
 
-- [ ] Create a Gemini API key in Google AI Studio; confirm `gemma-4-31b-it` answers a test call (`uv run --env-file .env python -m scripts.check_llm`). Featherless is optional: its credits are used up
+- [ ] Create a Gemini API key in Google AI Studio; confirm `gemini-3.6-flash` answers a test call (`uv run --env-file .env python -m scripts.check_llm`). Featherless is optional: its credits are used up
 - [ ] Claim Google Cloud credit; create project `purposefit`; enable Cloud Run, Artifact Registry, Secret Manager, Cloud Build
 - [ ] Create two secrets: `purposefit-hmac-key` (32 random bytes, `openssl rand -hex 32`) and `gemini-api-key`; `featherless-api-key` only if that provider is used
 - [ ] Optional: ElevenLabs account for narration
@@ -258,12 +258,12 @@ Add per-layer flags. Write unit tests with hand-made sentences in Finnish, Swedi
 ```text
 Add ner.py using gliner2 (fastino/gliner2-privacy-filter-PII-multi) on sentences with no rule hit, labels person,
 street address, organisation, location. Add a finbert-ner fallback (Kansallisarkisto/finbert-ner) for Finnish.
-Add health.py: prefilter sentences with health cue words, send them through llm.py (default provider gemma,
-gemma-4-31b-it on the Gemini API) asking for JSON {is_health: bool, span: str}; validate the span exists in
+Add health.py: prefilter sentences with health cue words, send them through llm.py (default provider gemini,
+gemini-3.6-flash on the Gemini API, thinking off) asking for JSON {is_health: bool, span: str}; validate the span exists in
 the sentence. Cache all model outputs by sentence hash.
 ```
 
-**Check:** HEALTH leakage below 1.00 on train; total LLM calls per CS run logged and under the Gemini API rate limits for Gemma.
+**Check:** HEALTH leakage below 1.00 on train; total LLM calls per CS run logged and under the Gemini API rate limits for Gemini 3.6 Flash.
 
 ### Phase 7. Verify, leaderboard, ablation (1.5 h)
 
@@ -316,7 +316,7 @@ Four perks go into the build; the rest stay out because they would add surface w
 
 | Perk | Exact use | Setup |
 | --- | --- | --- |
-| Google AI Studio (Gemini API) | Default `llm.py` provider: Google's open-weights Gemma 4 model, served through the Gemini API for the demo, model `gemma-4-31b-it`, for health flags, low-confidence column labels and report rewording | google-genai SDK with `GEMINI_API_KEY`, `LLM_PROVIDER=gemma`; cache every response by input hash |
+| Google AI Studio (Gemini API) | Default `llm.py` provider: `gemini-3.6-flash`, thinking off, for health flags, low-confidence column labels and report rewording | google-genai SDK with `GEMINI_API_KEY`, `LLM_PROVIDER=gemini`; cache every valid response by input hash |
 | Featherless ($25, used up) | Optional `llm.py` provider, model `LumiOpen/Llama-Poro-2-8B-Instruct` | OpenAI SDK with `base_url="https://api.featherless.ai/v1"` and `FEATHERLESS_API_KEY`, `LLM_PROVIDER=featherless` |
 | Google Cloud ($300) | Cloud Run hosting, Secret Manager, Cloud Build | Region `europe-north1` (Finland), 4 GiB memory, min instances 1 during judging so the model is warm |
 | ElevenLabs Creator | Narration for the demo video; stretch: a synthetic support call with a spoken HETU, transcribed and redacted live | Script from the demo section; voice only on synthetic content |
@@ -324,7 +324,7 @@ Four perks go into the build; the rest stay out because they would add surface w
 | n8n Cloud Pro | Pitch slide only: "new export lands, PurposeFit runs, DPO approves in Slack" | None |
 | Pruna AI, Copilot Student | Not used | None |
 
-The Gemma choice is worth one line in the pitch: Google's open-weights Gemma 4 model, served through the Gemini API for the demo. Because the weights are open, the same model can run on the organisation's own hardware. Poro 2, a Finnish and English open model built with the University of Turku's TurkuNLP group, remains an optional provider.
+The LLM line for the pitch: The LLM step is optional and swappable; every release is also produced and verified with it switched off.
 
 ## Making it a stronger entry
 

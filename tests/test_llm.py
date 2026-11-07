@@ -134,13 +134,21 @@ def test_none_provider_and_no_llm(tmp_path, monkeypatch):
         client.complete("x")
 
 
-def test_default_provider_is_gemma(tmp_path, monkeypatch):
+def test_default_provider_is_gemini_flash_thinking_off(tmp_path, monkeypatch):
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
     monkeypatch.delenv("LLM_MODEL", raising=False)
     monkeypatch.setenv("GEMINI_API_KEY", "test-not-a-real-key")
     client = llm.get_client(cache_dir=tmp_path)
-    assert client.provider.name == "gemma"
-    assert client.provider.model == "gemma-4-31b-it"
+    assert client.provider.name == "gemini"
+    assert client.provider.model == "gemini-3.6-flash"
+    assert client.provider.can_disable_thinking and client.fallback is None
+
+
+def test_gemma_stays_selectable_by_env(tmp_path, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test-not-a-real-key")
+    monkeypatch.setenv("LLM_PROVIDER", "gemma")
+    client = llm.get_client(cache_dir=tmp_path)
+    assert client.provider.model == "gemma-4-31b-it" and not client.provider.can_disable_thinking
 
 
 def test_featherless_provider_configures(tmp_path, monkeypatch):
@@ -151,7 +159,8 @@ def test_featherless_provider_configures(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "name,var", [("gemma", "GEMINI_API_KEY"), ("featherless", "FEATHERLESS_API_KEY")]
+    "name,var", [("gemini", "GEMINI_API_KEY"), ("gemma", "GEMINI_API_KEY"),
+                 ("featherless", "FEATHERLESS_API_KEY")]
 )
 def test_missing_key_names_the_env_line(tmp_path, monkeypatch, name, var):
     monkeypatch.delenv(var, raising=False)
@@ -177,10 +186,11 @@ def test_gemma_folds_system_into_prompt(monkeypatch):
         return Resp()
 
     monkeypatch.setattr(prov._client.models, "generate_content", fake_generate_content)
-    assert prov.generate("question", system="rules", temperature=0.0, max_tokens=5) == "ok"
+    assert prov.generate("question", system="rules", temperature=0.0, max_tokens=5)[0] == "ok"
     assert seen["model"] == "gemma-4-31b-it"
     assert seen["contents"] == "rules\n\nquestion"
     assert seen["config"].system_instruction is None
+    assert seen["config"].thinking_config is None  # Gemma rejects thinking settings
     assert seen["config"].max_output_tokens == 5
 
 
@@ -199,3 +209,126 @@ def test_featherless_and_gemma_cache_keys_differ(tmp_path, monkeypatch):
     g = llm.get_client("gemma", cache_dir=tmp_path)
     f = llm.get_client("featherless", cache_dir=tmp_path)
     assert g.cache_key("p", None, 0.0, 5) != f.cache_key("p", None, 0.0, 5)
+
+
+class Timeout(Exception):
+    pass
+
+
+def test_gemini_model_turns_thinking_off(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test-not-a-real-key")
+    prov = llm.GeminiProvider()
+    seen = {}
+
+    class Resp:
+        text = "ok"
+        usage_metadata = None
+
+    monkeypatch.setattr(prov._client.models, "generate_content",
+                        lambda **kw: seen.update(kw) or Resp())
+    prov.generate("q", system=None, temperature=0.0, max_tokens=5)
+    assert seen["config"].thinking_config.thinking_budget == 0
+
+
+def test_thinking_model_gets_headroom(tmp_path):
+    seen = []
+
+    class Thinker(FakeProvider):
+        can_disable_thinking = False
+
+        def generate(self, prompt, *, system, temperature, max_tokens):
+            seen.append(max_tokens)
+            return "ok"
+
+    client = llm.LLMClient(Thinker([]), cache_dir=tmp_path, thinking_headroom=1000)
+    client.complete("x", max_tokens=100)
+    assert seen == [1100]
+
+
+def test_server_error_500_is_retried_and_logged_as_warning(tmp_path, caplog):
+    caplog.set_level(logging.WARNING, logger="purposefit.llm")
+    client, prov, _sleeps = make(tmp_path, [StatusError(code=500), "ok"])
+    assert client.complete("x").text == "ok" and prov.calls == 2
+    assert any(r.levelno == logging.WARNING and "llm_retry" in r.getMessage()
+               for r in caplog.records)
+
+
+def test_empty_answer_is_not_cached_and_falls_back(tmp_path):
+    fb = FakeProvider(["fallback answer"])
+    fb.model = "fallback-model"
+    client = llm.LLMClient(FakeProvider(["", "  "]), cache_dir=tmp_path, fallback=fb,
+                           sleep=lambda s: None)
+    r = client.complete("x")
+    assert (r.text, r.model, r.fallback) == ("fallback answer", "fallback-model", True)
+    cached = client.complete("x")
+    assert cached.cached and cached.model == "fallback-model"
+
+
+def test_empty_answer_without_fallback_raises_and_caches_nothing(tmp_path):
+    client, prov, _ = make(tmp_path, ["", ""])
+    with pytest.raises(llm.EmptyResponse):
+        client.complete("x")
+    assert prov.calls == 2  # retried once
+    assert not list(tmp_path.rglob("*.json"))
+
+
+def test_empty_answer_is_never_written_to_cache(tmp_path):
+    client, prov, _ = make(tmp_path, ["", "real answer"])
+    r = client.complete("x")
+    assert (r.text, prov.calls) == ("real answer", 2)
+    files = list(tmp_path.rglob("*.json"))
+    assert len(files) == 1
+    assert __import__("json").loads(files[0].read_text())["text"] == "real answer"
+    assert not list(tmp_path.rglob("*.tmp"))
+
+
+def test_unparseable_answer_retried_once_then_falls_back(tmp_path, caplog):
+    caplog.set_level(logging.WARNING, logger="purposefit.llm")
+    fb = FakeProvider(['{"ok": 1}'])
+    fb.model = "fallback-model"
+    prov = FakeProvider(["no json", "still no json"])
+    client = llm.LLMClient(prov, cache_dir=tmp_path, fallback=fb)
+    r = client.complete("x", validate=lambda t: t.startswith("{"))
+    assert prov.calls == 2 and r.fallback and r.text == '{"ok": 1}'
+    assert "llm_invalid_retry" in caplog.text and "llm_fallback" in caplog.text
+    cached = [__import__("json").loads(f.read_text())["text"] for f in tmp_path.rglob("*.json")]
+    assert cached == ['{"ok": 1}']
+
+
+def test_unparseable_answer_without_fallback_caches_nothing(tmp_path):
+    client, _, _ = make(tmp_path, ["bad", "bad"])
+    with pytest.raises(llm.EmptyResponse):
+        client.complete("x", validate=lambda t: False)
+    assert not list(tmp_path.rglob("*.json"))
+
+
+def test_deadline_exceeded_504_counts_as_timeout(tmp_path):
+    assert llm.is_timeout(StatusError(code=504))
+    fb = FakeProvider(["fast"])
+    fb.model = "fallback-model"
+    client = llm.LLMClient(FakeProvider([StatusError(code=504)]), cache_dir=tmp_path, fallback=fb)
+    assert client.complete("x").fallback
+
+
+def test_timeout_falls_back(tmp_path, caplog):
+    caplog.set_level(logging.WARNING, logger="purposefit.llm")
+    fb = FakeProvider(["fast"])
+    fb.model = "fallback-model"
+    client = llm.LLMClient(FakeProvider([Timeout()]), cache_dir=tmp_path, fallback=fb)
+    assert client.complete("x").text == "fast"
+    assert "llm_fallback" in caplog.text and SECRET_TEXT not in caplog.text
+
+
+def test_timeout_without_fallback_raises(tmp_path):
+    client, _, _ = make(tmp_path, [Timeout()])
+    with pytest.raises(llm.LLMError):
+        client.complete("x")
+
+
+def test_gemma_client_has_flash_fallback(tmp_path, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test-not-a-real-key")
+    monkeypatch.delenv("LLM_FALLBACK_MODEL", raising=False)
+    client = llm.get_client("gemma", cache_dir=tmp_path)
+    assert client.fallback.model == "gemini-3.6-flash"
+    monkeypatch.setenv("LLM_FALLBACK_MODEL", "none")
+    assert llm.get_client("gemma", cache_dir=tmp_path).fallback is None

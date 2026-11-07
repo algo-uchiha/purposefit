@@ -75,7 +75,8 @@ def build_manifest(args: argparse.Namespace, key: str) -> dict:
     # Names only: building a provider client here would need its API key.
     provider = "none" if args.no_llm else (os.environ.get("LLM_PROVIDER") or llm.DEFAULT_PROVIDER)
     provider = provider.strip().lower()
-    defaults = {"gemma": llm.GEMMA_MODEL, "featherless": llm.FEATHERLESS_MODEL, "none": "none"}
+    defaults = {"gemini": llm.GEMINI_MODEL, "gemma": llm.GEMMA_MODEL,
+                "featherless": llm.FEATHERLESS_MODEL, "none": "none"}  # fmt: skip
     model = "none" if provider == "none" else (
         os.environ.get("LLM_MODEL", "").strip() or defaults.get(provider, "unknown")
     )  # fmt: skip
@@ -100,6 +101,59 @@ def cmd_run(args: argparse.Namespace, key: str) -> int:
     return 0
 
 
+def _datasets(args: argparse.Namespace) -> list[str]:
+    from api.pipeline import io
+
+    if args.datasets == "all":
+        return [d for d in io.list_datasets() if d != "unseen"]
+    return [d.strip() for d in args.datasets.split(",") if d.strip()]
+
+
+def cmd_profile(args: argparse.Namespace, key: str) -> int:
+    from api.pipeline.profile import profile_dataset, write_profiles
+
+    run_path = runs_dir() / args.run
+    run_path.mkdir(parents=True, exist_ok=True)
+    profiles = [p for d in _datasets(args) for p in profile_dataset(d, args.seed)]
+    write_profiles(profiles, run_path / "01_profiles.json")
+    return 0
+
+
+def cmd_detect(args: argparse.Namespace, key: str) -> int:
+    from api.pipeline import detect as det
+    from api.pipeline import llm as llm_mod
+    from api.pipeline.profile import read_profiles
+
+    run_path = runs_dir() / args.run
+    if not (run_path / "01_profiles.json").exists():
+        cmd_profile(args, key)
+    labels = det.detect(read_profiles(run_path / "01_profiles.json"))
+    stats: dict = {"status": "off"}
+    if args.llm and not args.no_llm:
+        try:
+            client = llm_mod.get_client()
+        except llm_mod.LLMError:
+            # Never block a run on the LLM: keep the rules-only labels and say so.
+            log.warning(json.dumps({"run_id": args.run, "stage": "detect",
+                                    "event": "llm_unavailable"}))  # fmt: skip
+            stats = {"status": "unavailable"}
+        else:
+            labels, stats = det.llm_pass(labels, client, args.seed)
+    det.write_labels(labels, run_path / "02_labels.csv")
+    det.write_label_details(labels, run_path / "02_labels_detail.json")
+    (run_path / "02_detect_stats.json").write_text(json.dumps(
+        {"columns": len(labels), "llm": stats,
+         "llm_threshold": det.LLM_CONFIDENCE_THRESHOLD}, indent=2), encoding="utf-8")  # fmt: skip
+    if args.unseen_out:
+        out = Path(args.unseen_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        det.write_labels(labels, out, unseen_format=True)
+    return 0
+
+
+HANDLERS = {"run": cmd_run, "profile": cmd_profile, "detect": cmd_detect}
+
+
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="purposefit", description="Purpose-fit data release")
     sub = p.add_subparsers(dest="stage", required=True)
@@ -110,6 +164,12 @@ def parser() -> argparse.ArgumentParser:
         s.add_argument("--no-llm", action="store_true", help="switch off every LLM call")
         s.add_argument("--no-ner", action="store_true", help="switch off the NER layer")
         s.add_argument("--no-gazetteer", action="store_true", help="switch off gazetteers")
+        s.add_argument("--datasets", default="customer_service",
+                       help="comma-separated dataset ids, or all")
+        if stage == "detect":
+            s.add_argument("--llm", action="store_true",
+                           help="send low-confidence columns to the LLM (off by default)")
+            s.add_argument("--unseen-out", help="also write column,privacy_role,subtype here")
     return p
 
 
@@ -122,8 +182,8 @@ def main(argv: list[str] | None = None) -> int:
         print(str(exc), file=sys.stderr)
         return 2
     start = time.monotonic()
-    if args.stage == "run":
-        code = cmd_run(args, key)
+    if args.stage in HANDLERS:
+        code = HANDLERS[args.stage](args, key)
     else:
         print(f"Stage {args.stage} is not built yet.", file=sys.stderr)
         code = 3

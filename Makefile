@@ -13,3 +13,6 @@ audit:
 
 demo:
 	uv run --env-file .env python -m api.cli run --run demo --no-llm
+
+eval-detect:
+	LLM_PROVIDER=none uv run --with ./vendor/proving_ground/toolkit pytest -q -rs tests/test_detect_scores.py

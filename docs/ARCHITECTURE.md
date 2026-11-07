@@ -23,10 +23,10 @@ One Docker container. A FastAPI backend runs the pipeline and serves the built R
         |                     |                         |
         v                     v                         v
   proving ground data    pets-eval + pyCANON      llm.py (optional)
-  (vendor/, read only)   (scoring, checks)        default: Gemma 4 31B
+  (vendor/, read only)   (scoring, checks)        default: Gemini 3.6 Flash
                                                   (Gemini API)
-                                                  optional: Poro 2 8B
-                                                  (Featherless)
+                                                  optional: Gemma 4,
+                                                  Poro 2 (Featherless)
 ```
 
 ## Repo layout
@@ -69,7 +69,7 @@ tests/
 3. `gazetteer`: controller values from detected direct identifier columns, and DVV public name lists. Two sources, reported separately.
 4. `cues`: "nimeni on", "jag heter", "my name is", relatives, password and PIN phrases.
 5. `ner`: GLiNER2-PII on sentences with no hit; Finnish fallback finbert-ner.
-6. `health`: the LLM (default Gemma 4 31B) flags sentences that mention health, prefiltered by cue words.
+6. `health`: the LLM (default Gemini 3.6 Flash) flags sentences that mention health, prefiltered by cue words.
 
 Overlaps are merged: validated match first, then longest. Writes `05_spans.jsonl` and redacted text into the release. Deterministic except cached NER and LLM output.
 
@@ -79,7 +79,7 @@ Overlaps are merged: validated match first, then longest. Writes `05_spans.jsonl
 
 **Stage 8, export (`main.py`).** Zips the release without row maps.
 
-**LLM client (`llm.py`).** The only place that calls a model. One interface, three providers chosen by `LLM_PROVIDER`: `gemma` (default) is Gemma 4 31B, Google's open-weights Gemma 4 model, served through the Gemini API for the demo (google-genai SDK, model `gemma-4-31b-it`, key `GEMINI_API_KEY`); `featherless` is optional, Poro 2 8B through Featherless's OpenAI-compatible API (`https://api.featherless.ai/v1`, model `LumiOpen/Llama-Poro-2-8B-Instruct`, key `FEATHERLESS_API_KEY`); `none` disables the layer. An optional `LLM_MODEL` overrides the provider's default model name. Gemma 3 27B was the first choice, but the Gemini API no longer serves it (404 on 7 Nov 2026), so the default is Gemma 4 31B. Responses are cached in `runs/cache/llm/` and rate-limit errors are retried with backoff. Every call is logged by id, model and duration only, cached by input hash and can be disabled with `--no-llm`. The LLM never sets k, epsilon or any parameter and never edits released data directly.
+**LLM client (`llm.py`).** The only place that calls a model. The default LLM is `gemini-3.6-flash` on the Gemini API, called with the google-genai SDK and `GEMINI_API_KEY`, with thinking off. `LLM_PROVIDER` picks `gemini` (default), `gemma` (`gemma-4-31b-it`, optional), `featherless` (Poro 2 8B, optional, `FEATHERLESS_API_KEY`) or `none`; `--no-llm` forces `none`. The optional providers are selectable by environment only and are not used by default. An optional `LLM_MODEL` overrides the provider's default model name. Gemma 4 31B was the default until 8 Nov 2026; it was dropped because every call that night returned a 500 error or hit the 30 s timeout, and its thinking cannot be switched off. The LLM step is optional and swappable; every release is also produced and verified with it switched off. If the LLM fails after retries, the run continues with rules-only labels, logs it and says so in the report. All calls go through `api/pipeline/llm.py`, which caches every non-empty, valid response by input hash in `runs/cache/llm/`, retries rate-limit and server errors with backoff (logged at WARNING) and logs only call ids, model, duration and token counts. The LLM never sets k, epsilon or any parameter and never edits released data directly.
 
 ## Shared contracts (`api/pipeline/contracts.py`)
 

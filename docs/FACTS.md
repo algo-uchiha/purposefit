@@ -17,5 +17,6 @@ The UI, report, README and pitch may state only these facts, in these words or n
 | Text anonymisation | Removing predefined entity types is not enough; evaluation should weight recall and consider indirect identifiers. | TAB, Pilán et al. 2022, https://aclanthology.org/2022.cl-4.19 |
 | LLM inference risk | LLMs infer personal attributes from text near human level; adversarial LLM feedback improves anonymisation. | Staab et al., ICLR 2025 |
 | Proving-ground baselines | B2 regex redaction leaks 71 to 88 % of identifying values in free text; B2-k utility falls to 0.00 on HEALTH-S2 and CITY-S3. | vendor/proving_ground/results/, pets-eval 1.0.0 |
+| LLM step | The LLM step is optional and swappable; every release is also produced and verified with it switched off. | `api/pipeline/llm.py`; `--no-llm` runs in every phase report |
 
 Words the product never uses: anonymous, anonymised, GDPR compliant, secure, guaranteed (except "epsilon-DP guarantee" when a DP mechanism with accounting actually ran).
