@@ -67,7 +67,7 @@ def test_every_label_is_valid_and_has_reason():
 
 def test_frozen_settings():
     assert det.LLM_CONFIDENCE_THRESHOLD == 0.6
-    assert len(det.RULE_FAMILIES) == 12
+    assert len(det.RULE_FAMILIES) == 15
 
 
 class FakeResp:
@@ -169,3 +169,85 @@ def test_api_never_reads_forbidden_files():
             code = re.sub(r'"""[\s\S]*?"""', "", text)
             code = "\n".join(line.split("#")[0] for line in code.splitlines())
             assert word not in code, f"{path.relative_to(ROOT)} mentions {word}"
+
+
+def _dataset(tmp_path, df, readme=""):
+    d = tmp_path / "ds"
+    d.mkdir()
+    df.to_csv(d / "t.csv", index=False)
+    if readme:
+        (d / "README.md").write_text(readme, encoding="utf-8")
+    profiles = prof.profile_dataset("ds", 1, tmp_path)
+    return det.detect_pipeline(profiles, 1, None, tmp_path)
+
+
+def test_unkeyed_hash_of_identifier_inherits_its_label(tmp_path):
+    import hashlib
+
+    hetus = ["131052-308T", "010101A123N", "311299-999E", "150590-123J"] * 100
+    df = pd.DataFrame({
+        "row_id": [str(i) for i in range(400)],
+        "c1": hetus,
+        "c2": [hashlib.sha256(h.lower().encode()).hexdigest().upper() for h in hetus],
+    })  # fmt: skip
+    labels, _, findings = _dataset(tmp_path, df)
+    got = {lab.column: lab for lab in labels}
+    assert (got["c2"].privacy_role, got["c2"].subtype) == ("direct_identifier", "NATIONAL_ID")
+    assert got["c2"].reason.startswith("unkeyed hash of c1, reversible by enumeration")
+    assert findings[0]["kind"] == "unkeyed_hash" and findings[0]["algorithm"] == "SHA-256"
+    assert findings[0]["variant"] == "lower"
+    assert "131052" not in json.dumps(findings)
+
+
+def test_random_hex_is_not_called_a_hash(tmp_path):
+    import secrets
+
+    df = pd.DataFrame({"row_id": [str(i) for i in range(50)], "c1": ["a"] * 50,
+                       "c2": [secrets.token_hex(32) for _ in range(50)]})  # fmt: skip
+    labels, _, findings = _dataset(tmp_path, df)
+    assert findings == [] and "hash_of_column" not in labels[2].reason
+
+
+def test_dependency_on_sensitive_column(tmp_path):
+    n = 200
+    union = ["AY-HL" if i % 3 else "" for i in range(n)]
+    fee = ["12,50" if u else "0,00" for u in union]
+    df = pd.DataFrame({"row_id": [str(i) for i in range(n)], "union_code": union, "c9": fee})
+    labels, _, findings = _dataset(tmp_path, df)
+    got = {lab.column: lab for lab in labels}
+    assert got["union_code"].privacy_role == "sensitive_attribute"
+    assert got["c9"].privacy_role == "sensitive_attribute"
+    assert "union_code" in got["c9"].reason and findings[-1]["kind"] == "dependency"
+
+
+def test_dependency_never_relabels_an_identifier(tmp_path):
+    n = 200
+    hr = ["80" if i % 3 else "" for i in range(n)]
+    df = pd.DataFrame({"row_id": [str(i) for i in range(n)], "heart_rate": hr,
+                       "postcode": ["20100" if h else "" for h in hr]})  # fmt: skip
+    labels, _, findings = _dataset(tmp_path, df)
+    assert {x.column: x for x in labels}["postcode"].privacy_role == "quasi_identifier"
+    assert findings == []
+
+
+def test_repeating_code_is_a_person_id_by_context(tmp_path):
+    n = 300
+    df = pd.DataFrame({"row_id": [f"R{i:05d}" for i in range(n)],
+                       "c2": [f"KC-{1000 + i % 60}" for i in range(n)]})  # fmt: skip
+    labels, _, _ = _dataset(tmp_path, df, readme="HR and payroll export of employees.")
+    lab = {x.column: x for x in labels}["c2"]
+    assert (lab.privacy_role, lab.subtype) == ("technical_identifier", "EMPLOYEE_ID")
+    assert "[person_code]" in lab.reason
+
+
+def test_llm_prompt_carries_readme(tmp_path):
+    d = tmp_path / "ds"
+    d.mkdir()
+    pd.DataFrame({"row_id": [str(i) for i in range(30)], "x": ["v"] * 30}).to_csv(
+        d / "t.csv", index=False)
+    (d / "README.md").write_text("Care company HR export.", encoding="utf-8")
+    labels = det.detect(prof.profile_dataset("ds", 1, tmp_path))
+    client = FakeClient(lambda cols: "[]")
+    det.llm_pass(labels, client, 1, tmp_path)
+    assert client.prompts[0]["dataset_description"] == "Care company HR export."
+    assert "trade union" in det.LLM_SYSTEM and "shift" in det.LLM_SYSTEM

@@ -36,3 +36,9 @@ def dataset_tables(dataset: str, root: Path | None = None) -> Iterator[tuple[str
 def list_datasets(root: Path | None = None) -> list[str]:
     base = root or data_root()
     return sorted(p.name for p in base.iterdir() if p.is_dir() and any(p.glob("*.csv")))
+
+
+def read_readme(dataset: str, root: Path | None = None) -> str:
+    """The dataset's own README (public input for users). Empty when absent."""
+    path = (root or data_root()) / dataset / "README.md"
+    return path.read_text(encoding="utf-8") if path.is_file() else ""

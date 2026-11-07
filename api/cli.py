@@ -127,8 +127,9 @@ def cmd_detect(args: argparse.Namespace, key: str) -> int:
     run_path = runs_dir() / args.run
     if not (run_path / "01_profiles.json").exists():
         cmd_profile(args, key)
-    labels = det.detect(read_profiles(run_path / "01_profiles.json"))
-    stats: dict = {"status": "off"}
+    profiles = read_profiles(run_path / "01_profiles.json")
+    client = None
+    unavailable = False
     if args.llm and not args.no_llm:
         try:
             client = llm_mod.get_client()
@@ -136,9 +137,11 @@ def cmd_detect(args: argparse.Namespace, key: str) -> int:
             # Never block a run on the LLM: keep the rules-only labels and say so.
             log.warning(json.dumps({"run_id": args.run, "stage": "detect",
                                     "event": "llm_unavailable"}))  # fmt: skip
-            stats = {"status": "unavailable"}
-        else:
-            labels, stats = det.llm_pass(labels, client, args.seed)
+            unavailable = True
+    labels, stats, findings = det.detect_pipeline(profiles, args.seed, client)
+    if unavailable:
+        stats = {"status": "unavailable"}
+    (run_path / "02_findings.json").write_text(json.dumps(findings, indent=2), encoding="utf-8")
     det.write_labels(labels, run_path / "02_labels.csv")
     det.write_label_details(labels, run_path / "02_labels_detail.json")
     (run_path / "02_detect_stats.json").write_text(json.dumps(

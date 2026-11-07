@@ -11,6 +11,7 @@ The rule families and the threshold were fixed before any held-out score was loo
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import logging
 import re
@@ -39,6 +40,10 @@ RULE_FAMILIES = (
     "value_quasi",       # dates, timestamps, postcodes, coordinates by value
     "value_code",        # code-like or hash values
     "default",           # nothing matched
+    # Phase 2b, applied after the rules above (frozen again before held-out rescoring):
+    "person_code",       # repeating code column, a person identifier, not a record key
+    "hash_of_column",    # values are an unkeyed MD5 / SHA-1 / SHA-256 of another column
+    "dependency",        # numeric value present exactly where a sensitive column is filled
 )  # fmt: skip
 
 LABEL_COLUMNS = ["dataset", "table", "column", "privacy_role", "subtype"]
@@ -372,9 +377,16 @@ LLM_SYSTEM = (
     + ", ".join(sorted(PRIVACY_ROLES))
     + ". subtype must be one of: "
     + ", ".join(sorted(SUBTYPES))
-    + ". Health, union membership, religion, ethnicity, income and similar protected facts are "
-    "sensitive_attribute. Values that identify a person on their own are direct_identifier."
+    + ". The object may include dataset_description, the dataset's own README: use it as "
+    "context. Consider the GDPR special categories explicitly: health, trade union membership, "
+    "religion or belief, racial or ethnic origin, sex life or sexual orientation, political "
+    "opinion. A column that reveals one of them, also through a code or flag, is "
+    "sensitive_attribute. Income, debts and similar protected facts are sensitive_attribute too. "
+    "Work shift, rota and schedule codes describe working time: they are quasi_identifier or "
+    "non_sensitive, not SOCIAL_DATA. Values that identify a person on their own are "
+    "direct_identifier."
 )
+README_CHARS = 3000
 LLM_BATCH_SIZE = 20
 LLM_PARALLEL = 4
 LLM_TOKENS_PER_COLUMN = 40  # one JSON item is about 25 tokens
@@ -447,13 +459,21 @@ def llm_pass(labels: list[FieldLabel], client, seed: int, root: Path | None = No
         return list(labels), {**stats, "status": "ok"}
     start = time.monotonic()
     samples = _table_samples([labels[i] for i in low], seed, root)
-    batches = [low[k : k + LLM_BATCH_SIZE] for k in range(0, len(low), LLM_BATCH_SIZE)]
+    by_ds: dict[str, list[int]] = {}
+    for i in low:
+        by_ds.setdefault(labels[i].dataset, []).append(i)
+    batches = [ids[k : k + LLM_BATCH_SIZE] for ids in by_ds.values()
+               for k in range(0, len(ids), LLM_BATCH_SIZE)]  # fmt: skip
+    readmes = {d: io.read_readme(d, root)[:README_CHARS] for d in by_ds}
 
     def ask(batch: list[int]):
         cols = [{"id": i, "table": labels[i].table, "column": labels[i].column,
                  "sample_values": samples[(labels[i].dataset, labels[i].table,
                                            labels[i].column)]} for i in batch]  # fmt: skip
-        prompt = json.dumps({"columns": cols}, ensure_ascii=False)
+        payload: dict = {"columns": cols}
+        if readmes.get(labels[batch[0]].dataset):
+            payload = {"dataset_description": readmes[labels[batch[0]].dataset], **payload}
+        prompt = json.dumps(payload, ensure_ascii=False)
         try:
             return batch, client.complete(
                 prompt, system=LLM_SYSTEM, max_tokens=LLM_TOKENS_PER_COLUMN * len(batch) + 64,
@@ -498,21 +518,175 @@ def llm_pass(labels: list[FieldLabel], client, seed: int, root: Path | None = No
     return out, stats
 
 
+# ---- Phase 2b passes -----------------------------------------------------------------
+
+PERSON_CONTEXT = [
+    ({"employee", "employees", "staff", "payroll", "hr", "personnel", "worker", "workers",
+      "henkilöstö", "työntekijä", "palkka", "palkanlaskenta"}, "EMPLOYEE_ID"),
+    ({"patient", "patients", "potilas", "clinic", "hospital", "ward"}, "PATIENT_ID"),
+    ({"customer", "customers", "asiakas", "client", "clients"}, "CUSTOMER_ID"),
+]  # fmt: skip
+PERSON_CODE_MAX_DISTINCT_RATIO = 0.5
+PERSON_CODE_MIN_DISTINCT = 20
+HASH_SAMPLE_ROWS = 300
+HASH_MATCH_RATE = 0.9
+DEPENDENCY_AGREEMENT = 0.95
+
+
+def _context_subtype(column: str, readme: str) -> str:
+    toks = tokens(column)
+    for words, sub in FK_SUBTYPES[:4]:
+        if _has(toks, words):
+            return sub
+    words = tokens(readme)
+    counts = [(sum(w in ctx for w in words), sub) for ctx, sub in PERSON_CONTEXT]
+    best = max(counts)
+    return best[1] if best[0] else "OTHER"
+
+
+def person_code_pass(labels: list[FieldLabel], profiles: list[ColumnProfile],
+                     root: Path | None = None) -> list[FieldLabel]:  # fmt: skip
+    """A code column that repeats across rows identifies a person, not a row."""
+    readmes: dict[str, str] = {}
+    out = []
+    for lab, p in zip(labels, profiles, strict=True):
+        filled = p.rows_sampled * p.fill_rate
+        distinct = round(p.distinct_ratio * filled)
+        family = lab.reason.rsplit("[", 1)[-1].rstrip("]")
+        if (lab.source == "rule" and family in ("value_code", "default")
+                and _hits(p, "prefix_code") >= 0.9
+                and p.distinct_ratio <= PERSON_CODE_MAX_DISTINCT_RATIO
+                and distinct >= PERSON_CODE_MIN_DISTINCT):  # fmt: skip
+            if lab.dataset not in readmes:
+                readmes[lab.dataset] = io.read_readme(lab.dataset, root)
+            sub = _context_subtype(lab.column, readmes[lab.dataset])
+            reason = (f"code repeats across rows ({distinct} distinct in {round(filled)} sampled "
+                      f"rows), so it identifies a person, not a row [person_code]")
+            lab = replace(lab, privacy_role="technical_identifier", subtype=sub,
+                          confidence=0.75, reason=reason)  # fmt: skip
+        out.append(lab)
+    return out
+
+
+_HASHES = {32: ("MD5", hashlib.md5), 40: ("SHA-1", hashlib.sha1), 64: ("SHA-256", hashlib.sha256)}
+
+
+def _digest(fn, v: str) -> str:
+    return fn(v.encode("utf-8"), usedforsecurity=False).hexdigest()
+
+
+def _is_zero_or_empty(v: str) -> bool:
+    t = v.strip().replace(" ", "").replace("\u00a0", "").replace(",", ".")
+    if not t:
+        return True
+    try:
+        return float(t) == 0.0
+    except ValueError:
+        return False
+
+
+def data_pass(labels: list[FieldLabel], profiles: list[ColumnProfile], seed: int,
+              root: Path | None = None) -> tuple[list[FieldLabel], list[dict]]:  # fmt: skip
+    """Rules that need the values of two columns together: hashes of columns, dependencies.
+
+    Findings name tables, columns and rates only, never values.
+    """
+    out = list(labels)
+    findings: list[dict] = []
+    by_table: dict[tuple[str, str], list[int]] = {}
+    for i, lab in enumerate(labels):
+        by_table.setdefault((lab.dataset, lab.table), []).append(i)
+    for (dataset, table), idx in by_table.items():
+        df = io.read_csv((root or io.data_root()) / dataset / f"{table}.csv")
+        sample = df.sample(n=min(HASH_SAMPLE_ROWS, len(df)), random_state=seed)
+        # 1. unkeyed hash of another column
+        for i in idx:
+            p = profiles[i]
+            if not (p.len_min == p.len_max and p.len_min in _HASHES
+                    and _hits(p, "hex_hash") >= 0.9):  # fmt: skip
+                continue
+            algo, fn = _HASHES[p.len_min]
+            target = sample[p.column].str.strip().str.lower()
+            best = (0.0, -1, "")
+            for j in idx:
+                if j == i:
+                    continue
+                src = sample[labels[j].column].str.strip()
+                mask = (src != "") & (target != "")
+                if mask.sum() < 10:
+                    continue
+                for variant, vals in (("trimmed", src), ("upper", src.str.upper()),
+                                      ("lower", src.str.lower())):  # fmt: skip
+                    rate = float((vals[mask].map(lambda v, f=fn: _digest(f, v))
+                                  == target[mask]).mean())  # fmt: skip
+                    if rate > best[0]:
+                        best = (rate, j, variant)
+            if best[0] > HASH_MATCH_RATE:
+                srclab = out[best[1]]
+                out[i] = replace(out[i], privacy_role=srclab.privacy_role,
+                                 subtype=srclab.subtype, confidence=0.95, source="rule",
+                                 reason=f"unkeyed hash of {srclab.column}, reversible by "
+                                        f"enumeration ({algo}, {best[2]}, {best[0]:.0%} of "
+                                        f"sampled rows) [hash_of_column]")  # fmt: skip
+                findings.append({"kind": "unkeyed_hash", "dataset": dataset, "table": table,
+                                 "column": p.column, "source_column": srclab.column,
+                                 "algorithm": algo, "variant": best[2],
+                                 "match_rate": round(best[0], 4),
+                                 "source_role": srclab.privacy_role})  # fmt: skip
+        # 2. numeric value present exactly where a sensitive column is filled
+        sens = [j for j in idx if out[j].privacy_role == "sensitive_attribute"]
+        for i in idx:
+            p = profiles[i]
+            # Only otherwise non-sensitive columns: an identifier keeps its role.
+            if out[i].privacy_role != "non_sensitive" or not _numeric(p):
+                continue
+            zero = df[p.column].map(_is_zero_or_empty)
+            if zero.all() or not zero.any():
+                continue
+            for j in sens:
+                if j == i:
+                    continue
+                empty = df[out[j].column].str.strip() == ""
+                if not 0.02 <= empty.mean() <= 0.98:
+                    continue
+                agree = float((zero == empty).mean())
+                if agree > DEPENDENCY_AGREEMENT:
+                    out[i] = replace(out[i], privacy_role="sensitive_attribute",
+                                     subtype=out[j].subtype, confidence=0.8, source="rule",
+                                     reason=f"zero or empty exactly where {out[j].column} "
+                                            f"(sensitive) is empty, {agree:.0%} of rows "
+                                            f"[dependency]")  # fmt: skip
+                    findings.append({"kind": "dependency", "dataset": dataset, "table": table,
+                                     "column": p.column, "source_column": out[j].column,
+                                     "agreement": round(agree, 4)})  # fmt: skip
+                    break
+    log.info(json.dumps({"stage": "detect_data", "findings": len(findings)}))
+    return out, findings
+
+
 # ---- running and writing -------------------------------------------------------------
 
 
-def run_detect(datasets: list[str], seed: int, client=None, root: Path | None = None
-               ) -> tuple[list[FieldLabel], dict[str, int]]:  # fmt: skip
-    from api.pipeline.profile import profile_dataset
-
+def detect_pipeline(profiles: list[ColumnProfile], seed: int, client=None,
+                    root: Path | None = None) -> tuple[list[FieldLabel], dict, list[dict]]:
+    """Rules, person codes, optional LLM, then two-column data rules. Never blocks on the LLM."""
     start = time.monotonic()
-    profiles = [p for d in datasets for p in profile_dataset(d, seed, root)]
-    labels = detect(profiles)
-    stats: dict[str, int] = {}
+    labels = person_code_pass(detect(profiles), profiles, root)
+    stats: dict = {"status": "off"}
     if client is not None and client.enabled:
         labels, stats = llm_pass(labels, client, seed, root)
-    log.info(json.dumps({"stage": "detect", "datasets": len(datasets), "columns": len(labels),
+    labels, findings = data_pass(labels, profiles, seed, root)
+    log.info(json.dumps({"stage": "detect", "columns": len(labels), "findings": len(findings),
                          "duration_ms": int((time.monotonic() - start) * 1000)}))  # fmt: skip
+    return labels, stats, findings
+
+
+def run_detect(datasets: list[str], seed: int, client=None, root: Path | None = None
+               ) -> tuple[list[FieldLabel], dict]:  # fmt: skip
+    from api.pipeline.profile import profile_dataset
+
+    profiles = [p for d in datasets for p in profile_dataset(d, seed, root)]
+    labels, stats, _ = detect_pipeline(profiles, seed, client, root)
     return labels, stats
 
 
