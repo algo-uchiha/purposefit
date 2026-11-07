@@ -34,3 +34,14 @@ def proving_ground() -> Path:
     if not PROVING_GROUND.is_dir():
         pytest.skip("vendor/proving_ground is missing (expected in CI); test needs its data")
     return PROVING_GROUND
+
+
+@pytest.fixture
+def dvv_lists():
+    from api.pipeline.redact.gazetteer import dvv_names
+
+    first, last = dvv_names()
+    if not first or not last:
+        pytest.skip("DVV name lists missing in data/gazetteer/ (git-ignored; "
+                    "run scripts/fetch_gazetteer.py)")
+    return first, last

@@ -14,7 +14,6 @@ VALUES = {
     "date": ["2025-03-01", "1.3.2025", "13/09/88"],
     "postcode": ["20100"],
     "plate": ["ABC-123"],
-    "person_name": ["Mäkinen Mika Matias", "Anna Virtanen"],
     "sentence": ["Asiakas soitti ja kertoi että lasku oli väärin."],
 }
 
@@ -23,6 +22,12 @@ def test_validators_accept_examples():
     for name, vals in VALUES.items():
         for v in vals:
             assert prof.VALIDATORS[name](v), (name, v)
+
+
+def test_person_name_uses_dvv_lists(dvv_lists):
+    for v in ("Mäkinen Mika Matias", "Anna Virtanen"):
+        assert prof.VALIDATORS["person_name"](v), v
+    assert not prof.VALIDATORS["person_name"]("Kissa Koira Talo")
 
 
 def test_validators_reject_noise():
