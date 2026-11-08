@@ -262,10 +262,19 @@ class LLMClient:
         self.max_delay = max_delay
         self.thinking_headroom = thinking_headroom
         self._sleep = sleep
+        self._used: dict[str, str] = {}  # call key -> hash of the answer used
 
     @property
     def enabled(self) -> bool:
         return self.provider.name != "none"
+
+    def fingerprint(self) -> dict[str, object]:
+        """Hash of every answer this client used (cached or fresh), for the run manifest.
+
+        Two runs with the same fingerprint used the same model answers. Ids and counts only.
+        """
+        lines = sorted(f"{k}:{v}" for k, v in self._used.items())
+        return {"calls": len(lines), "sha256": hashlib.sha256("\n".join(lines).encode()).hexdigest()}
 
     def cache_key(
         self, prompt: str, system: str | None, temperature: float, max_tokens: int
@@ -357,6 +366,7 @@ class LLMClient:
 
         if use_cache and path.exists():
             cached = json.loads(path.read_text(encoding="utf-8"))
+            self._used[key] = hashlib.sha256(cached["text"].encode("utf-8")).hexdigest()
             return self._done(cached["text"], call_id, start, cached=True, attempts=0,
                               model=cached.get("model", self.provider.model), usage={},
                               fallback=cached.get("fallback", False))  # fmt: skip
@@ -395,6 +405,7 @@ class LLMClient:
                 encoding="utf-8",
             )  # fmt: skip
             tmp.replace(path)
+        self._used[key] = hashlib.sha256(text.encode("utf-8")).hexdigest()
         return self._done(text, call_id, start, cached=False, attempts=attempts,
                           model=provider.model, usage=usage, fallback=used_fallback)  # fmt: skip
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 
 import pytest
@@ -332,3 +333,24 @@ def test_gemma_client_has_flash_fallback(tmp_path, monkeypatch):
     assert client.fallback.model == "gemini-3.6-flash"
     monkeypatch.setenv("LLM_FALLBACK_MODEL", "none")
     assert llm.get_client("gemma", cache_dir=tmp_path).fallback is None
+
+
+def test_fingerprint_changes_with_the_answers_used(tmp_path):
+    class P:
+        name, model = "fake", "fake-1"
+
+        def __init__(self, text):
+            self.text = text
+
+        def generate(self, prompt, **_kw):
+            return self.text
+
+    a = llm.LLMClient(P("one"), cache_dir=tmp_path / "a")
+    b = llm.LLMClient(P("two"), cache_dir=tmp_path / "b")
+    assert a.fingerprint()["calls"] == 0
+    a.complete("q")
+    b.complete("q")
+    a2 = llm.LLMClient(P("zzz"), cache_dir=tmp_path / "a")
+    a2.complete("q")  # read from a's cache: the same answer as a used
+    assert a.fingerprint() == a2.fingerprint() and a.fingerprint() != b.fingerprint()
+    assert a.fingerprint()["calls"] == 1 and "one" not in json.dumps(a.fingerprint())

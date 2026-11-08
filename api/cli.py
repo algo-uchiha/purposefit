@@ -53,6 +53,25 @@ def key_id(key: str) -> str:
     return hmac.new(key.encode(), b"purposefit-key-id", hashlib.sha256).hexdigest()[:12]
 
 
+def git_dirty() -> bool:
+    try:
+        out = subprocess.run(  # nosec B603 B607 (fixed git command, no shell)
+            ["git", "status", "--porcelain", "--untracked-files=no"], capture_output=True,
+            text=True, timeout=10, cwd=PROJECT_ROOT, check=False)  # fmt: skip
+        return bool(out.stdout.strip())
+    except (OSError, subprocess.SubprocessError):
+        return True
+
+
+def update_manifest(run_path: Path, **fields: object) -> None:
+    """Add facts learned in a later stage (key ids, LLM answer fingerprint) to 00_manifest.json."""
+    f = run_path / "00_manifest.json"
+    if f.exists():
+        m = json.loads(f.read_text(encoding="utf-8"))
+        m.update(fields)
+        f.write_text(json.dumps(m, indent=2), encoding="utf-8")
+
+
 def git_hash() -> str:
     try:
         out = subprocess.run(  # nosec B603 B607
@@ -85,6 +104,7 @@ def build_manifest(args: argparse.Namespace, key: str) -> dict:
         "run_id": args.run,
         "created_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "git_hash": git_hash(),
+        "git_dirty": git_dirty(),
         "key_id": key_id(key),
         "seed": args.seed,
         "llm": {"provider": provider, "model": model},
@@ -142,6 +162,8 @@ def cmd_detect(args: argparse.Namespace, key: str) -> int:
     labels, stats, findings = det.detect_pipeline(profiles, args.seed, client, use_cache=not args.no_llm_cache)
     if unavailable:
         stats = {"status": "unavailable"}
+    if client is not None:
+        update_manifest(run_path, llm_answers_detect=client.fingerprint())
     (run_path / "02_findings.json").write_text(json.dumps(findings, indent=2), encoding="utf-8")
     det.write_labels(labels, run_path / "02_labels.csv")
     det.write_label_details(labels, run_path / "02_labels_detail.json")
@@ -178,6 +200,7 @@ def cmd_plan(args: argparse.Namespace, key: str) -> int:
     plan = pl.build_plan(scenario, labels, profiles, pl.load_tasks(scenario["dataset"]),
                          key_id(derive_key(key, scenario["id"])))  # fmt: skip
     pl.write_plan(plan, run_path / "03_plan.json")
+    update_manifest(run_path, scenario_id=scenario["id"], derived_key_id=plan.key_id)
     return 0
 
 
@@ -263,6 +286,8 @@ def cmd_redact(args: argparse.Namespace, key: str) -> int:
     stats = {"records": rows, "layers": layers.names(), "spans_by_layer": total, "health": health_stats,
              "duration_ms": int((time.monotonic() - t0) * 1000)}  # fmt: skip
     (run_path / "05_redact_stats.json").write_text(json.dumps(stats, indent=2), encoding="utf-8")
+    if client is not None and layers.health:
+        update_manifest(run_path, llm_answers_redact=client.fingerprint())
     return 0
 
 
