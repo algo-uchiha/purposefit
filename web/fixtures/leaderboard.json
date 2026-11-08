@@ -1,28 +1,92 @@
 [
  {
-  "created_utc": "2026-11-07T23:20:57+00:00",
-  "run_id": "p3-CS-S1",
-  "git_hash": "034bc5e",
+  "created_utc": "2026-11-08T01:44:15+00:00",
+  "run_id": "b0_CS-S1",
+  "git_hash": "vendor",
   "dataset": "customer_service",
   "scenario": "CS-S1",
-  "method": "purposefit",
-  "privacy": 0.375,
-  "utility": 0.9281,
-  "composite": 0.5143,
+  "method": "B0 (rerun)",
+  "privacy": 0.2222,
+  "utility": 1.0,
+  "composite": 0.3438,
   "worst_risk": 1.0,
-  "worst_risk_component": "turns: free-text identifier leakage",
-  "k": 5,
-  "k_pycanon": 5,
+  "worst_risk_component": "conversations: records with k<5",
+  "k": null,
+  "k_pycanon": null,
   "utility_tasks": {
    "CS-U1": 1.0,
    "CS-U3": 1.0,
-   "CS-U4": 0.7124,
+   "CS-U4": 1.0,
    "CS-U5": 1.0
   },
-  "note": "structured only; text raw; rules-only labels"
+  "note": "proving ground baseline b0; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-07T23:20:58+00:00",
+  "created_utc": "2026-11-08T01:44:15+00:00",
+  "run_id": "b0_CS-S3",
+  "git_hash": "vendor",
+  "dataset": "customer_service",
+  "scenario": "CS-S3",
+  "method": "B0 (rerun)",
+  "privacy": 0.2222,
+  "utility": 1.0,
+  "composite": 0.3438,
+  "worst_risk": 1.0,
+  "worst_risk_component": "conversations: records with k<5",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U4": 1.0,
+   "CS-U6": 1.0,
+   "CS-U7": 1.0
+  },
+  "note": "proving ground baseline b0; catalog labels; regex text redaction"
+ },
+ {
+  "created_utc": "2026-11-08T01:44:15+00:00",
+  "run_id": "b2_CS-S1",
+  "git_hash": "vendor",
+  "dataset": "customer_service",
+  "scenario": "CS-S1",
+  "method": "B2 (rerun)",
+  "privacy": 0.3126,
+  "utility": 0.7475,
+  "composite": 0.425,
+  "worst_risk": 1.0,
+  "worst_risk_component": "customers: records with k<5",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": null,
+   "CS-U3": 1.0,
+   "CS-U4": 1.0,
+   "CS-U5": 0.9899
+  },
+  "note": "proving ground baseline b2; catalog labels; regex text redaction"
+ },
+ {
+  "created_utc": "2026-11-08T01:44:15+00:00",
+  "run_id": "b2_CS-S3",
+  "git_hash": "vendor",
+  "dataset": "customer_service",
+  "scenario": "CS-S3",
+  "method": "B2 (rerun)",
+  "privacy": 0.3126,
+  "utility": 1.0,
+  "composite": 0.4547,
+  "worst_risk": 1.0,
+  "worst_risk_component": "customers: records with k<5",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U4": 1.0,
+   "CS-U6": 1.0,
+   "CS-U7": 1.0
+  },
+  "note": "proving ground baseline b2; catalog labels; regex text redaction"
+ },
+ {
+  "created_utc": "2026-11-08T01:44:15+00:00",
   "run_id": "b2k_CS-S1",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -41,32 +105,10 @@
    "CS-U4": 1.0,
    "CS-U5": 0.9899
   },
-  "note": "proving ground baseline; catalog labels; regex text"
+  "note": "proving ground baseline b2k; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-07T23:31:38+00:00",
-  "run_id": "p4-CS-S1",
-  "git_hash": "9a5f9c6",
-  "dataset": "customer_service",
-  "scenario": "CS-S1",
-  "method": "purposefit",
-  "privacy": 0.375,
-  "utility": 1.0,
-  "composite": 0.5238,
-  "worst_risk": 1.0,
-  "worst_risk_component": "turns: free-text identifier leakage",
-  "k": null,
-  "k_pycanon": null,
-  "utility_tasks": {
-   "CS-U1": 1.0,
-   "CS-U3": 1.0,
-   "CS-U4": 1.0,
-   "CS-U5": 1.0
-  },
-  "note": "phase 4 search; structured only; text raw; rules-only labels"
- },
- {
-  "created_utc": "2026-11-07T23:31:44+00:00",
+  "created_utc": "2026-11-08T01:44:15+00:00",
   "run_id": "b2k_CS-S3",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -84,29 +126,7 @@
    "CS-U6": 1.0,
    "CS-U7": 1.0
   },
-  "note": "proving ground baseline; catalog labels; regex text"
- },
- {
-  "created_utc": "2026-11-07T23:51:14+00:00",
-  "run_id": "p4-CS-S1",
-  "git_hash": "1269ca0",
-  "dataset": "customer_service",
-  "scenario": "CS-S1",
-  "method": "purposefit",
-  "privacy": 0.375,
-  "utility": 1.0,
-  "composite": 0.5238,
-  "worst_risk": 1.0,
-  "worst_risk_component": "turns: free-text identifier leakage",
-  "k": null,
-  "k_pycanon": null,
-  "utility_tasks": {
-   "CS-U1": 1.0,
-   "CS-U3": 1.0,
-   "CS-U4": 1.0,
-   "CS-U5": 1.0
-  },
-  "note": "phase 4 re-run: prefixed pseudonyms, new gate"
+  "note": "proving ground baseline b2k; catalog labels; regex text redaction"
  },
  {
   "created_utc": "2026-11-08T01:18:46+00:00",

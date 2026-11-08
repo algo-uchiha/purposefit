@@ -71,6 +71,6 @@ def test_turns_fixture_has_twenty_redacted_turns_with_spans():
 
 def test_leaderboard_numbers_are_numbers():
     rows = _load("leaderboard.json")
-    assert {r["method"] for r in rows} == {"purposefit", "B2-k (rerun)"}
+    assert {r["method"] for r in rows} == {"purposefit", "B0 (rerun)", "B2 (rerun)", "B2-k (rerun)"}
     assert all(isinstance(r["privacy"], float) and isinstance(r["utility_tasks"], dict)
                for r in rows)  # fmt: skip
