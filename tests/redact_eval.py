@@ -116,17 +116,18 @@ def main() -> None:
     a = ap.parse_args()
     texts, gold = load_train(a.limit)
     priv = ROOT / "runs" / "private" / a.run
-    runs = {"all layers": Layers(), "DVV gazetteer only (no controller)": Layers(controller=False)}
+    runs = {"all layers": Layers(health=False),
+            "DVV gazetteer only (no controller)": Layers(controller=False, health=False)}  # fmt: skip
     client = None
     if a.health:
         from api.pipeline import llm
 
         client = llm.get_client()
-        runs = {"all layers": Layers(), "all layers + health": Layers(health=True)}
+        runs["all layers + health"] = Layers()
     if a.ablation:
         for name in ("patterns", "normalise", "controller", "dvv", "cues"):
-            runs[f"without {name}"] = replace(Layers(), **{name: False})
-        runs["patterns only"] = Layers(normalise=False, controller=False, dvv=False, cues=False)
+            runs[f"without {name}"] = replace(Layers(health=False), **{name: False})
+        runs["patterns only"] = Layers(normalise=False, controller=False, dvv=False, cues=False, health=False)
     out = {}
     for name, ly in runs.items():
         m = measure(texts, gold, priv, ly, client)
@@ -136,8 +137,8 @@ def main() -> None:
               f"HEALTH_leak={m['per_label'].get('HEALTH')} health_prec={m['health_precision']} "
               f"health_recall={m['health_recall']} {m['health'] or ''}")
     if a.fp:
-        false_positives(texts, gold, priv, Layers())
-        misses(texts, gold, priv, Layers())
+        false_positives(texts, gold, priv, Layers(health=False))
+        misses(texts, gold, priv, Layers(health=False))
     if a.json:
         Path(a.json).write_text(json.dumps(out, indent=1), encoding="utf-8")
     print("per label (all layers):", {k: v for k, v in out["all layers"]["per_label"].items()})

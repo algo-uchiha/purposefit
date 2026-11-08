@@ -99,6 +99,7 @@ The pipeline runs in a background task. Poll `GET /api/runs/{id}`.
   "created_utc": "2026-11-07T23:40:04+00:00",
   "git_hash": "8c60fac",
   "key_id": "39ffd61450cc",
+  "derived_key_id": "d8a26adaa22f",
   "seed": 20261107,
   "llm": {"provider": "none", "model": "none"},
   "layers": {"llm": false, "ner": false, "gazetteer": false},
@@ -113,6 +114,7 @@ The pipeline runs in a background task. Poll `GET /api/runs/{id}`.
 }
 ```
 
+- `key_id` is the id of the master key; `derived_key_id` is the id of the key derived for this scenario (HMAC of the master key and the scenario id), which is the one that made this release's pseudonyms. Neither is a key.
 - `status`: `queued`, `running`, `done` or `failed`. `done` does not mean the gate passed.
 - `stages` lists all eight in order: `run`, `profile`, `detect`, `plan`, `transform`, `redact`, `verify`, `report`. Stage `status`: `pending`, `running`, `done`, `failed`, `skipped`. `duration_ms` is `null` when unknown or not yet run.
 - `layers` records which optional layers were switched on for the run (`--no-llm`, `--no-ner`, `--no-gazetteer`).
@@ -376,7 +378,21 @@ Always exactly four checks, in this order, ids fixed: `direct_identifiers` (ever
 
 ### 4.7 Report stage
 
-`{"plan_table_md": "| Table | Column | Role | Action | Level | Reason |\n...", "policy_card": null}`. `plan_table_md` is the field-by-field plan as a Markdown table, followed by one k check line per table and, when a level search ran, one summary line of the search. `policy_card` is `null` until Phase 8. The Export screen should offer it only when it is not `null`.
+`{"plan_table_md": "| Table | Column | Role | Action | Level | Reason |\n...", "policy_card": PolicyCard | null}`. `plan_table_md` is the field-by-field plan as a Markdown table, followed by one k check line per table and, when a level search ran, one summary line of the search. `policy_card` is `null` until the verify stage has run, then:
+
+```json
+{"scenario_id": "CS-S1", "dataset": "customer_service",
+ "pseudonymisation": {
+   "secret": {"key_id": "d8a26adaa22f", "held_by": "controller", "note": "..."},
+   "domain": {"recipient": "Cloud AI vendor (processor, outside the EU possible)", "note": "..."},
+   "additional_information": {"held_by": "controller", "kept_in": "runs/private", "items": ["row maps", "gazetteer values"]}},
+ "released_tables": ["conversations", "turns"],
+ "fields": [{"table": "turns", "column": "text", "action": "redact", "reason": "...", "guarantee": "..."}],
+ "gate": Gate, "residual_risks": [ResidualRisk], "headline_label": "self-assessment, not the official judging score",
+ "note": "Pseudonymised data is still personal data (GDPR Recital 26)."}
+```
+
+The three `pseudonymisation` entries use the terms of EDPB Guidelines 01/2025: the secret is named by key id only, the domain is the named recipient, and the additional information (row maps, gazetteer values) is held by the controller. `residual_risks` also lists, by label name, every span label whose values are still recoverable in more than 5 % of cases. The export zip holds the same card as `policy_card.json` and `policy_card.md`.
 
 ### 4.8 Leaderboard rows (fixture `leaderboard.json`)
 

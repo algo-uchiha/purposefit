@@ -44,20 +44,21 @@ def computed() -> dict[str, str]:
         if r["run_id"] in LB_RUNS:
             for f in ("privacy", "utility", "composite", "worst_risk"):
                 out[f"lb.{r['run_id']}.{f}"] = f"{float(r[f]):.4f}"
-    ev = load(RUNS / "p6-health-train-full.json")
-    out["health.train_before"] = pct(ev["all layers"]["per_label"]["HEALTH"])
-    out["health.train_after"] = pct(ev["all layers + health"]["per_label"]["HEALTH"])
-    out["health.train_precision"] = f"{ev['all layers + health']['health_precision']:.2f}"
-    r5 = load(RUNS / "p5-redact-train-full.json")
-    out["redact.train_leakage"] = f"{r5['all layers']['identifying_leakage']:.4f}"
-    out["redact.train_precision"] = f"{r5['all layers']['precision']:.4f}"
-    dvv = r5["DVV gazetteer only (no controller)"]
+    ev = load(RUNS / "redact-train-full.json")  # tests/redact_eval.py --ablation --health
+    rules, with_health = ev["all layers"], ev["all layers + health"]
+    out["health.train_before"] = pct(rules["per_label"]["HEALTH"])
+    out["health.train_after"] = pct(with_health["per_label"]["HEALTH"])
+    out["health.train_precision"] = f"{with_health['health_precision']:.2f}"
+    out["redact.train_leakage"] = f"{rules['identifying_leakage']:.4f}"
+    out["redact.train_precision"] = f"{rules['precision']:.4f}"
+    dvv = ev["DVV gazetteer only (no controller)"]
     out["redact.dvvonly_leakage"] = f"{dvv['identifying_leakage']:.4f}"
     out["redact.dvvonly_precision"] = f"{dvv['precision']:.4f}"
+    out["redact.nationalid_after"] = pct(rules["per_label"]["NATIONAL_ID"])
+    out["redact.nationalid_before"] = pct(load(RUNS / "p5-redact-train-full.json")["all layers"]["per_label"]["NATIONAL_ID"])
     ours = load(RUNS / "final-CS-S1" / "06_scorecard_ours" / "scorecard.json")
     out["health.release_after"] = pct(ours["tables"]["turns"]["free_text"]["text"]["per_label"]["HEALTH"]["rate"])
-    out["health.release_before"] = pct(load(RUNS / "p5-redact-train-full.json")["all layers"]["per_label"]["HEALTH"])
-    h = ev["all layers + health"]["health"]
+    h = with_health["health"]
     out["health.train_calls"] = str(h["calls"])
     out["health.train_prompt_tokens"] = f"{h['prompt_tokens']:,}"
     out["health.train_output_tokens"] = f"{h['output_tokens']:,}"
@@ -91,7 +92,14 @@ def detection() -> dict[str, str]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--write", action="store_true", help="refresh docs/claims.json from the run files")
+    ap.add_argument("--fix-readme", action="store_true",
+                    help="rewrite the quoted values in README.md from the run files (then review the text)")
     a = ap.parse_args()
+    if a.fix_readme and (RUNS / "leaderboard.csv").exists():
+        fresh_now = computed()
+        text = MARK.sub(lambda m: f"{fresh_now.get(m.group(2), m.group(1))} <!--c:{m.group(2)}-->",
+                        README.read_text(encoding="utf-8"))  # fmt: skip
+        README.write_text(text, encoding="utf-8")
     quoted = [(m.group(2), m.group(1)) for m in MARK.finditer(README.read_text(encoding="utf-8"))]
     if not quoted:
         print("README.md quotes no checked numbers")

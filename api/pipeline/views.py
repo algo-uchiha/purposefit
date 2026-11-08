@@ -100,9 +100,9 @@ def per_label_rows(ours: dict) -> list[dict]:
 
 
 def ablation_rows(runs: Path) -> list[dict]:
-    """Per-layer ablation on the train split from tests/redact_eval.py output files."""
-    f5, f6 = runs / "p5-redact-train-full.json", runs / "p6-health-train-full.json"
-    if not f5.exists():
+    """Per-layer ablation on the train split from tests/redact_eval.py (runs/redact-train-full.json)."""
+    f = runs / "redact-train-full.json"
+    if not f.exists():
         return []
 
     def row(layer: str, m: dict) -> dict:
@@ -110,9 +110,9 @@ def ablation_rows(runs: Path) -> list[dict]:
                 "health_leakage": m["per_label"].get("HEALTH"), "utility": None,
                 "n_spans": m["n_spans"], "scope": "customer_service train split"}  # fmt: skip
 
-    rows = [row(n.removeprefix("without "), m) for n, m in load(f5).items() if n.startswith("without ")]
-    if f6.exists():
-        rows.append(row("health", load(f6)["all layers"]))  # the run without the health layer
+    res = load(f)
+    rows = [row(n.removeprefix("without "), m) for n, m in res.items() if n.startswith("without ")]
+    rows.append(row("health", res["all layers"]))  # the run without the health layer
     return rows
 
 

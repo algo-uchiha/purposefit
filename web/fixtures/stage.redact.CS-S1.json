@@ -307,8 +307,8 @@
   {
    "label": "NATIONAL_ID",
    "n": 5120,
-   "leaked": 587,
-   "rate": 0.1146
+   "leaked": 270,
+   "rate": 0.0527
   },
   {
    "label": "ORG",

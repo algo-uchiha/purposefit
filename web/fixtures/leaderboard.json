@@ -1,6 +1,6 @@
 [
  {
-  "created_utc": "2026-11-08T01:50:39+00:00",
+  "created_utc": "2026-11-08T02:04:55+00:00",
   "run_id": "b0_CS-S1",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -22,7 +22,7 @@
   "note": "proving ground baseline b0; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-08T01:50:39+00:00",
+  "created_utc": "2026-11-08T02:04:55+00:00",
   "run_id": "b0_CS-S2",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -43,7 +43,7 @@
   "note": "proving ground baseline b0; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-08T01:50:39+00:00",
+  "created_utc": "2026-11-08T02:04:55+00:00",
   "run_id": "b0_CS-S3",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -64,7 +64,7 @@
   "note": "proving ground baseline b0; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-08T01:50:39+00:00",
+  "created_utc": "2026-11-08T02:04:55+00:00",
   "run_id": "b2_CS-S1",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -86,7 +86,7 @@
   "note": "proving ground baseline b2; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-08T01:50:39+00:00",
+  "created_utc": "2026-11-08T02:04:55+00:00",
   "run_id": "b2_CS-S2",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -107,7 +107,7 @@
   "note": "proving ground baseline b2; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-08T01:50:39+00:00",
+  "created_utc": "2026-11-08T02:04:55+00:00",
   "run_id": "b2_CS-S3",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -128,7 +128,7 @@
   "note": "proving ground baseline b2; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-08T01:50:39+00:00",
+  "created_utc": "2026-11-08T02:04:55+00:00",
   "run_id": "b2k_CS-S1",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -150,7 +150,7 @@
   "note": "proving ground baseline b2k; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-08T01:50:39+00:00",
+  "created_utc": "2026-11-08T02:04:55+00:00",
   "run_id": "b2k_CS-S2",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -171,7 +171,7 @@
   "note": "proving ground baseline b2k; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-08T01:50:39+00:00",
+  "created_utc": "2026-11-08T02:04:55+00:00",
   "run_id": "b2k_CS-S3",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -192,9 +192,9 @@
   "note": "proving ground baseline b2k; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-08T01:46:33+00:00",
+  "created_utc": "2026-11-08T02:01:04+00:00",
   "run_id": "final-CS-S3",
-  "git_hash": "1b6fb60",
+  "git_hash": "4d1b250",
   "dataset": "customer_service",
   "scenario": "CS-S3",
   "method": "purposefit",
@@ -213,16 +213,16 @@
   "note": "final run: CS-S3, rule redactor + LLM health flags on masked text, per-recipient key"
  },
  {
-  "created_utc": "2026-11-08T01:48:59+00:00",
+  "created_utc": "2026-11-08T02:04:02+00:00",
   "run_id": "final-CS-S1-nollm",
-  "git_hash": "1b6fb60",
+  "git_hash": "4d1b250",
   "dataset": "customer_service",
   "scenario": "CS-S1",
   "method": "purposefit",
-  "privacy": 0.9899,
+  "privacy": 0.9946,
   "utility": 0.9728,
-  "composite": 0.982,
-  "worst_risk": 0.0162,
+  "composite": 0.9846,
+  "worst_risk": 0.0086,
   "worst_risk_component": "turns: free-text identifier leakage",
   "k": null,
   "k_pycanon": null,
@@ -235,16 +235,37 @@
   "note": "final run: CS-S1, AI off: rules only, no LLM calls, per-recipient key"
  },
  {
-  "created_utc": "2026-11-08T01:49:10+00:00",
+  "created_utc": "2026-11-08T02:04:12+00:00",
+  "run_id": "final-CS-S2",
+  "git_hash": "4d1b250",
+  "dataset": "customer_service",
+  "scenario": "CS-S2",
+  "method": "purposefit",
+  "privacy": 0.9946,
+  "utility": 0.9626,
+  "composite": 0.9798,
+  "worst_risk": 0.0086,
+  "worst_risk_component": "turns: free-text identifier leakage",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": 0.9994,
+   "CS-U2": 1.0,
+   "CS-U5": 0.8884
+  },
+  "note": "final run: CS-S2, rule redactor + LLM health flags on masked text, per-recipient key"
+ },
+ {
+  "created_utc": "2026-11-08T02:04:15+00:00",
   "run_id": "final-CS-S1",
-  "git_hash": "1b6fb60",
+  "git_hash": "4d1b250",
   "dataset": "customer_service",
   "scenario": "CS-S1",
   "method": "purposefit",
-  "privacy": 0.9899,
+  "privacy": 0.9946,
   "utility": 0.972,
-  "composite": 0.9817,
-  "worst_risk": 0.0161,
+  "composite": 0.9842,
+  "worst_risk": 0.0086,
   "worst_risk_component": "turns: free-text identifier leakage",
   "k": null,
   "k_pycanon": null,
@@ -255,26 +276,5 @@
    "CS-U5": 0.8884
   },
   "note": "final run: CS-S1, rule redactor + LLM health flags on masked text, per-recipient key"
- },
- {
-  "created_utc": "2026-11-08T01:50:38+00:00",
-  "run_id": "final-CS-S2",
-  "git_hash": "1b6fb60",
-  "dataset": "customer_service",
-  "scenario": "CS-S2",
-  "method": "purposefit",
-  "privacy": 0.9899,
-  "utility": 0.9626,
-  "composite": 0.9773,
-  "worst_risk": 0.0161,
-  "worst_risk_component": "turns: free-text identifier leakage",
-  "k": null,
-  "k_pycanon": null,
-  "utility_tasks": {
-   "CS-U1": 0.9994,
-   "CS-U2": 1.0,
-   "CS-U5": 0.8884
-  },
-  "note": "final run: CS-S2, rule redactor + LLM health flags on masked text, per-recipient key"
  }
 ]

@@ -433,7 +433,7 @@ T0001550,ok cheers
 T0001551,"Hello, you're through to Aallokko, this is [PERSON]."
 T0001552,"Hi, this is [PERSON] [PERSON]. There's a mistake with my phone instalment, the monthly payment went up."
 T0001553,"Could I have your personal identity code, please?"
-T0001554,140990
+T0001554,[NATIONAL_ID]
 T0001555,Yes?
 T0001556,[NATIONAL_ID]
 T0001557,"Thank you, I've found your account."
@@ -1179,7 +1179,7 @@ T0004705,Okej tack
 T0004754,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0004755,haluaisin siirtää numeroni teille nykyinen operaattori on vire telecom
 T0004756,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0004757,010790
+T0004757,[NATIONAL_ID]
 T0004758,joo
 T0004759,[NATIONAL_ID]
 T0004760,kiitos löysin tietosi
@@ -1285,9 +1285,9 @@ T0005326,Kiitos avusta.
 T0005343,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0005344,hei tässä [PERSON] [PERSON] hei tarvitsisin apua yhden asian kanssa
 T0005345,tarkistan ensin henkilöllisyytesi nimesi ja henkilötunnuksesi
-T0005346,090406
+T0005346,[NATIONAL_ID]
 T0005347,joo
-T0005348,a973y
+T0005348,[NATIONAL_ID]
 T0005349,selvä tilisi löytyi
 T0005350,miten voin auttaa
 T0005351,puhelimen osamaksussa on virhe kuukausierä on noussut
@@ -1323,7 +1323,7 @@ T0005420,"kiitos, hyvää päivänjatkoa"
 T0005447,aallokon asiakaspalvelu [PERSON] kuinka voin öö palvella
 T0005448,kotinetti ei toimi ollenkaan valot vilkkuu punaisena
 T0005449,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0005450,250882
+T0005450,[NATIONAL_ID]
 T0005451,joo
 T0005452,[NATIONAL_ID]
 T0005453,selvä tilisi löytyi
@@ -1557,7 +1557,7 @@ T0006416,"Ei muuta, kiitos!"
 T0006516,"Aallokko, hyvää päivää, täällä puhuu [PERSON]."
 T0006517,"Joku soitti numerosta [PHONE] ja esittäytyi Aallokon työntekijäksi, pyysi pankkitunnuksia."
 T0006518,Saisinko vielä asiakasnumerosi tai henkilötunnuksen?
-T0006519,170962
+T0006519,[NATIONAL_ID]
 T0006520,Joo?
 T0006521,[NATIONAL_ID]
 T0006522,"Kiitos [PERSON], tunnistus onnistui."
@@ -1809,9 +1809,9 @@ T0007562,"No, that's all, thanks!"
 T0007665,aallokko god dag [PERSON] här
 T0007666,hej det eh är [PERSON] [PERSON] jag fick faktura [ACCOUNT_NUMBER] med tjänster som jag aldrig beställt
 T0007667,jag behöver först verifiera dig kan du ge mig ditt namn och personbeteckning
-T0007668,260801
+T0007668,[NATIONAL_ID]
 T0007669,ja
-T0007670,a970s
+T0007670,[NATIONAL_ID]
 T0007671,tack [PERSON] nu är du verifierad
 T0007672,autodragningen sker på [PERSON] som slutar på [PAYMENT_CARD]
 T0007673,"jag ser fakturan [ACCOUNT_NUMBER] det finns en avgift på 117,62 euro"
@@ -2221,7 +2221,7 @@ T0008976,tack för hjälpen.
 T0009063,hello you're through to aallokko this is [PERSON]
 T0009064,my father [PERSON] [PERSON] passed away on 18 [PERSON] and his subscription needs to be closed
 T0009065,first i need to verify your identity could you give me your like full name and personal identity code
-T0009066,201176
+T0009066,[NATIONAL_ID]
 T0009067,yes
 T0009068,[NATIONAL_ID]
 T0009069,thank you i've found your account
@@ -2411,7 +2411,7 @@ T0009610,okei kiitti
 T0009611,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0009612,netti katkeilee koko ajan paikkakunta turku etätyöt ei siis onnistu
 T0009613,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0009614,070777
+T0009614,[NATIONAL_ID]
 T0009615,joo
 T0009616,[NATIONAL_ID]
 T0009617,selvä tilisi löytyi
@@ -3658,7 +3658,7 @@ T0014645,"Okei niinku, kiitti"
 T0014774,aallokko hyvää päivää täällä puhuu [PERSON]
 T0014775,päivää [PERSON] [PERSON] täällä hei tarvitsisin apua yhden asian kanssa
 T0014776,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0014777,160590
+T0014777,[NATIONAL_ID]
 T0014778,joo
 T0014779,[NATIONAL_ID]
 T0014780,kiitos [PERSON] tunnistus onnistui
@@ -3923,9 +3923,9 @@ T0015702,okei kiitti
 T0015717,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0015718,haluaisin siirtää numeroni teille nykyinen operaattori on vire telecom
 T0015719,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0015720,200700
+T0015720,[NATIONAL_ID]
 T0015721,joo
-T0015722,a939u
+T0015722,[NATIONAL_ID]
 T0015723,selvä tilisi löytyi
 T0015724,numero on [ACCOUNT_NUMBER]
 T0015725,joo
@@ -5430,7 +5430,7 @@ T0021726,Kiitos avusta.
 T0021964,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0021965,tarvitsisin joo maksusuunnitelman [HEALTH] ja rahat on tiukilla
 T0021966,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0021967,250178
+T0021967,[NATIONAL_ID]
 T0021968,joo
 T0021969,[NATIONAL_ID]
 T0021970,selvä tilisi löytyi
@@ -5625,7 +5625,7 @@ T0022535,ei tällä kertaa kiitos ja hei
 T0022536,hello you're through to aallokko um this is [PERSON]
 T0022537,i got invoice [ACCOUNT_NUMBER] and there are extra services on it that i never ordered
 T0022538,could i have your personal identity code please
-T0022539,090183
+T0022539,[NATIONAL_ID]
 T0022540,yes
 T0022541,[NATIONAL_ID]
 T0022542,thank so you i've found your account
@@ -5933,7 +5933,7 @@ T0023858,"Ei tällä kertaa, kiitos ja hei."
 T0023873,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0023874,kotinetti ei toimi ollenkaan valot vilkkuu punaisena
 T0023875,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0023876,160454
+T0023876,[NATIONAL_ID]
 T0023877,joo
 T0023878,[NATIONAL_ID]
 T0023879,kiitos [PERSON] tunnistus onnistui
@@ -6452,7 +6452,7 @@ T0025176,ok cheers
 T0025244,hello you're through to aallokko this is [PERSON]
 T0025245,i'd like to cancel the tv package
 T0025246,could i have your personal identity code please
-T0025247,290551
+T0025247,[NATIONAL_ID]
 T0025248,yes
 T0025249,[NATIONAL_ID]
 T0025250,thank you i've found your account
@@ -6484,7 +6484,7 @@ Aallokko asiakaspalvelu"
 T0025289,"Aallokon asiakaspalvelu, [PERSON], kuinka voin palvella?"
 T0025290,"Moi, nimeni on [PERSON] [PERSON]. Sain tekstiviestin numerosta [PHONE], jossa pyydettiin maksamaan lasku linkistä [URL] Onko tämä teiltä?"
 T0025291,"Voisitko kertoa henkilötunnuksesi, niin löydän tietosi?"
-T0025292,280568
+T0025292,[NATIONAL_ID]
 T0025293,Joo?
 T0025294,[NATIONAL_ID]
 T0025295,"Kiitos [PERSON], tunnistus onnistui."
@@ -7653,7 +7653,7 @@ T0030940,that's it thank you
 T0030969,"Aallokko asiakaspalvelu, [PERSON] puhelimessa, miten voin auttaa?"
 T0030970,Äitini [PERSON] [PERSON] kuoli 29.3. ja hänen liittymänsä pitäisi lopettaa.
 T0030971,Saisinko vielä asiakasnumerosi tai henkilötunnuksen?
-T0030972,120565
+T0030972,[NATIONAL_ID]
 T0030973,Joo?
 T0030974,[NATIONAL_ID]
 T0030975,"Kiitos [PERSON], tunnistus onnistui."
@@ -8016,9 +8016,9 @@ T0031943,"Ei muuta, kiitos!"
 T0032001,"Hello, you're through to Aallokko, this is [PERSON]."
 T0032002,"Hi, this is [PERSON] [PERSON]. The TV box only shows a black screen."
 T0032003,First I need to verify your identity. Could you give me your full name and personal identity code?
-T0032004,230301
+T0032004,[NATIONAL_ID]
 T0032005,Yes?
-T0032006,A970T
+T0032006,[NATIONAL_ID]
 T0032007,"Thanks [PERSON], you're verified."
 T0032008,"I have your address as [ADDRESS], 20100 Turku, is that correct?"
 T0032009,"Yes, that's so, right."
@@ -8071,7 +8071,7 @@ Aallokko kundtjänst"
 T0032203,"Aallokko, hyvää päivää, täällä puhuu [PERSON]."
 T0032204,"En pysty maksamaan laskua eräpäivään mennessä, voisiko saada maksuaikaa?"
 T0032205,"Voisitko kertoa henkilötunnuksesi, niin löydän tietosi?"
-T0032206,250984
+T0032206,[NATIONAL_ID]
 T0032207,Joo?
 T0032208,[NATIONAL_ID]
 T0032209,"Selvä, tilisi löytyi."
@@ -10045,9 +10045,9 @@ T0040054,"Okei joo, kiitti"
 T0040094,aallokon tota asiakaspalvelu [PERSON] kuinka voin palvella
 T0040095,päivää [PERSON] [PERSON] täällä miksi minua on laskutettu kahdesti tästä kuusta
 T0040096,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0040097,240302
+T0040097,[NATIONAL_ID]
 T0040098,joo
-T0040099,a936l
+T0040099,[NATIONAL_ID]
 T0040100,selvä tilisi löytyi
 T0040101,"katsoin laskun [ACCOUNT_NUMBER] siinä on lisäpalvelu 'viihdemaksut' 72,95 €"
 T0040102,maksan kortilla [PAYMENT_CARD] voimassa 02/27
@@ -10486,7 +10486,7 @@ T0042007,"ei tällä kertaa, kiitos ja hei."
 T0042020,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0042021,muutan 6.3. uuteen osoitteeseen [ADDRESS] laajakaista pitäisi siirtää
 T0042022,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0042023,161085
+T0042023,[NATIONAL_ID]
 T0042024,joo
 T0042025,[NATIONAL_ID]
 T0042026,kiitos [PERSON] tunnistus onnistui
@@ -10628,7 +10628,7 @@ T0042735,"Ei muuta, kiitos!"
 T0042762,aallokko hyvää päivää täällä puhuu [PERSON]
 T0042763,"moi ööh nimeni on [PERSON] [PERSON] netti on ollut poikki eilisillasta asti osoitteessa [ADDRESS], 20610 turku"
 T0042764,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0042765,080247
+T0042765,[NATIONAL_ID]
 T0042766,joo
 T0042767,[NATIONAL_ID]
 T0042768,selvä tilisi löytyi
@@ -11142,7 +11142,7 @@ T0044890,Thanks for your help.
 T0044891,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0044892,hei tässä [PERSON] [PERSON] puhelin varastettiin pitää sulkea liittymä ja saada uusi sim
 T0044893,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0044894,221094
+T0044894,[NATIONAL_ID]
 T0044895,joo
 T0044896,[NATIONAL_ID]
 T0044897,kiitos löysin öö tietosi
@@ -11723,7 +11723,7 @@ T0046841,okej tack
 T0046875,"Aallokko, hyvää päivää, täällä puhuu [PERSON]."
 T0046876,"En pysty maksamaan laskua eräpäivään mennessä, voisiko saada maksuaikaa?"
 T0046877,Tarkistan ensin henkilöllisyytesi. Kertoisitko nimesi ja henkilötunnuksesi?
-T0046878,190664
+T0046878,[NATIONAL_ID]
 T0046879,Joo?
 T0046880,[NATIONAL_ID]
 T0046881,"Kiitos, löysin tietosi."
@@ -14242,7 +14242,7 @@ T0055449,"nej, det var allt, tack!"
 T0055463,"Hello, you're through to Aallokko, this is [PERSON]."
 T0055464,I can't log into the router settings and I've forgotten the wifi password.
 T0055465,First I need to verify your identity. Could you give me your full name and personal identity code?
-T0055466,241198
+T0055466,[NATIONAL_ID]
 T0055467,Yes?
 T0055468,[NATIONAL_ID]
 T0055469,"Thanks [PERSON], you're verified."
@@ -14611,7 +14611,7 @@ T0056460,"Asia ei ole vieläkään kunnossa, soittakaa minulle numeroon [PHONE].
 T0056600,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin elikkä auttaa
 T0056601,hei tässä [PERSON] [PERSON] sain laskun numero [ACCOUNT_NUMBER] ja siinä on jotain outoja lisäpalveluja joita en ole tilannut
 T0056602,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0056603,050151
+T0056603,[NATIONAL_ID]
 T0056604,joo
 T0056605,[NATIONAL_ID]
 T0056606,selvä tilisi löytyi
@@ -14684,7 +14684,7 @@ T0056687,Okei kiitti
 T0056688,"Aallokko customer service, [PERSON] speaking, how can I help?"
 T0056689,"Hello, my name is [PERSON] [PERSON]. I was on holiday in Norway and now there's €76.04 of data charges on my bill!"
 T0056690,"Could I have your personal identity code, please?"
-T0056691,181255
+T0056691,[NATIONAL_ID]
 T0056692,Yes?
 T0056693,[NATIONAL_ID]
 T0056694,"Thank you, I've found your account."
@@ -14727,7 +14727,7 @@ T0056829,ok cheers
 T0056858,aallokko hyvää päivää täällä puhuu [PERSON]
 T0056859,"moi nimeni on [PERSON] [PERSON] olin lomalla norjassa ja nyt laskussa on 243,97 € datamaksuja"
 T0056860,tarkistan ensin henkilöllisyytesi kertoisitko joo nimesi ja henkilötunnuksesi
-T0056861,211252
+T0056861,[NATIONAL_ID]
 T0056862,joo
 T0056863,[NATIONAL_ID]
 T0056864,selvä tilisi löytyi
@@ -14855,9 +14855,9 @@ T0057155,"Ei muuta, kiitos!"
 T0057386,"Hello, you're through to Aallokko, this is [PERSON]."
 T0057387,"Hi, this is [PERSON] Al-[PERSON]. Hi, I need help with something."
 T0057388,"Could I have your personal identity code, please?"
-T0057389,140406
+T0057389,[NATIONAL_ID]
 T0057390,Yes?
-T0057391,A947B
+T0057391,[NATIONAL_ID]
 T0057392,"Thanks [PERSON], you're verified."
 T0057393,How can I help?
 T0057394,"Internet keeps dropping here in Turku, I can't work from home."
@@ -15547,7 +15547,7 @@ T0060069,kiiots avusta.
 T0060087,aallokko hyvää päivää täällä puhuu [PERSON]
 T0060088,uusi reititin ei niinku yhdistä miten tämä asennetaan
 T0060089,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0060090,130781
+T0060090,[NATIONAL_ID]
 T0060091,joo
 T0060092,[NATIONAL_ID]
 T0060093,kiitos löysin tietosi
@@ -15738,7 +15738,7 @@ T0060849,"Ei tällä kertaa, kiitos ja hei."
 T0060910,hello you're through to aallokko this is [PERSON]
 T0060911,hi this is [PERSON] [PERSON] there's a mistake with my phone instalment the monthly payment went up
 T0060912,first i need to verify your identity could you give me your full name and personal identity code
-T0060913,010380
+T0060913,[NATIONAL_ID]
 T0060914,yes
 T0060915,[NATIONAL_ID]
 T0060916,thank you i've found your account
@@ -15753,7 +15753,7 @@ T0060924,no like that's all thanks
 T0060925,"Hello, you're through to Aallokko, this is [PERSON]."
 T0060926,"My spot-price electricity bill for December was €209.89, is that right?"
 T0060927,"Could I have your personal identity code, please?"
-T0060928,221055
+T0060928,[NATIONAL_ID]
 T0060929,Yes?
 T0060930,[NATIONAL_ID]
 T0060931,"Thank you, I've found your account."
@@ -16105,7 +16105,7 @@ T0062348,"Ei muuta, kiitos!"
 T0062478,aallokko asiakaspalvelu [PERSON] puhelimessa miten siis voin auttaa
 T0062479,tarvitsisin maksusuunnitelman [HEALTH] ja rahat on tiukilla
 T0062480,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0062481,261243
+T0062481,[NATIONAL_ID]
 T0062482,joo
 T0062483,[NATIONAL_ID]
 T0062484,kiitos [PERSON] tunnistus elikkä onnistui
@@ -16262,9 +16262,9 @@ T0063247,ei tällä kertaa kiitos ja hei
 T0063248,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0063249,"päivää [PERSON] [PERSON] täällä osoitteenmuutos uusi osoite on [ADDRESS], 23500 uusikaupunki"
 T0063250,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0063251,170505
+T0063251,[NATIONAL_ID]
 T0063252,joo
-T0063253,a9896
+T0063253,[NATIONAL_ID]
 T0063254,selvä tilisi löytyi
 T0063255,onko numero [PHONE] edelleen oikea yhteysnumero
 T0063256,joo pitää paikkansa
@@ -16306,7 +16306,7 @@ T0063486,kiitos niinku hyvää päivänjatkoa
 T0063487,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0063488,hei tässä [PERSON] [PERSON] sain tekstiviestin elikkä numerosta [PHONE] jossa pyydettiin maksamaan lasku linkistä [URL] onko tämä teiltä
 T0063489,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0063490,200393
+T0063490,[NATIONAL_ID]
 T0063491,joo
 T0063492,[NATIONAL_ID]
 T0063493,selvä tilisi löytyi
@@ -16472,9 +16472,9 @@ T0064117,"Ei tällä kertaa, kiitos ja hei."
 T0064118,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0064119,päivää [PERSON] [PERSON] täällä haluan irtisanoa laajakaistan muutan pois
 T0064120,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0064121,080401
+T0064121,[NATIONAL_ID]
 T0064122,joo
-T0064123,a906v
+T0064123,[NATIONAL_ID]
 T0064124,kiitos löysin tietosi
 T0064125,irtisanomisaika on 14 päivää viimeinen laskutuspäivä on 7.1.2026
 T0064126,okei
@@ -16484,7 +16484,7 @@ T0064129,kiitos hyvää päivänjatkoa
 T0064130,"Aallokko, hyvää päivää, täällä puhuu [PERSON]."
 T0064131,"Tarvitsisin maksusuunnitelman, [HEALTH] ja rahat on tiukilla."
 T0064132,"Voisitko kertoa henkilötunnuksesi, niin löydän tietosi?"
-T0064133,070386
+T0064133,[NATIONAL_ID]
 T0064134,Joo?
 T0064135,[NATIONAL_ID]
 T0064136,"Kiitos, löysin tietosi."
@@ -16496,7 +16496,7 @@ T0064141,"Ei tällä kertaa, kiitos ja hei."
 T0064341,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0064342,moi nimeni on [PERSON] [PERSON] muutan 4.1. uuteen osoitteeseen [ADDRESS] laajakaista pitäisi siirtää
 T0064343,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0064344,010479
+T0064344,[NATIONAL_ID]
 T0064345,joo
 T0064346,[NATIONAL_ID]
 T0064347,kiitos [PERSON] tunnistus onnistui
@@ -16615,7 +16615,7 @@ T0064651,Okej tack
 T0064751,"Aallokko asiakaspalvelu, [PERSON] puhelimessa, miten voin auttaa?"
 T0064752,Haluaisin maksaa puhelimen osamaksun kerralla pois.
 T0064753,"Voisitko kertoa henkilötunnuksesi, niin löydän tietosi?"
-T0064754,030849
+T0064754,[NATIONAL_ID]
 T0064755,Joo?
 T0064756,[NATIONAL_ID]
 T0064757,"Kiitos [PERSON], tunnistus onnistui."
@@ -18152,9 +18152,9 @@ T0070579,"ei tällä kertaa, kiitos ja hei."
 T0070618,"Aallokon asiakaspalvelu, [PERSON], kuinka voin palvella?"
 T0070619,"Moi, nimeni on [PERSON] [PERSON]. Osoitteenmuutos, uusi osoite on Myllypolku 41, 25370 [PERSON]."
 T0070620,"Voisitko kertoa henkilötunnuksesi, niin löydän tietosi?"
-T0070621,301205
+T0070621,[NATIONAL_ID]
 T0070622,Joo?
-T0070623,A935F
+T0070623,[NATIONAL_ID]
 T0070624,"Kiitos [PERSON], tunnistus onnistui."
 T0070625,"Tarkistan vielä: sähköpostisi on [EMAIL], pitääkö paikkansa?"
 T0070626,Joo
@@ -18396,7 +18396,7 @@ T0071294,ok chheers
 T0071311,"Aallokko, hyvää päivää, täällä puhuu [PERSON]."
 T0071312,"Päivää, [PERSON] [PERSON] täällä. Haluaisin maksaa puhelimen osamaksun kerralla pois."
 T0071313,Saisinko vielä asiakasnumerosi tai henkilötunnuksen?
-T0071314,290346
+T0071314,[NATIONAL_ID]
 T0071315,Joo?
 T0071316,[NATIONAL_ID]
 T0071317,"Kiitos, löysin tietosi."
@@ -18435,9 +18435,9 @@ T0071591,Kiitos avusta.
 T0071673,"Aallokko, hyvää päivää, täällä puhuu [PERSON]."
 T0071674,"Hei, tässä [PERSON] [PERSON]. Miksi minulta veloitettiin roaming-maksuja vaikka olin EU:ssa?"
 T0071675,Saisinko vielä asiakasnumerosi tai henkilötunnuksen?
-T0071676,260301
+T0071676,[NATIONAL_ID]
 T0071677,Joo?
-T0071678,A966L
+T0071678,[NATIONAL_ID]
 T0071679,"Kiitos [PERSON], tunnistus onnistui."
 T0071680,"Tarkistan vielä: sähköpostisi on [EMAIL], pitääkö paikkansa?"
 T0071681,"Joo, se on oikein."
@@ -18623,7 +18623,7 @@ T0072080,ok cheers
 T0072125,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0072126,moi nimeni on [PERSON] [PERSON] hei tarvitsisin apua yhden asian kanssa
 T0072127,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0072128,140631
+T0072128,[NATIONAL_ID]
 T0072129,joo
 T0072130,[NATIONAL_ID]
 T0072131,kiitos [PERSON] tunnistus onnistui
@@ -20541,7 +20541,7 @@ T0080228,okei kiitti
 T0080244,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0080245,puhelimen osamaksussa on virhe kuukausierä on noussut
 T0080246,tarkistan ensin henkilöllisyytesi kertoisitko nimesi siis ja henkilötunnuksesi
-T0080247,311262
+T0080247,[NATIONAL_ID]
 T0080248,joo
 T0080249,[NATIONAL_ID]
 T0080250,kiitos löysin tietosi
@@ -20752,7 +20752,7 @@ T0081112,"ei tällä kertaa, kiitos ja hei."
 T0081153,"Aallokko, hyvää päivää, täällä puhuu [PERSON]."
 T0081154,"Puhelimen osamaksussa on virhe, kuukausierä on noussut."
 T0081155,"Voisitko kertoa henkilötunnuksesi, niin löydän tietosi?"
-T0081156,161158
+T0081156,[NATIONAL_ID]
 T0081157,Joo?
 T0081158,[NATIONAL_ID]
 T0081159,"Selvä, tilisi löytyi."
@@ -21174,7 +21174,7 @@ T0082154,"No, that's all, thanks!"
 T0082247,hello you're through to aallokko this is [PERSON]
 T0082248,hello my name is [PERSON] [PERSON] my father [PERSON] passed away on 8 january and his subscription needs to be closed
 T0082249,could i have your personal identity code please
-T0082250,030254
+T0082250,[NATIONAL_ID]
 T0082251,yes
 T0082252,[NATIONAL_ID]
 T0082253,thanks [PERSON] you're verified
@@ -21547,9 +21547,9 @@ T0083841,"Ei tällä kertaa, kiitos ja hei."
 T0083867,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0083868,hei tässä [PERSON] [PERSON] minulla olisi joo kysymys liittymästä
 T0083869,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0083870,220203
+T0083870,[NATIONAL_ID]
 T0083871,joo
-T0083872,a939v
+T0083872,[NATIONAL_ID]
 T0083873,kiitos löysin tietosi
 T0083874,miten voin niinku auttaa
 T0083875,sain tekstiviestin numerosta [PHONE] jossa pyydettiin maksamaan lasku joo linkistä [URL] onko tämä teiltä
@@ -22483,7 +22483,7 @@ T0087509,kiitos hyvää päivänjatkoa
 T0087566,hello you're through to aallokko this is [PERSON]
 T0087567,hello my name is [PERSON] [PERSON] hello
 T0087568,could i have your personal identity code please
-T0087569,120937
+T0087569,[NATIONAL_ID]
 T0087570,yes
 T0087571,[NATIONAL_ID]
 T0087572,thank you i've found your account
@@ -22856,9 +22856,9 @@ T0088832,"Kiitos, hyvää päivänjatkoa"
 T0088835,"Aallokko, god dag, [PERSON] här."
 T0088836,Jag har en fråga om mitt abonnemang.
 T0088837,Jag behöver först verifiera dig. Kan du ge mig ditt namn och personbeteckning?
-T0088838,041101
+T0088838,[NATIONAL_ID]
 T0088839,Ja?
-T0088840,A966V
+T0088840,[NATIONAL_ID]
 T0088841,"Tack [PERSON], nu är du verifierad."
 T0088842,Hur kan jag hjälpa?
 T0088843,Jag fick ett sms från [PHONE] med länken [URL] Är det från er?
@@ -23778,7 +23778,7 @@ T0092403,no that's all thanks
 T0092431,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0092432,"päivää [PERSON] [PERSON] täällä olin lomalla norjassa ja nyt laskussa on 66,81 € datamaksuja"
 T0092433,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0092434,190447
+T0092434,[NATIONAL_ID]
 T0092435,joo
 T0092436,[NATIONAL_ID]
 T0092437,selvä tilisi löytyi
@@ -23900,7 +23900,7 @@ T0092888,kiitos hyvää päivänjatkoa
 T0092950,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0092951,päivää [PERSON] [PERSON] täällä sain laskun numero [ACCOUNT_NUMBER] ja siinä on jotain outoja lisäpalveluja joita en ole tilannut
 T0092952,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0092953,210988
+T0092953,[NATIONAL_ID]
 T0092954,joo
 T0092955,[NATIONAL_ID]
 T0092956,selvä tilisi löytyi
@@ -24158,7 +24158,7 @@ T0094050,no that's all thanks
 T0094081,aallokko hyvää päivää täällä puhuu [PERSON]
 T0094082,päivää [PERSON] [PERSON] täällä hei tarvitsisin apua yhden asian kanssa
 T0094083,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0094084,240984
+T0094084,[NATIONAL_ID]
 T0094085,joo
 T0094086,[NATIONAL_ID]
 T0094087,kiitos [PERSON] tunnistus onnistui
@@ -24265,9 +24265,9 @@ T0094554,Okei kititi
 T0094570,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0094571,sain tekstiviestin numerosta [PHONE] jossa pyydettiin maksamaan lasku [URL] onko tämä teiltä
 T0094572,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0094573,020301
+T0094573,[NATIONAL_ID]
 T0094574,joo
-T0094575,a9719
+T0094575,[NATIONAL_ID]
 T0094576,selvä tilisi siis löytyi
 T0094577,tarkistan vielä sähköpostisi on [EMAIL] pitääkö paikkansa
 T0094578,joo pitää paikkansa
@@ -24493,7 +24493,7 @@ T0095266,"Asia ei ole vieläkään kunnossa, soittakaa minulle numeroon [PHONE].
 T0095296,aallokko asiakaspalvelu [PERSON] puhelimessa elikkä miten voin auttaa
 T0095297,olen soittanut jo kolme kertaa eikä asiaa ole hoidettu wifi on tosi hidas yläkerrassa voiko asialle tehdä jotain
 T0095298,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0095299,250137
+T0095299,[NATIONAL_ID]
 T0095300,joo
 T0095301,[NATIONAL_ID]
 T0095302,kiitos [PERSON] tunnistus onnistui
@@ -25001,7 +25001,7 @@ T0097681,Kitos avusta.
 T0097694,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0097695,en pysty maksamaan eräpäivään mennessä voisiko saada maksuaikaa
 T0097696,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0097697,030582
+T0097697,[NATIONAL_ID]
 T0097698,joo
 T0097699,[NATIONAL_ID]
 T0097700,kiitos löysin tietosi
@@ -26052,7 +26052,7 @@ T0101274,"Ei tlälä kertaa, kiitos ja hei."
 T0101275,aallokko hyvää päivää täällä puhuu [PERSON]
 T0101276,"netti on ollut poikki eilisillasta asti osoitteessa [ADDRESS], 20900 turku"
 T0101277,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0101278,040496
+T0101278,[NATIONAL_ID]
 T0101279,joo
 T0101280,[NATIONAL_ID]
 T0101281,kiitos löysin tietosi
@@ -26531,7 +26531,7 @@ T0103256,ei tällä kertaa kiitos ja hei
 T0103321,hello you're through to aallokko this is [PERSON]
 T0103322,i got a text from [PHONE] asking me to pay a bill at [URL] is this from you
 T0103323,first i need to verify your identity could you give me your full name and personal identity code
-T0103324,100242
+T0103324,[NATIONAL_ID]
 T0103325,yes
 T0103326,[NATIONAL_ID]
 T0103327,thanks [PERSON] you're verified
@@ -26651,9 +26651,9 @@ T0103784,"Ei muuta, kiitos!"
 T0103852,hello you're through to aallokko this is [PERSON]
 T0103853,hello
 T0103854,could i have your personal identity code please
-T0103855,300500
+T0103855,[NATIONAL_ID]
 T0103856,yes
-T0103857,a966j
+T0103857,[NATIONAL_ID]
 T0103858,thank uh you i've found your account
 T0103859,how can i help
 T0103860,my bill is €116.05 but my plan should only be €39.90 why
@@ -27282,7 +27282,7 @@ T0106190,no that's all thanks
 T0106247,"Aallokko asiakaspalvelu, [PERSON] puhelimessa, miten voin auttaa?"
 T0106248,"Hei, tässä [PERSON] [PERSON]. Wifi on tosi hidas yläkerrassa, voiko asialle tehdä jotain?"
 T0106249,"Voisitko kertoa henkilötunnuksesi, niin löydän tietosi?"
-T0106250,010476
+T0106250,[NATIONAL_ID]
 T0106251,Joo?
 T0106252,[NATIONAL_ID]
 T0106253,"Kiitos, löysin tietosi."
@@ -27740,7 +27740,7 @@ T0108629,thanks for your help
 T0108753,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0108754,miksi minua on laskutettu kahdesti tästä kuusta
 T0108755,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0108756,110884
+T0108756,[NATIONAL_ID]
 T0108757,joo
 T0108758,[NATIONAL_ID]
 T0108759,kiitos löysin tietosi
@@ -27756,7 +27756,7 @@ T0108768,ei tällä kertaa tota kiitos ja hei
 T0108797,aallokko kundtjänst det är [PERSON] hur kan jag hjälpa till
 T0108798,det är fel på avbetalningen för telefonen månadsbeloppet har höjts
 T0108799,kan jag eh få ditt kundnummer eller personbeteckning
-T0108800,161259
+T0108800,[NATIONAL_ID]
 T0108801,ja
 T0108802,[NATIONAL_ID]
 T0108803,tack jag hittade dina uppgifter
@@ -28026,7 +28026,7 @@ T0109634,"Kiitos, hyvää päivänjatkoa"
 T0109635,aallokon joo asiakaspalvelu [PERSON] kuinka voin palvella
 T0109636,olen soittanut jo kolme kertaa eikä asiaa ole hoidettu
 T0109637,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0109638,210692
+T0109638,[NATIONAL_ID]
 T0109639,joo
 T0109640,[NATIONAL_ID]
 T0109641,kiitos [PERSON] tunnistus onnistui
@@ -28166,7 +28166,7 @@ T0110209,"Ei tällä kertaa, kiitos ja hei."
 T0110254,aallokko hyvää päivää täällä puhuu [PERSON]
 T0110255,moi nimeni on [PERSON] [PERSON] sain laskun numero [ACCOUNT_NUMBER] ja siinä on jotain outoja lisäpalveluja joita en ole tilannut
 T0110256,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0110257,100465
+T0110257,[NATIONAL_ID]
 T0110258,joo
 T0110259,[NATIONAL_ID]
 T0110260,selvä tilisi löytyi
@@ -28403,7 +28403,7 @@ T0111105,kiitos avusta.
 T0111106,"Aallokko asiakaspalvelu, [PERSON] puhelimessa, miten voin auttaa?"
 T0111107,"Hei, siis, tässä [PERSON] [PERSON]-[PERSON]. Minulla olisi kysymys liittymästä."
 T0111108,Saisinko vielä asiakasnumerosi tai henkilötunnuksen?
-T0111109,100749
+T0111109,[NATIONAL_ID]
 T0111110,Joo?
 T0111111,[NATIONAL_ID]
 T0111112,"Kiitos, löysin tietosi."
@@ -28800,7 +28800,7 @@ T0112544,Okei kiitti
 T0112573,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0112574,kotinetti ei toimi ollenkaan valot vilkkuu punaisena
 T0112575,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0112576,260480
+T0112576,[NATIONAL_ID]
 T0112577,joo
 T0112578,[NATIONAL_ID]
 T0112579,kiitos löysin niinku tietosi
@@ -28943,7 +28943,7 @@ T0113183,"No, that's all, thanks!"
 T0113195,aallokon öö asiakaspalvelu [PERSON] kuinka voin palvella
 T0113196,moi onko ketään paikalla
 T0113197,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0113198,130372
+T0113198,[NATIONAL_ID]
 T0113199,joo
 T0113200,[NATIONAL_ID]
 T0113201,kiitos [PERSON] tunnistus onnistui
@@ -29281,7 +29281,7 @@ T0114446,Okej tack
 T0114475,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0114476,miksi minua on laskutettu kahdesti tästä kuusta
 T0114477,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0114478,211092
+T0114478,[NATIONAL_ID]
 T0114479,joo
 T0114480,[NATIONAL_ID]
 T0114481,kiitos [PERSON] tunnistus tota onnistui
@@ -29431,7 +29431,7 @@ T0114836,tack för hjälpen
 T0114857,aallokon asiakaspalvelu [PERSON] kuinka öö voin palvella
 T0114858,päivää [PERSON] [PERSON] täällä sain laskun numero [ACCOUNT_NUMBER] ja siinä on jotain outoja lisäpalveluja joita en ole tilannut
 T0114859,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0114860,280880
+T0114860,[NATIONAL_ID]
 T0114861,joo
 T0114862,[NATIONAL_ID]
 T0114863,selvä tilisi löytyi
@@ -29786,7 +29786,7 @@ T0116101,kiitos avusta.
 T0116137,"Aallokko customer service, [PERSON] speaking, how can I help?"
 T0116138,"I've been charged twice this month, can you check?"
 T0116139,"Could I have your personal identity code, please?"
-T0116140,260654
+T0116140,[NATIONAL_ID]
 T0116141,Yes?
 T0116142,[NATIONAL_ID]
 T0116143,"Thank you, I've found your account."
@@ -30228,7 +30228,7 @@ T0117482,ei muuta kiitos
 T0117595,"Aallokko, hyvää päivää, täällä puhuu [PERSON]."
 T0117596,"Moi, nimeni on [PERSON] [PERSON]. Puhelimen osamaksussa on virhe, kuukausierä on noussut."
 T0117597,Saisinko vielä asiakasnumerosi tai henkilötunnuksen?
-T0117598,211077
+T0117598,[NATIONAL_ID]
 T0117599,Joo?
 T0117600,[NATIONAL_ID]
 T0117601,"Kiitos [PERSON], tunnistus onnistui."
@@ -31627,9 +31627,9 @@ T0122318,kiitos hyvää päivänjatkoa
 T0122319,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0122320,numeronsiirto on jumissa vanha operaattori on saarni net mitä tapahtuu
 T0122321,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0122322,200907
+T0122322,[NATIONAL_ID]
 T0122323,joo
-T0122324,a9642
+T0122324,[NATIONAL_ID]
 T0122325,selvä tilisi löytyi
 T0122326,tarkistan vielä sähköpostisi on [EMAIL] pitääkö paikkansa
 T0122327,joo pitää paikkansa
@@ -32786,7 +32786,7 @@ T0125850,"Ei tällä kertaa, kiitos ja hei."
 T0125899,"Aallokko asiakaspalvelu, [PERSON] puhelimessa, miten voin auttaa?"
 T0125900,"Uusi reititin ei yhdistä, miten tämä asennetaan?"
 T0125901,"Voisitko kertoa henkilötunnuksesi, niin löydän tietosi?"
-T0125902,080280
+T0125902,[NATIONAL_ID]
 T0125903,Joo?
 T0125904,[NATIONAL_ID]
 T0125905,"Selvä, tilisi löytyi."
@@ -32966,7 +32966,7 @@ T0126625,Okei kiitti
 T0126654,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0126655,päivää [PERSON] [PERSON] täällä minulla olisi kysymys liittymästä
 T0126656,saisinko vielä asiakasnumerosi tai henkilötunnuksen
-T0126657,270256
+T0126657,[NATIONAL_ID]
 T0126658,joo
 T0126659,[NATIONAL_ID]
 T0126660,kiitos [PERSON] tunnistus onnistui
@@ -33374,7 +33374,7 @@ T0127909,Okei kiitti
 T0127922,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0127923,puhelimen osamaksussa on virhe kuukausierä on noussut
 T0127924,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0127925,040250
+T0127925,[NATIONAL_ID]
 T0127926,joo
 T0127927,[NATIONAL_ID]
 T0127928,selvä tilisi löytyi
@@ -33862,7 +33862,7 @@ Aallokko Customer Service"
 T0129734,aallokko asiakaspalvelu [PERSON] puhelimessa miten voin auttaa
 T0129735,haluaisin maksaa puhelimen osamaksun kerralla pois
 T0129736,saisinko tota vielä asiakasnumerosi tai henkilötunnuksen
-T0129737,271293
+T0129737,[NATIONAL_ID]
 T0129738,joo
 T0129739,[NATIONAL_ID]
 T0129740,kiitos [PERSON] tunnistus onnistui
@@ -33943,7 +33943,7 @@ T0130092,okei kiitti
 T0130156,"Hello, you're through to Aallokko, this is [PERSON]."
 T0130157,"Hi, this is [PERSON] [PERSON]. Internet keeps dropping here in Turku, I can't work from home."
 T0130158,First I need to verify your identity. Could you give me your full name and personal identity code?
-T0130159,210290
+T0130159,[NATIONAL_ID]
 T0130160,Yes?
 T0130161,[NATIONAL_ID]
 T0130162,"Thanks [PERSON], you're verified."
@@ -34134,7 +34134,7 @@ T0131094,"No, that's all, thanks!"
 T0131120,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0131121,hei tässä [PERSON] [PERSON] tarvitsisin maksusuunnitelman [HEALTH] elokuussa ja rahat on tiukilla
 T0131122,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja henkilötunnuksesi
-T0131123,111271
+T0131123,[NATIONAL_ID]
 T0131124,joo
 T0131125,[NATIONAL_ID]
 T0131126,selvä tilisi löytyi
@@ -34323,7 +34323,7 @@ Aallokko asiakaspalvelu"
 T0131951,"Aallokon asiakaspalvelu, [PERSON], kuinka voin palvella?"
 T0131952,"Päivää, [PERSON] [PERSON] täällä. Netti katkeilee koko ajan siis, (paikkakunta Turku), etätyöt ei onnistu."
 T0131953,Tarkistan ensin henkilöllisyytesi. Kertoisitko nimesi ja henkilötunnuksesi?
-T0131954,020280
+T0131954,[NATIONAL_ID]
 T0131955,Joo?
 T0131956,[NATIONAL_ID]
 T0131957,"Selvä, tilisi löytyi."
@@ -35543,7 +35543,7 @@ T0136525,"ei muuta, kiitos!"
 T0136540,"Aallokko asiakaspalvelu, [PERSON] puhelimessa, miten voin auttaa?"
 T0136541,"Puhelin varastettiin, pitää sulkea liittymä ja saada uusi SIM."
 T0136542,Saisinko vielä asiakasnumerosi tai henkilötunnuksen?
-T0136543,100593
+T0136543,[NATIONAL_ID]
 T0136544,Joo?
 T0136545,[NATIONAL_ID]
 T0136546,"Kiitos, löysin tietosi."
@@ -35582,7 +35582,7 @@ T0136605,okei kiitti
 T0136620,aallokon öö asiakaspalvelu [PERSON] kuinka voin palvella
 T0136621,haluaisin siirtää numeroni teille nykyinen operaattori on saarni net
 T0136622,voisitko kertoa henkilötunnuksesi niin löydän tietosi
-T0136623,050451
+T0136623,[NATIONAL_ID]
 T0136624,joo
 T0136625,[NATIONAL_ID]
 T0136626,selvä tilisi löytyi
@@ -37297,7 +37297,7 @@ T0143374,no that's all thanks
 T0143419,aallokko like customer service [PERSON] speaking how can i help
 T0143420,i was uh on holiday in turkey and now there's €108.64 of data charges on my bill
 T0143421,could i have your personal identity code please
-T0143422,190269
+T0143422,[NATIONAL_ID]
 T0143423,yes
 T0143424,[NATIONAL_ID]
 T0143425,thanks [PERSON] you're verified
@@ -37931,7 +37931,7 @@ T0145306,"Kiitos, hyvää päivänjatkoa"
 T0145307,"Aallokko, hyvää päivää, täällä puhuu [PERSON]."
 T0145308,"Pörssisähkön lasku oli joulukuussa 321,40 €, onko tämä oikein?"
 T0145309,"Voisitko kertoa henkilötunnuksesi, niin löydän tietosi?"
-T0145310,110879
+T0145310,[NATIONAL_ID]
 T0145311,Joo?
 T0145312,[NATIONAL_ID]
 T0145313,"Kiitos [PERSON], tunnistus onnistui."
@@ -37962,7 +37962,7 @@ Aallokko asiakaspalvelu"
 T0145352,"Aallokko customer service, [PERSON] speaking, how can I help?"
 T0145353,"My SIM card is broken, I need a new one."
 T0145354,First I need to verify your identity. Could you give me your full name and personal identity code?
-T0145355,030231
+T0145355,[NATIONAL_ID]
 T0145356,Yes?
 T0145357,[NATIONAL_ID]
 T0145358,"Thanks [PERSON], you're verified."
@@ -39015,7 +39015,7 @@ Aallokko asiakaspalvelu"
 T0149807,"Aallokko, hyvää päivää, täällä puhuu [PERSON]."
 T0149808,"Netti katkeilee koko ajan (paikkakunta [PERSON]), etätyöt ei onnistu."
 T0149809,"Voisitko kertoa henkilötunnuksesi, niin löydän tietosi?"
-T0149810,280746
+T0149810,[NATIONAL_ID]
 T0149811,Joo?
 T0149812,[NATIONAL_ID]
 T0149813,"Kiitos, löysin tietosi."
@@ -40080,7 +40080,7 @@ T0154072,"Nej, det var allt, tack!"
 T0154303,"Aallokon asiakaspalvelu, [PERSON], kuinka voin palvella?"
 T0154304,"Moi, nimeni on [PERSON] [PERSON]. Haluan tehdä valituksen, asentaja ei tullut sovittuna päivänä 26.5.2025. Netti katkeilee koko ajan (paikkakunta Mynämäki), etätyöt ei onnistu."
 T0154305,"Voisitko kertoa henkilötunnuksesi, niin löydän tietosi?"
-T0154306,281050
+T0154306,[NATIONAL_ID]
 T0154307,Joo?
 T0154308,[NATIONAL_ID]
 T0154309,"Kiitos [PERSON], tunnistus onnistui."
@@ -40257,7 +40257,7 @@ T0155167,Okei kiitti
 T0155168,aallokon asiakaspalvelu [PERSON] kuinka voin palvella
 T0155169,haluaisin vaihtaa esimiin ostin uuden puhelimen
 T0155170,tarkistan ensin henkilöllisyytesi kertoisitko nimesi ja ööh henkilötunnuksesi
-T0155171,140850
+T0155171,[NATIONAL_ID]
 T0155172,joo
 T0155173,[NATIONAL_ID]
 T0155174,selvä tilisi löytyi
