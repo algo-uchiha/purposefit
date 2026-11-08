@@ -21,6 +21,11 @@ export function VerifyScreen({ data }: { data: Verify }) {
     base = data.baseline;
   const checks = data.gate.checks;
   const blocking = new Set(data.gate.blocking);
+  const gateCards = [
+    { id: "direct_identifiers", title: "Direct identifiers" },
+    { id: "k_anonymity", title: "Group size" },
+    { id: "text_leakage", title: "Call text" },
+  ].map((item) => ({ ...item, check: checks.find((check) => check.id === item.id) }));
   const chartData = [
     { group: "PurposeFit", key: "Privacy", value: ours.summary.privacy },
     { group: data.baseline_name, key: "Privacy", value: base.summary.privacy },
@@ -65,6 +70,39 @@ export function VerifyScreen({ data }: { data: Verify }) {
         lowContrast
         hideCloseButton
       />
+      <div className="proof-cards" aria-label="Release checks">
+        {gateCards.map(({ id, title, check }) => {
+          const value = check?.value;
+          const formatted = !check
+            ? "Not set"
+            : value == null
+              ? id === "k_anonymity" && check.status === "pass"
+                ? "No grouping needed"
+                : "Not set"
+              : check.kind === "risk" || check.kind === "text"
+                ? pct(value)
+                : value.toLocaleString();
+          return (
+            <article
+              className={`proof-card ${check?.status === "pass" ? "proof-pass" : check?.status === "fail" ? "proof-fail" : "proof-unknown"}`}
+              key={id}
+            >
+              <div className="proof-card-top">
+                <h3>{title}</h3>
+                <span>
+                  {check?.status === "pass"
+                    ? "Pass"
+                    : check?.status === "fail"
+                      ? "Fail"
+                      : "Not set"}
+                </span>
+              </div>
+              <strong>{formatted}</strong>
+              <p>{check?.name ?? "This check is not available in the run."}</p>
+            </article>
+          );
+        })}
+      </div>
       <div className="metric-grid">
         {(["privacy", "utility", "composite"] as const).map((k) => (
           <ScoreTile
