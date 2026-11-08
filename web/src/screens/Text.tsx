@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import type { ReactNode } from "react";
 import {
   Button,
   InlineNotification,
@@ -14,9 +14,40 @@ import {
   Toggle,
 } from "@carbon/react";
 import { ChevronLeft, ChevronRight } from "@carbon/icons-react";
-import type { Redact } from "../types";
+import type { Redact, Span } from "../types";
 import { SpanTag } from "../components/SpanTag";
 const pct = (n: number | null) => (n === null ? "Not answerable" : `${(n * 100).toFixed(1)} %`);
+function originalWithSpans(text: string, spans: Span[]): ReactNode[] {
+  const parts: ReactNode[] = [];
+  let cursor = 0;
+  spans
+    .slice()
+    .sort((a, b) => a.start - b.start)
+    .forEach((span, index) => {
+      if (span.start < cursor || span.end > text.length) return;
+      if (span.start > cursor) parts.push(text.slice(cursor, span.start));
+      parts.push(
+        <mark className="sensitive-span" key={`${span.start}-${index}`}>
+          {text.slice(span.start, span.end)}
+          <SpanTag label={span.label} layer={span.layer} />
+        </mark>,
+      );
+      cursor = span.end;
+    });
+  if (cursor < text.length) parts.push(text.slice(cursor));
+  return parts;
+}
+function protectedWithMarkers(text: string): ReactNode[] {
+  return text.split(/(\[[A-Z_ ]+\])/g).map((part, index) =>
+    part.startsWith("[") && part.endsWith("]") ? (
+      <mark className="safe-span" key={index}>
+        {part}
+      </mark>
+    ) : (
+      part
+    ),
+  );
+}
 export function TextScreen({
   data,
   turn,
@@ -34,24 +65,6 @@ export function TextScreen({
   const total = data?.turns.length ?? 0;
   const protectedText =
     surrogate && current?.surrogate_text ? current.surrogate_text : (current?.protected_text ?? "");
-  const decorated = useMemo(() => {
-    if (!current?.spans.length) return protectedText;
-    const spans = [...current.spans].sort((a, b) => a.start - b.start);
-    let pos = 0;
-    const out: React.ReactNode[] = [];
-    spans.forEach((s, i) => {
-      if (s.start > pos) out.push(protectedText.slice(pos, s.start));
-      out.push(
-        <span className="masked-span" key={i}>
-          {protectedText.slice(s.start, s.end)}
-          <SpanTag label={s.label} layer={s.layer} />
-        </span>,
-      );
-      pos = s.end;
-    });
-    out.push(protectedText.slice(pos));
-    return out;
-  }, [current, protectedText]);
   if (!data) return <Loading description="Loading transcript" />;
   if (!data.table)
     return (
@@ -66,8 +79,8 @@ export function TextScreen({
     <>
       <div className="section-intro">
         <div>
-          <h2>Text protection</h2>
-          <p>Example turn with removal spans and the layer that caught each identifier.</p>
+          <h2>Calls</h2>
+          <p>Compare the original words with the protected copy.</p>
         </div>
         <div className="turn-pager">
           <Button
@@ -100,15 +113,17 @@ export function TextScreen({
           {data.redacted ? "redaction applied" : "redaction pending"}
         </Tag>
         <span>Record {current?.record_id}</span>
-        <span>Layer order: {data.layers_run.length ? data.layers_run.join(" · ") : "not run"}</span>
+        <span>Example row from the prepared calls data</span>
       </div>
       <div className="text-panels">
         <Tile className="text-tile">
           <div className="panel-heading">
             <h3>Original turn</h3>
-            <Tag type="cool-gray">synthetic text</Tag>
+            <Tag type="cool-gray">Example record</Tag>
           </div>
-          <p className="transcript">{current?.original_text}</p>
+          <p className="transcript">
+            {current?.original_text && originalWithSpans(current.original_text, current.spans)}
+          </p>
         </Tile>
         <Tile className="text-tile">
           <div className="panel-heading">
@@ -121,7 +136,9 @@ export function TextScreen({
               onToggle={setSurrogate}
             />
           </div>
-          <p className="transcript">{decorated || "No protected text available."}</p>
+          <p className="transcript">
+            {protectedText ? protectedWithMarkers(protectedText) : "No protected text available."}
+          </p>
           <p className="small muted">
             {current?.spans.length
               ? `${current.spans.length} removed span(s)`
