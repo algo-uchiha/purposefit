@@ -999,3 +999,13 @@ body:has(.landing-v3) {
     transform: none;
   }
 }
+
+/* final polish */
+.hero-copy h1 em { color: var(--pf-accent); font-style: normal; }
+.safe-copies { grid-template-rows: none; grid-auto-rows: auto; }
+.copy-fields { display: flex; flex-wrap: wrap; gap: 7px; margin: 10px 0 4px; padding: 0; list-style: none; }
+.copy-fields li { border: 1px solid #cfe6e4; border-radius: 999px; padding: 4px 11px; background: #eef8f7; color: var(--pf-ink); font-size: clamp(12px, 0.95vw, 14px); line-height: 1.4; }
+.copy-fields li.copy-field-code { background: #fff; }
+.copy-fields li.copy-field-none { border-color: #e1eaec; background: #f4f7f8; color: var(--pf-muted); }
+.original-note { margin-top: 12px; color: var(--pf-muted); font-size: clamp(12px, 0.95vw, 14px); }
+.v3-footer a + a { margin-left: 18px; }
