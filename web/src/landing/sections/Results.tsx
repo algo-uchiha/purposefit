@@ -1,69 +1,108 @@
 import { GroupedBarChart } from "@carbon/charts-react";
 import { ScaleTypes } from "@carbon/charts";
-import { Button } from "@carbon/react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@carbon/react";
 import type { Verify } from "../../types";
-export function Results({ one, two, open }: { one?: Verify; two?: Verify; open: () => void }) {
-  const data = [
-    ...(one
-      ? [
-          { group: "PurposeFit · CS-S1", key: "Privacy", value: one.ours.summary.privacy },
-          { group: "B2-k · CS-S1", key: "Privacy", value: one.baseline.summary.privacy },
-          { group: "PurposeFit · CS-S1", key: "Utility", value: one.ours.summary.utility },
-          { group: "B2-k · CS-S1", key: "Utility", value: one.baseline.summary.utility },
-          { group: "PurposeFit · CS-S1", key: "Overall", value: one.ours.summary.composite },
-          { group: "B2-k · CS-S1", key: "Overall", value: one.baseline.summary.composite },
-        ]
-      : []),
-    ...(two
-      ? [
-          { group: "PurposeFit · CS-S3", key: "Privacy", value: two.ours.summary.privacy },
-          { group: "B2-k · CS-S3", key: "Privacy", value: two.baseline.summary.privacy },
-          { group: "PurposeFit · CS-S3", key: "Utility", value: two.ours.summary.utility },
-          { group: "B2-k · CS-S3", key: "Utility", value: two.baseline.summary.utility },
-          { group: "PurposeFit · CS-S3", key: "Overall", value: two.ours.summary.composite },
-          { group: "B2-k · CS-S3", key: "Overall", value: two.baseline.summary.composite },
-        ]
-      : []),
-  ];
+import type { LeaderboardRow } from "../../api";
+type Claims = Record<string, string>;
+export function Results({
+  rows,
+  verify,
+  claims,
+}: {
+  rows: LeaderboardRow[];
+  verify: Verify;
+  claims: Claims;
+}) {
+  const methods = ["B0 (rerun)", "B2 (rerun)", "B2-k (rerun)", "purposefit"];
+  const latest = (method: string) =>
+    rows
+      .filter((r) => r.scenario === "CS-S1" && r.method === method)
+      .sort((a, b) => b.created_utc.localeCompare(a.created_utc))[0];
+  const scoreRows = methods.map((method) => ({ method, row: latest(method) })).filter((x) => x.row);
+  const chartData = scoreRows.flatMap(({ method, row }) => [
+    { group: method, key: "Privacy", value: row!.privacy },
+    { group: method, key: "Utility", value: row!.utility },
+    { group: method, key: "Composite", value: row!.composite },
+  ]);
   const options = {
-    title: "PurposeFit and B2-k scores",
+    title: "CS-S1 score comparison",
     axes: {
       left: { mapsTo: "value", domain: [0, 1] },
       bottom: { mapsTo: "key", scaleType: ScaleTypes.LABELS },
     },
     height: "300px",
+    color: {
+      scale: {
+        purposefit: "#0E7C7B",
+        "B0 (rerun)": "#9AA1A9",
+        "B2 (rerun)": "#737D88",
+        "B2-k (rerun)": "#515D6B",
+      },
+    },
     legend: { enabled: true },
   };
-  const limits = [...(one?.residual_risks ?? []), ...(two?.residual_risks ?? [])]
-    .map((x) => x.text)
-    .filter((x, i, a) => a.indexOf(x) === i)
-    .slice(0, 3);
+  const final = rows.find((r) => r.run_id === "final-CS-S1");
+  const noLlm = rows.find((r) => r.run_id === "final-CS-S1-nollm");
+  const dataRows = [
+    {
+      label: "Held-out detection macro-F1",
+      result: `B1 ${claims["detect.b1.heldout.macro_f1"] ?? "Not set"} · rules only ${claims["detect.rules.heldout.macro_f1"] ?? "Not set"} · with LLM ${claims["detect.llm.heldout.macro_f1"] ?? "Not set"}`,
+      source: "claims.json · held-out detection split",
+    },
+    ...(claims["health.train_before"]
+      ? [
+          {
+            label: "Health leakage in training data",
+            result: `Before ${claims["health.train_before"]} · after ${claims["health.train_after"]}`,
+            source: "claims.json · synthetic training split",
+          },
+        ]
+      : []),
+    {
+      label: "CS-S1 AI-off composite",
+      result: `AI off ${noLlm?.composite.toFixed(4) ?? "Not set"} · AI on ${final?.composite.toFixed(4) ?? "Not set"}`,
+      source: `${noLlm?.run_id ?? "Not set"} vs ${final?.run_id ?? "Not set"} · leaderboard`,
+    },
+  ];
   return (
-    <section className="landing-panel results-panel">
+    <section className="landing-panel evidence-panel">
       <div className="landing-content reveal">
-        <p className="landing-kicker">Results and limits</p>
-        <div className="results-grid">
-          <div>
-            <h2>Measured results for each purpose</h2>
-            <p className="landing-source">Self-assessment · pets-eval · fixture values</p>
-            <GroupedBarChart data={data} options={options} />
-          </div>
-          <div className="limit-list">
-            <h3>What the measures do not prove</h3>
-            {limits.map((x, i) => (
-              <p key={i}>{x}</p>
-            ))}
+        <p className="landing-kicker">Evidence</p>
+        <h2>Compare the release methods against the same tasks</h2>
+        <p className="section-source">
+          CS-S1 · pets-eval self-assessment · each series uses its recorded run
+        </p>
+        <div className="evidence-chart">
+          <GroupedBarChart data={chartData} options={options} />
+        </div>
+        <div className="evidence-table">
+          <h3>Detection and parity checks</h3>
+          <div className="table-scroll">
+            <Table>
+              <TableHead>
+                <TableRow>
+                  {["Measure", "Results", "Source"].map((x) => (
+                    <TableHeader key={x}>{x}</TableHeader>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {dataRows.map((r) => (
+                  <TableRow key={r.label}>
+                    <TableCell>{r.label}</TableCell>
+                    <TableCell>{r.result}</TableCell>
+                    <TableCell>{r.source}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </div>
-        <Button onClick={open}>Open the workbench</Button>
+        <p className="section-source">
+          Chart scores are proportions from the leaderboard. Detection results are held-out macro-F1
+          from claims.json.
+        </p>
       </div>
-      <footer className="landing-footer">
-        <span>PurposeFit · TrustED PETs Transformer challenge · Since AI Hackathon 2026</span>
-        <span>
-          <a href="https://github.com/algo-uchiha/purposefit">GitHub repository</a> ·{" "}
-          <a href="https://github.com/algo-uchiha/purposefit#readme">README</a>
-        </span>
-      </footer>
     </section>
   );
 }
