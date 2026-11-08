@@ -1,0 +1,129 @@
+body:has(.cds--header) {
+  min-height: 100vh;
+  color: #0b1f2a;
+  background:
+    radial-gradient(circle at 15% 22%, rgba(205, 232, 246, 0.56), transparent 25rem),
+    radial-gradient(circle at 88% 62%, rgba(213, 240, 233, 0.5), transparent 24rem),
+    #f4fafc;
+  font-family: Inter, Arial, sans-serif;
+}
+
+body:has(.cds--header) .cds--header {
+  height: 76px;
+  border-bottom: 1px solid #e1eaec;
+  background: rgba(255, 255, 255, 0.9);
+  color: #0b1f2a;
+  backdrop-filter: blur(14px);
+}
+
+body:has(.cds--header) .cds--header__name {
+  display: inline-flex;
+  height: 100%;
+  align-items: center;
+  gap: 11px;
+  color: #0b1f2a;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+body:has(.cds--header) .cds--header__name::before {
+  width: 32px;
+  height: 24px;
+  background: radial-gradient(ellipse at 32% 50%, #0b1f2a 0 43%, transparent 46%), radial-gradient(ellipse at 68% 50%, rgba(14, 124, 123, 0.9) 0 43%, transparent 46%);
+  content: "";
+}
+
+body:has(.cds--header) .header-context { color: #5b6b74; }
+body:has(.cds--header) .cds--header__global { color: #0b1f2a; }
+body:has(.cds--header) .cds--header__action:hover { background: #eaf5f4; }
+
+body:has(.cds--header) .cds--side-nav {
+  top: 76px;
+  width: 248px;
+  border-right: 1px solid #e1eaec;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+body:has(.cds--header) .cds--side-nav__items { padding: 20px 12px; }
+body:has(.cds--header) .cds--side-nav__link { min-height: 46px; border-radius: 12px; color: #3c4d57; }
+body:has(.cds--header) .cds--side-nav__link:hover { background: #eaf5f4; color: #0b1f2a; }
+body:has(.cds--header) .cds--side-nav__link[aria-current="page"] { color: #0e7c7b; background: #eaf5f4; font-weight: 600; }
+body:has(.cds--header) .cds--side-nav__link::before { background: #0e7c7b; }
+
+body:has(.cds--header) .cds--content.app-content {
+  min-height: calc(100vh - 76px);
+  margin-left: 248px;
+  padding: 36px clamp(24px, 4vw, 64px) 36px;
+  background: transparent;
+}
+
+body:has(.cds--header) .topline {
+  align-items: center;
+  border-bottom-color: #e1eaec;
+  padding-bottom: 22px;
+  margin-bottom: 28px;
+}
+body:has(.cds--header) .topline h1 { color: #0b1f2a; font-size: clamp(28px, 3vw, 38px); font-weight: 600; letter-spacing: -0.04em; }
+body:has(.cds--header) .eyebrow { color: #5b6b74; font-size: 11px; }
+body:has(.cds--header) .scenario-top,
+body:has(.cds--header) .section-intro { align-items: flex-end; }
+body:has(.cds--header) .scenario-top h2,
+body:has(.cds--header) .section-intro h2 { color: #0b1f2a; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; }
+body:has(.cds--header) .muted,
+body:has(.cds--header) .section-intro p { color: #5b6b74; }
+body:has(.cds--header) .scenario-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+body:has(.cds--header) .scenario-tile,
+body:has(.cds--header) .export-grid > .cds--tile { min-height: 0; border: 1px solid #e1eaec; border-radius: 18px; background: rgba(255, 255, 255, 0.92); box-shadow: 0 10px 32px rgba(11, 31, 42, 0.05); }
+body:has(.cds--header) .scenario-tile { padding: 20px; }
+body:has(.cds--header) .scenario-tile.active { border: 2px solid #0e7c7b; padding: 19px; }
+body:has(.cds--header) .scenario-tile:hover,
+body:has(.cds--header) .scenario-tile:focus-within { border-color: #0e7c7b; }
+body:has(.cds--header) .tile-indicator { color: #0e7c7b; }
+body:has(.cds--header) .scenario-tile h3 { color: #0b1f2a; }
+body:has(.cds--header) .notice-line { border: 1px solid #e1eaec; border-radius: 14px; padding: 15px 18px; color: #3c4d57; background: rgba(255, 255, 255, 0.76); }
+body:has(.cds--header) .blue-rule { border-radius: 9px; background: #0e7c7b; }
+
+body:has(.cds--header) .plan-layout { grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; }
+body:has(.cds--header) .table-wrap,
+body:has(.cds--header) .side-panel,
+body:has(.cds--header) .text-tile,
+body:has(.cds--header) .chart-tile,
+body:has(.cds--header) .k-tile { border: 1px solid #e1eaec; border-radius: 16px; background: #fff; box-shadow: 0 8px 26px rgba(11, 31, 42, 0.04); }
+body:has(.cds--header) .side-panel { border-left: 1px solid #e1eaec; padding: 20px; }
+body:has(.cds--header) .diff-row td { background: #eaf5f4 !important; }
+body:has(.cds--header) .cds--data-table thead { background: #f5f9fa; }
+body:has(.cds--header) .cds--data-table th { color: #3c4d57; }
+body:has(.cds--header) .cds--btn--primary { border-color: #0e7c7b; background: #0e7c7b; }
+body:has(.cds--header) .cds--btn--primary:hover { border-color: #0b6665; background: #0b6665; }
+body:has(.cds--header) .cds--tag { border-radius: 999px; }
+body:has(.cds--header) .text-panels,
+body:has(.cds--header) .verify-grid,
+body:has(.cds--header) .export-grid { gap: 16px; }
+body:has(.cds--header) .text-tile,
+body:has(.cds--header) .export-grid > .cds--tile { padding: 22px; }
+body:has(.cds--header) .export-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body:has(.cds--header) .export-grid > .cds--inline-notification { grid-column: 1 / -1; }
+body:has(.cds--header) .app-content > footer { border-top-color: #e1eaec; color: #5b6b74; }
+body:has(.cds--header) .mobile-steps { display: none; }
+
+@media (max-width: 900px) {
+  body:has(.cds--header) .cds--side-nav { width: 196px; }
+  body:has(.cds--header) .cds--content.app-content { margin-left: 196px; padding-right: 22px; padding-left: 22px; }
+  body:has(.cds--header) .plan-layout { grid-template-columns: 1fr; }
+  body:has(.cds--header) .side-panel { border-left: 0; }
+}
+@media (max-width: 640px) {
+  body:has(.cds--header) .cds--header { height: 64px; }
+  body:has(.cds--header) .cds--side-nav { display: none; }
+  body:has(.cds--header) .cds--content.app-content { margin-left: 0; padding: 16px; }
+  body:has(.cds--header) .mobile-steps { display: block; margin-bottom: 22px; }
+  body:has(.cds--header) .topline { display: block; }
+  body:has(.cds--header) .step-actions { margin-top: 15px; flex-wrap: wrap; }
+  body:has(.cds--header) .scenario-top { flex-direction: column; }
+  body:has(.cds--header) .scenario-top > * { width: 100%; }
+  body:has(.cds--header) .text-panels,
+  body:has(.cds--header) .verify-grid,
+  body:has(.cds--header) .export-grid { grid-template-columns: 1fr; }
+  body:has(.cds--header) .text-meta { flex-wrap: wrap; }
+  body:has(.cds--header) .app-content > footer { gap: 8px; flex-direction: column; }
+}

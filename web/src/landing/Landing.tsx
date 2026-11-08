@@ -4,6 +4,7 @@ import claimsData from "../../../docs/claims.json";
 import { api, type LeaderboardRow } from "../api";
 import type { Plan, Redact, Scenario, ScenariosResponse, Verify } from "../types";
 import "./landing.scss";
+import "../styles/workbench-v3.scss";
 
 type LandingData = {
   scenarios: ScenariosResponse;
