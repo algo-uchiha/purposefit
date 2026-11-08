@@ -269,7 +269,6 @@ function ProcessPanel() {
 
 function SafetyPanel({ data }: { data: LandingData }) {
   const verify = data.verify["CS-S1"];
-  const verify3 = data.verify["CS-S3"];
   const tables = (verify.ours as typeof verify.ours & { tables?: DataTables }).tables ?? {};
   const hasDirectData = Object.values(tables).some(
     (table) => table.direct_identifiers_retained !== undefined,
@@ -277,50 +276,46 @@ function SafetyPanel({ data }: { data: LandingData }) {
   const direct = Object.values(tables)
     .flatMap((table) => Object.values(table.direct_identifiers_retained ?? {}))
     .reduce((sum, value) => sum + value, 0);
-  const smallest = verify3.k
-    .map((entry) => entry.pycanon_k)
-    .filter((value) => Number.isFinite(value))
-    .sort((a, b) => a - b)[0];
-  const trainLeakage = claims["redact.train_leakage"];
   const healthBefore = claims["health.train_before"];
   const healthAfter = claims["health.train_after"];
+  const standardLeakage = verify.baseline.risk_components["turns: free-text identifier leakage"];
+  const purposeFitLeakage = verify.ours.risk_components["turns: free-text identifier leakage"];
+  const withheldFields = data.plans["CS-S1"].policies.filter(
+    (policy) => policy.action === "withhold_table" && policy.table === "customers",
+  ).length;
   const stats = [
     {
-      value: hasDirectData ? String(direct) : "Not set",
+      value: hasDirectData ? String(direct) : "Unavailable",
       label: "Direct identifiers left",
-      note: `${verify.scenario_id} verification`,
     },
     {
-      value: smallest === undefined ? "Not set" : smallest.toLocaleString(),
-      label: "Smallest group in the audit copy",
-      note: `${verify3.scenario_id} verification`,
-    },
-    {
-      value: trainLeakage ? `${(Number(trainLeakage) * 100).toFixed(1)}%` : "Not set",
+      value:
+        standardLeakage === undefined || purposeFitLeakage === undefined
+          ? "Unavailable"
+          : `${(standardLeakage * 100).toFixed(1)}% → ${(purposeFitLeakage * 100).toFixed(1)}%`,
       label: "Identifying details left in call text",
-      note: "Customer service train split",
     },
     {
-      value: healthAfter ?? "Not set",
-      label: "Health details left",
-      note: healthBefore
-        ? `Down from ${healthBefore} in the train split`
-        : "Customer service train split",
+      value: healthBefore && healthAfter ? `${healthBefore} → ${healthAfter}` : "Unavailable",
+      label: "Health details left in call text",
+    },
+    {
+      value: `${withheldFields}`,
+      label: "Customer fields not shared at all",
     },
   ];
   return (
     <section id="safety" className="v3-panel v3-safety">
       <Blobs variant="four" />
       <div className="panel-heading-v3">
-        <p className="section-label">Safety</p>
-        <h2>Nothing leaves until the checks pass.</h2>
+        <p className="section-label">Measured, not promised</p>
+        <h2>Measured, not promised.</h2>
       </div>
       <div className="safety-stats">
         {stats.map((item) => (
           <article className="stat-card" key={item.label}>
             <strong>{item.value}</strong>
             <span>{item.label}</span>
-            <small>{item.note}</small>
           </article>
         ))}
       </div>
