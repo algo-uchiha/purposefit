@@ -104,6 +104,7 @@ export default function App() {
   const [run, setRun] = useState<Run>();
   const [findings, setFindings] = useState<Finding[]>([]);
   const [error, setError] = useState("");
+  const [downloadError, setDownloadError] = useState("");
   useEffect(() => {
     api
       .scenarios()
@@ -497,10 +498,25 @@ export default function App() {
               <Button
                 disabled={!verify?.gate.passed}
                 renderIcon={Download}
-                onClick={() => (window.location.href = `/api/runs/${run?.run_id}/export`)}
+                onClick={() =>
+                  downloadSafeCopy(run?.run_id, scenarioId).catch(() =>
+                    setDownloadError(
+                      "The safe copy can only be downloaded while the full demo server is running. Start it with make serve, then open this page again.",
+                    ),
+                  )
+                }
               >
                 Download safe copy
               </Button>
+              {downloadError && (
+                <InlineNotification
+                  kind="error"
+                  title="Download not available"
+                  subtitle={downloadError}
+                  lowContrast
+                  onCloseButtonClick={() => setDownloadError("")}
+                />
+              )}
             </Tile>
             <Tile>
               <div className="export-icon">
@@ -508,7 +524,7 @@ export default function App() {
               </div>
               <h2>Download the report</h2>
               <p>This report says what was removed, what was changed and what was kept in this copy, and why.</p>
-              <p className="muted small">The safe copy zip also contains both files.</p>
+              <p className="muted small">The safe copy zip contains this report too.</p>
               <div className="download-buttons">
                 <Button
                   kind="secondary"
@@ -517,14 +533,6 @@ export default function App() {
                   onClick={() => downloadText(`purposefit-report-${scenarioId}.json`, report?.policy_card)}
                 >
                   Download report
-                </Button>
-                <Button
-                  kind="tertiary"
-                  disabled={!report?.plan_table_md}
-                  renderIcon={Download}
-                  onClick={() => downloadText(`purposefit-plan-${scenarioId}.md`, report?.plan_table_md, "text/markdown")}
-                >
-                  Download plan table
                 </Button>
               </div>
             </Tile>
@@ -597,6 +605,18 @@ function findingText(f: Finding) {
   return f.kind === "unkeyed_hash"
     ? `Column ${f.column} is an unkeyed ${f.algorithm} of ${f.source_column} (${f.variant}). Reversible by enumeration.`
     : `Column ${f.column} agrees with ${f.source_column} in ${(100 * (f.agreement ?? 0)).toFixed(0)} % of rows.`;
+}
+async function downloadSafeCopy(runId: string | undefined, scenario: string) {
+  if (!runId) throw new Error("no run");
+  const response = await fetch(`/api/runs/${runId}/export`);
+  const type = response.headers.get("content-type") ?? "";
+  if (!response.ok || !type.includes("zip")) throw new Error("export unavailable");
+  const blob = await response.blob();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `purposefit-safe-copy-${scenario}.zip`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 function plainName(value: string) {
   const text = value.replaceAll("_", " ").toLowerCase();
