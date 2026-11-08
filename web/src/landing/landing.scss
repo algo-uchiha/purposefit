@@ -534,10 +534,13 @@ body:has(.landing-v3) {
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 12px 35px rgba(11, 31, 42, 0.045);
 }
+.stat-card {
+  container-type: inline-size;
+}
 .stat-card strong {
   margin-bottom: 9px;
   color: var(--pf-accent);
-  font-size: clamp(30px, 2.9vw, 40px);
+  font-size: clamp(24px, 14.5cqw, 40px);
   font-weight: 600;
   letter-spacing: -0.045em;
   line-height: 1;
@@ -550,12 +553,17 @@ body:has(.landing-v3) {
   white-space: nowrap;
   letter-spacing: -0.06em;
 }
-.stat-card .stat-card-arrow {
+.stat-card strong.stat-card-pair > span {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+}
+.stat-card strong.stat-card-pair > .stat-card-arrow {
   color: var(--pf-muted);
   font-size: 0.6em;
   line-height: 1;
 }
-.stat-card span {
+.stat-card > span {
   color: var(--pf-ink);
   font-size: 14px;
   font-weight: 600;
