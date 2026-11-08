@@ -383,3 +383,4 @@ body:has(.cds--header) .mobile-steps {
 .advanced-details .k-tile p { margin: 0.5rem 0; }
 .download-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
 @media (max-width: 900px) { .pair-grid { grid-template-columns: 1fr; } }
+.advanced-details table td:last-child, .advanced-details table th:last-child { white-space: nowrap; }
