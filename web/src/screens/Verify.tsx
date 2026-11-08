@@ -7,6 +7,27 @@ const pct = (value: number | null) =>
   value === null ? "Not answerable" : `${(value * 100).toFixed(1)}%`;
 const score = (value: number) => value.toFixed(3);
 
+function gateValue(id: string, value: number | null, passed: boolean) {
+  if (id === "direct_identifiers") {
+    return value === 0 ? "None left" : value == null ? (passed ? "Passed" : "Could not be measured") : value.toLocaleString();
+  }
+  if (id === "k_anonymity") {
+    return value == null ? "No grouping needed" : `Smallest group ${value.toLocaleString()}`;
+  }
+  if (id === "risk_vs_baseline") return "Lower than the standard method";
+  if (id === "text_leakage") {
+    return value == null ? "No call text in this copy" : pct(value);
+  }
+  return value == null ? (passed ? "Passed" : "Could not be measured") : pct(value);
+}
+
+function gateLimit(id: string, threshold: number) {
+  if (id === "risk_vs_baseline") return null;
+  if (id === "k_anonymity") return `${threshold.toLocaleString()} or more`;
+  if (id === "text_leakage") return `at most ${pct(threshold)}`;
+  return `at most ${pct(threshold)}`;
+}
+
 function riskSentence(text: string) {
   return text
     .replace("DATE values", "Dates")
@@ -61,8 +82,9 @@ export function VerifyScreen({ data }: { data: Verify }) {
                   {check.status === "pass" ? "Pass" : check.status === "fail" ? "Fail" : "Unavailable"}
                 </Tag>
               </div>
-              <strong>{check.value == null ? "Unavailable" : pct(check.value)}</strong>
-              <p>Limit: {check.comparison === "at_least" ? "at least" : "at most"} {pct(check.threshold)}</p>
+              <strong>{gateValue(check.id, check.value, check.status === "pass")}</strong>
+              {gateLimit(check.id, check.threshold) && <p>Limit: {gateLimit(check.id, check.threshold)}</p>}
+              <p>{check.reason}</p>
             </article>
           ))}
         </div>

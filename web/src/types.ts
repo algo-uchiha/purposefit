@@ -94,6 +94,7 @@ export type GateCheck = {
   threshold: number;
   comparison: string;
   source: string;
+  reason?: string;
 };
 export type Verify = {
   scenario_id: string;
