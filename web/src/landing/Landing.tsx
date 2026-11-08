@@ -179,57 +179,52 @@ function ChangesPanel({ data }: { data: LandingData }) {
       <Blobs variant="two" />
       <div className="panel-heading-v3">
         <p className="section-label">What changes</p>
-        <h2>One record in. A safe copy for each person out.</h2>
+        <h2>Everyone gets their own copy.</h2>
+        <p>
+          The analytics team doesn't need names. An outside vendor doesn't need ages. Each person
+          gets only what their job needs.
+        </p>
       </div>
       <div className="copy-flow">
         <article className="record-card original-card">
           <div className="card-heading">
             <span className="step-number" aria-hidden="true" />
             <div>
-              <small>Original call text</small>
-              <h3>Before protection</h3>
+              <h3>The original record</h3>
             </div>
           </div>
           <p>
             <TextWithSpans text={original.original_text} spans={original.spans} />
           </p>
-          <div className="span-legend">
-            <span className="legend-red" /> Sensitive detail found in the text
-          </div>
+          <span className="legend-red" aria-hidden="true" />
         </article>
         <div className="flow-arrow" aria-hidden="true">
           <ArrowRight size={28} />
         </div>
         <div className="safe-copies">
           {[
-            { scenario: scenarioA, turn: safeA },
             { scenario: scenarioB, turn: safeB },
+            { scenario: scenarioA, turn: safeA },
           ].map(
             ({ scenario, turn }) =>
               scenario &&
               turn && (
                 <article className="record-card safe-card" key={scenario.id}>
                   <div className="card-heading">
-                    <span className="step-number">{scenario.id}</span>
                     <div>
-                      <small>{scenario.recipient}</small>
-                      <h3>{scenario.title}</h3>
+                      <h3>{scenario.id === "CS-S1" ? "Copy for an outside vendor" : "Copy for the analytics team"}</h3>
                     </div>
                   </div>
                   <p>
                     <SafeText text={turn.protected_text} />
                   </p>
-                  <div className="span-legend">
-                    <span className="legend-mint" /> Changed text shown in the copy
-                  </div>
+                  <span className="legend-mint" aria-hidden="true" />
                 </article>
               ),
           )}
         </div>
       </div>
-      <p className="source-note">
-        Prepared example row from the customer service fixtures. The full dataset has more records.
-      </p>
+      <p className="source-note">Made-up example.</p>
       <ScrollHint />
     </section>
   );
@@ -238,23 +233,25 @@ function ChangesPanel({ data }: { data: LandingData }) {
 const steps = [
   {
     icon: Search,
-    title: "Find what is sensitive",
-    detail: "Mark fields and words that can identify a person.",
+    title: "Spot the private bits",
+    detail:
+      "Finds names, ID numbers, birth dates, places and health details, in tables and in what people said on calls.",
   },
   {
     icon: DocumentTasks,
-    title: "Decide by purpose",
-    detail: "Choose what each recipient needs for their tasks.",
+    title: "Ask what it's for",
+    detail: "Who gets the copy, and what will they do with it? That decides what stays.",
   },
   {
     icon: Locked,
-    title: "Protect it",
-    detail: "Keep useful content and change or remove the rest.",
+    title: "Hide what isn't needed",
+    detail:
+      "Names become codes. Exact dates become ranges. Private words in call text are blacked out.",
   },
   {
     icon: TaskComplete,
-    title: "Prove it is safe",
-    detail: "Run privacy checks again before the copy is released.",
+    title: "Check before it leaves",
+    detail: "Runs the privacy checks and writes a short report anyone can read.",
   },
 ];
 function ProcessPanel() {
@@ -263,7 +260,8 @@ function ProcessPanel() {
       <Blobs variant="three" />
       <div className="panel-heading-v3">
         <p className="section-label">How it works</p>
-        <h2>Four steps. You see every one.</h2>
+        <h2>Four steps. No black box.</h2>
+        <p>Open a file. We show what we found, what we changed and why.</p>
       </div>
       <div className="process-cards">
         {steps.map(({ icon: Icon, title, detail }) => (
@@ -292,39 +290,25 @@ function SafetyPanel({ data }: { data: LandingData }) {
     .reduce((sum, value) => sum + value, 0);
   const healthBefore = claims["health.train_before"];
   const healthAfter = claims["health.train_after"];
-  const standardLeakage = verify.baseline.risk_components["turns: free-text identifier leakage"];
   const purposeFitLeakage = verify.ours.risk_components["turns: free-text identifier leakage"];
-  const withheldFields = data.plans["CS-S1"].policies.filter(
-    (policy) => policy.action === "withhold_table" && policy.table === "customers",
-  ).length;
+  const crowdSize = verify.gate.checks.find((check) => check.id === "k_anonymity")?.threshold;
   const stats = [
     {
       value: hasDirectData ? String(direct) : "Unavailable",
-      label: "Direct identifiers left",
+      label: "names or ID numbers left",
+    },
+    {
+      value: "",
+      label: `Every person hides in a crowd of at least ${crowdSize ?? "Unavailable"}`,
     },
     {
       value:
-        standardLeakage == null || purposeFitLeakage == null
-          ? "Unavailable"
-          : {
-              before: `${(standardLeakage * 100).toFixed(1)}%`,
-              after: `${(purposeFitLeakage * 100).toFixed(1)}%`,
-            },
-      label: "Identifying details left in call text",
-      note: "Standard method → PurposeFit",
+        purposeFitLeakage == null ? "Unavailable" : `${(purposeFitLeakage * 100).toFixed(1)}%`,
+      label: "of identifying details left in call text",
     },
     {
-      value:
-        healthBefore && healthAfter
-          ? { before: healthBefore, after: healthAfter }
-          : "Unavailable",
-      label: "Health details left in call text",
-      note: "Before → after",
-    },
-    {
-      value: `${withheldFields}`,
-      label: "Customer fields not shared at all",
-      note: "Not needed for this job",
+      value: healthAfter ?? "Unavailable",
+      label: `health details left in call text, down from ${healthBefore ?? "Unavailable"}`,
     },
   ];
   return (
@@ -332,29 +316,20 @@ function SafetyPanel({ data }: { data: LandingData }) {
       <Blobs variant="four" />
       <div className="panel-heading-v3">
         <p className="section-label">Safety</p>
-        <h2>Measured, not promised.</h2>
+        <h2>Locked until it's safe.</h2>
+        <p>The download button stays off until every check passes.</p>
       </div>
       <div className="safety-stats">
         {stats.map((item) => (
           <article className="stat-card" key={item.label}>
-            <strong className={typeof item.value === "object" ? "stat-card-pair" : undefined}>
-              {typeof item.value === "object" ? (
-                <>
-                  <span>{item.value.before}</span>
-                  <span className="stat-card-arrow" aria-hidden="true">→</span>
-                  <span>{item.value.after}</span>
-                </>
-              ) : (
-                item.value
-              )}
-            </strong>
+            {item.value && <strong>{item.value}</strong>}
             <span>{item.label}</span>
-            {item.note && <small>{item.note}</small>}
           </article>
         ))}
       </div>
+      <p className="source-note">Measured on the challenge's practice data.</p>
       <p className="honesty-note">
-        <span /> Works on prepared files. Live database connections and user accounts are not built.
+        Version 1 works on prepared files. Database connections and user accounts are not built yet.
       </p>
       <ScrollHint />
     </section>
@@ -364,17 +339,17 @@ function SafetyPanel({ data }: { data: LandingData }) {
 function DemoPanel({ scenarios }: { scenarios: Scenario[] }) {
   const cards = [
     {
-      title: "Your data",
-      text: "Start with the prepared customer service example.",
+      title: "1. Look at the data",
+      text: "The customer service data is already loaded.",
       href: "#/workbench",
     },
     {
-      title: "Choose protection",
+      title: "2. Choose who it's for",
       text: scenarios.find((scenario) => scenario.id === "CS-S1")?.recipient ?? "Unavailable",
       href: "#/workbench",
     },
     {
-      title: "Check the proof",
+      title: "3. Check and download",
       text: scenarios.find((scenario) => scenario.id === "CS-S2")?.recipient ?? "Unavailable",
       href: "#/workbench",
     },
@@ -384,8 +359,11 @@ function DemoPanel({ scenarios }: { scenarios: Scenario[] }) {
       <Blobs variant="five" />
       <div className="panel-heading-v3">
         <p className="section-label">Try PurposeFit</p>
-        <h2>Try it on a real example.</h2>
-        <p>This demo uses prepared example data. Uploading your own file is not built yet.</p>
+        <h2>See it work on real data.</h2>
+        <p>
+          Open the demo. The customer service data is already loaded. Pick who the copy is for and
+          watch it change.
+        </p>
       </div>
       <div className="demo-cards">
         {cards.map((card) => (
