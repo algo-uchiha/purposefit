@@ -1,6 +1,7 @@
-
 name: Deploy PurposeFit frontend
 
+# Static demo for GitHub Pages: the front end reads the committed fixtures (web/fixtures),
+# which come from the final runs. No API, no data files and no keys are involved.
 on:
   push:
     branches: [main]
@@ -31,9 +32,20 @@ jobs:
         working-directory: web
         run: npm ci
 
-      - name: Build frontend
+      - name: Build frontend (fixtures mode, relative base)
         working-directory: web
+        env:
+          VITE_USE_FIXTURES: "true"
         run: npm run build
+
+      - name: Add the fixtures to the site
+        working-directory: web
+        run: |
+          cp -R fixtures dist/fixtures
+          rm -f dist/fixtures/README.md
+
+      - name: Check that nothing private is published
+        run: python3 scripts/check_public_site.py web/dist
 
       - uses: actions/upload-pages-artifact@v3
         with:

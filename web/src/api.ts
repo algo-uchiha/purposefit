@@ -4,7 +4,7 @@ const fixtures =
   "true";
 async function get<T>(path: string, file: string): Promise<T> {
   if (fixtures) {
-    const response = await fetch(`/fixtures/${file}`);
+    const response = await fetch(`fixtures/${file}`)  // relative: the static site lives under /purposefit/;
     if (!response.ok) throw new Error(`Could not load fixture ${file}`);
     return response.json() as Promise<T>;
   }
