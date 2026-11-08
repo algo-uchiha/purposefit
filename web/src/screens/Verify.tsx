@@ -33,18 +33,18 @@ function ScorePair({ label, purposeFit, standard, lowerIsBetter = false }: {
   lowerIsBetter?: boolean;
 }) {
   return (
-    <article className="utility-result-row">
+    <article className="utility-result-row pair-card">
       <p>{label}</p>
-      <div className="utility-result-bar">
+      <div className="pair-line">
         <span>PurposeFit</span>
-        <div className="utility-bar-track"><i style={{ width: `${purposeFit * 100}%` }} /></div>
         <b>{pct(purposeFit)}</b>
       </div>
-      <div className="utility-result-bar standard">
+      <div className="utility-bar-track"><i style={{ width: `${purposeFit * 100}%` }} /></div>
+      <div className="pair-line standard">
         <span>Standard method</span>
-        <div className="utility-bar-track"><i style={{ width: `${standard * 100}%` }} /></div>
         <b>{pct(standard)}</b>
       </div>
+      <div className="utility-bar-track standard"><i style={{ width: `${standard * 100}%` }} /></div>
       {lowerIsBetter && <small className="muted">Lower is better.</small>}
     </article>
   );
@@ -89,6 +89,44 @@ function riskName(name: string) {
   return table && base ? `${base[0].toUpperCase()}${base.slice(1)} in ${table}` : name;
 }
 
+const pctShort = (value: number) => `${(value * 100).toFixed(value < 0.1 && value > 0 ? 1 : 0)}%`;
+
+function headlineFacts(data: Verify) {
+  const { ours, baseline } = data;
+  const facts: { from: string; to: string; label: string }[] = [];
+  const leakKey = ["turns: free-text identifier leakage", "conversations: free-text identifier leakage"].find(
+    (key) => ours.risk_components[key] != null && baseline.risk_components[key] != null,
+  );
+  if (leakKey) {
+    facts.push({
+      from: pctShort(baseline.risk_components[leakKey] as number),
+      to: pctShort(ours.risk_components[leakKey] as number),
+      label: "of identifying details left in the text: standard method, then PurposeFit",
+    });
+  }
+  facts.push({
+    from: pctShort(baseline.summary.composite),
+    to: pctShort(ours.summary.composite),
+    label: "overall score: standard method, then PurposeFit",
+  });
+  const model = ours.utility.find((task) => task.id === "CS-U1");
+  const detail = (model as { detail?: unknown } | undefined)?.detail as { f1_original?: number; f1_protected?: number } | undefined;
+  if (detail?.f1_original != null && detail.f1_protected != null) {
+    facts.push({
+      from: pctShort(detail.f1_original),
+      to: pctShort(detail.f1_protected),
+      label: "intent model accuracy: trained on the original, then on the safe copy",
+    });
+  } else {
+    facts.push({
+      from: pctShort(ours.summary.utility),
+      to: "",
+      label: "of what this recipient needs still works",
+    });
+  }
+  return facts;
+}
+
 export function VerifyScreen({ data }: { data: Verify }) {
   const ours = data.ours;
   const baseline = data.baseline;
@@ -113,6 +151,18 @@ export function VerifyScreen({ data }: { data: Verify }) {
           <p>Every check must pass before the download opens.</p>
         </div>
       </div>
+
+      <section className="headline-facts" aria-label="Key results">
+        {headlineFacts(data).map((fact) => (
+          <article className="headline-fact" key={fact.label}>
+            <strong>
+              <span>{fact.from}</span>
+              {fact.to && <><i aria-hidden="true">{"\u2192"}</i><span>{fact.to}</span></>}
+            </strong>
+            <p>{fact.label}</p>
+          </article>
+        ))}
+      </section>
 
       <section aria-label="Gate check cards">
         <h3>Checks</h3>
