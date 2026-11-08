@@ -59,13 +59,13 @@ export function TextScreen({
   const current = data?.turns[turn];
   const total = data?.turns.length ?? 0;
   const protectedText = current?.protected_text ?? "";
-  if (!data) return <Loading description="Loading transcript" />;
+  if (!data) return <Loading description="Working on it. Large files take a moment." />;
   if (!data.table)
     return (
       <InlineNotification
         kind="info"
         title="Transcripts withheld"
-        subtitle="Withheld: not needed for this purpose."
+        subtitle="Not needed for this job."
         lowContrast
       />
     );
@@ -73,8 +73,11 @@ export function TextScreen({
     <>
       <div className="section-intro">
         <div>
-          <h2>Calls</h2>
-          <p>Compare the original words with the protected copy.</p>
+          <h2>Private words, found and hidden.</h2>
+          <p>
+            People say names, ID numbers and health problems out loud, even spelled out digit by
+            digit. We find them and black them out. The topic of the call stays.
+          </p>
         </div>
         <div className="turn-pager">
           <Button
@@ -104,7 +107,7 @@ export function TextScreen({
       </div>
       <div className="text-meta">
         <Tag type={data.redacted ? "green" : "warm-gray"}>
-          {data.redacted ? "redaction applied" : "redaction pending"}
+          Private words, found and hidden.
         </Tag>
         <span>Record {current?.record_id}</span>
         <span>Example row from the prepared calls data</span>
@@ -112,7 +115,7 @@ export function TextScreen({
       <div className="text-panels">
         <Tile className="text-tile">
           <div className="panel-heading">
-            <h3>Original turn</h3>
+            <h3>Original text</h3>
             <Tag type="cool-gray">Example record</Tag>
           </div>
           <p className="transcript">
@@ -121,14 +124,14 @@ export function TextScreen({
         </Tile>
         <Tile className="text-tile">
           <div className="panel-heading">
-            <h3>Protected turn</h3>
+            <h3>Safe copy</h3>
           </div>
           <p className="transcript">
             {protectedText ? protectedWithMarkers(protectedText) : "No protected text available."}
           </p>
           <p className="small muted">
             {current?.spans.length
-              ? `${current.spans.length} removed span(s)`
+              ? `${current.spans.length} private words hidden`
               : data.span_labels_note?.toLowerCase().includes("ner")
                 ? "No private words found in this turn"
                 : (data.span_labels_note ?? "No removed spans in this turn.")}
@@ -160,7 +163,7 @@ export function TextScreen({
             </TableBody>
           </Table>
         ) : (
-          <p className="muted">No per-label leakage results in this run.</p>
+          <p className="muted">No private words found in this turn</p>
         )}
       </div>
     </>

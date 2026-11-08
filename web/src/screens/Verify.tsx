@@ -78,6 +78,11 @@ export function VerifyScreen({ data }: { data: Verify }) {
   const ours = data.ours;
   const baseline = data.baseline;
   const checks = data.gate.checks;
+  const checkNames: Record<string, string> = {
+    direct_identifiers: "Names and IDs left",
+    k_anonymity: "Smallest crowd",
+    text_leakage: "Private details in call text",
+  };
   const utility = ours.utility.map((task) => ({
     task,
     baseline: baseline.utility.find((item) => item.id === task.id),
@@ -89,21 +94,21 @@ export function VerifyScreen({ data }: { data: Verify }) {
     <>
       <div className="section-intro">
         <div>
-          <h2>Release verification</h2>
-          <p>See the checks, how useful the copy stays, and what risks remain.</p>
+          <h2>{data.gate.passed ? "All checks passed." : "One check failed. This copy stays locked."}</h2>
+          <p>Every check must pass before the download opens.</p>
         </div>
       </div>
 
       <section aria-label="Gate check cards">
-        <h3>Gate checks</h3>
+        <h3>Checks</h3>
         <div className="proof-cards">
-          {checks.map((check) => (
+          {checks.filter((check) => checkNames[check.id]).map((check) => (
             <article
               className={`proof-card ${check.status === "pass" ? "proof-pass" : check.status === "fail" ? "proof-fail" : "proof-unknown"}`}
               key={check.id}
             >
               <div className="proof-card-top">
-                <h3>{check.name}</h3>
+                <h3>{checkNames[check.id]}</h3>
                 <Tag type={check.status === "pass" ? "green" : check.status === "fail" ? "red" : "cool-gray"}>
                   {check.status === "pass" ? "Pass" : check.status === "fail" ? "Fail" : "Unavailable"}
                 </Tag>

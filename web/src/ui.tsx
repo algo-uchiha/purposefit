@@ -29,29 +29,52 @@ import type { Finding, Plan, Redact, Report, Run, ScenariosResponse, Verify } fr
 import { TextScreen } from "./screens/Text";
 import { VerifyScreen } from "./screens/Verify";
 import { taskQuestion } from "./components/taskCopy";
-const steps = ["Scenario", "Plan", "Text", "Verify", "Export"];
-const label = (s: string) => s.replaceAll("_", " ");
+const steps = ["Your data", "Choose protection", "Check the proof", "Download"];
+const stepScreens = [0, 1, 3, 4];
+const stepIndex = (screen: number) => (screen <= 1 ? screen : screen - 1);
 const actionCopy: Record<string, string> = {
   hmac: "Replace with a code",
   drop: "Remove",
+  generalize: "Group into ranges",
   redact: "Black out private words",
-  keep: "Keep",
+  keep: "Keep as is",
   suppress_k: "Hide rare groups",
-  withhold_table: "Not shared",
+  withhold_table: "Remove",
 };
 const roleCopy: Record<string, string> = {
-  direct_identifier: "Points at a person",
+  direct_identifier: "Points straight at a person",
   quasi_identifier: "Could point at someone when combined",
   free_text: "Free text",
 };
 const reasonCopy = (reason: string) =>
   reason
+    .replaceAll(
+      "joins released tables; the same keyed pseudonym in every table keeps the join",
+      "The team needs to link calls from the same person, not know who they are.",
+    )
+    .replaceAll("used by CS-U1, CS-U3, CS-U4", "The team measures it.")
+    .replaceAll("used by CS-U4", "The team measures it.")
+    .replaceAll(
+      "used by CS-U1, CS-U5; text kept for the task",
+      "Names, IDs and health details are removed. The topic stays.",
+    )
+    .replaceAll(
+      "train and eval marker; the model task chooses its training rows by it",
+      "The team measures it.",
+    )
+    .replaceAll("technical identifier no task needs or joins on", "Not needed for this job")
+    .replaceAll("direct identifier no task needs", "Not needed for this job")
+    .replaceAll("free text no task needs", "Not needed for this job")
+    .replaceAll("quasi-identifier no task needs", "Not needed for this job")
+    .replaceAll(
+      "row key no other table refers to; links to nothing outside this table, rows are matched by it",
+      "The team measures it.",
+    )
     .replaceAll("no task of this scenario uses this table", "Not needed for this job")
     .replaceAll("no task of this scenario uses it", "Not needed for this job")
     .replaceAll("no task needs", "Not needed for this job")
     .replaceAll("no task uses", "Not needed for this job")
     .replaceAll("technical identifier", "Technical field");
-const pct = (n: number | null) => (n === null ? "Not answerable" : `${(n * 100).toFixed(1)} %`);
 type CompareRow = {
   table: string;
   column: string;
@@ -93,7 +116,7 @@ export default function App() {
           );
         }
       })
-      .catch((e) => setError(String(e)));
+      .catch(() => setError("Can't reach the server. Is the demo running?"));
     api
       .findings()
       .then(setFindings)
@@ -120,7 +143,7 @@ export default function App() {
         setTurn(0);
       }
     };
-    fetchScenario(scenarioId).catch((e) => live && setError(String(e)));
+    fetchScenario(scenarioId).catch(() => live && setError("Can't reach the server. Is the demo running?"));
     if (compare) {
       const other = scenarioId === "CS-S1" ? "CS-S3" : "CS-S1";
       fetchScenario(other).catch(() => {});
@@ -137,7 +160,12 @@ export default function App() {
   const planRows: CompareRow[] = compare
     ? mergePlans(plans["CS-S1"], plans["CS-S3"])
     : [
-        ...(policies.filter((policy) => policy.action !== "withhold_table") as CompareRow[]),
+        ...policies
+          .filter((policy) => policy.action !== "withhold_table")
+          .map((policy) => ({
+            ...policy,
+            role: typeof policy.params.role === "string" ? policy.params.role : undefined,
+          }) as CompareRow),
         ...(withheldCount
           ? [
               {
@@ -163,7 +191,7 @@ export default function App() {
           <span className="header-context">
             customer_service <span aria-hidden="true">/</span> {scenarioId}
           </span>
-          <HeaderGlobalAction aria-label="Download release" onClick={() => setScreen(4)}>
+          <HeaderGlobalAction aria-label="Download safe copy" onClick={() => setScreen(4)}>
             <Download />
           </HeaderGlobalAction>
         </HeaderGlobalBar>
@@ -171,7 +199,11 @@ export default function App() {
       <SideNav aria-label="Main navigation" isRail>
         <SideNavItems>
           {steps.map((s, i) => (
-            <SideNavLink key={s} isActive={screen === i} onClick={() => setScreen(i)}>
+            <SideNavLink
+              key={s}
+              isActive={stepIndex(screen) === i}
+              onClick={() => setScreen(stepScreens[i])}
+            >
               {s}
             </SideNavLink>
           ))}
@@ -179,7 +211,7 @@ export default function App() {
       </SideNav>
       <Content className="app-content">
         <div className="mobile-steps">
-          <ProgressIndicator currentIndex={screen} spaceEqually>
+          <ProgressIndicator currentIndex={stepIndex(screen)} spaceEqually>
             {steps.map((s) => (
               <ProgressStep key={s} label={s} />
             ))}
@@ -188,7 +220,7 @@ export default function App() {
         <div className="topline">
           <div>
             <p className="eyebrow">PurposeFit / customer_service / {scenarioId}</p>
-            <h1>{steps[screen]}</h1>
+            <h1>{steps[stepIndex(screen)]}</h1>
           </div>
           <div className="step-actions">
             {screen === 1 && (
@@ -201,38 +233,42 @@ export default function App() {
               </Button>
             )}
             {screen > 0 && (
-              <Button kind="ghost" renderIcon={ChevronLeft} onClick={() => setScreen(screen - 1)}>
-                Previous
+              <Button kind="ghost" renderIcon={ChevronLeft} onClick={() => setScreen(Math.max(0, screen - 1))}>
+                Back
               </Button>
             )}
             {screen < 4 && (
-              <Button kind="primary" renderIcon={ArrowRight} onClick={() => setScreen(screen + 1)}>
-                Continue
+              <Button
+                kind="primary"
+                renderIcon={ArrowRight}
+                disabled={screen === 3 && !verify?.gate.passed}
+                title={screen === 3 && !verify?.gate.passed ? "Locked until every check passes." : undefined}
+                onClick={() => setScreen(screen + 1)}
+              >
+                {["Find what's private", "Protect this copy", "Continue to the proof", "Download safe copy"][screen]}
               </Button>
+            )}
+            {screen === 3 && !verify?.gate.passed && (
+              <span className="small muted">Locked until every check passes.</span>
             )}
           </div>
         </div>
         {error && (
           <InlineNotification
             kind="error"
-            title="Could not load the run"
-            subtitle={error}
+            title="Can't reach the server. Is the demo running?"
             lowContrast
           />
         )}
-        {!data && <Loading description="Loading scenario data" />}
+        {!data && <Loading description="Working on it. Large files take a moment." />}
         {screen === 0 && current && (
           <>
             <div className="scenario-top">
               <div>
-                <h2>Choose the release purpose</h2>
+                <h2>Start with an example.</h2>
                 <p className="muted">
-                  The same dataset gets a different plan for each recipient and purpose.
+                  This is the data PurposeFit will protect. Look it over, then we find what's private.
                 </p>
-              </div>
-              <div className="dataset-label">
-                <strong>Dataset: Customer service</strong>
-                <p className="muted">This version covers one dataset.</p>
               </div>
             </div>
             <div className="scenario-grid">
@@ -262,7 +298,6 @@ export default function App() {
                       {s.purpose}
                     </p>
                     <div className="task-list">
-                      <strong>Utility tasks</strong>
                       {s.utility_tasks.map((t) => (
                         <p key={t.id}>
                           {taskQuestion(t.id, t.description)}
@@ -277,15 +312,14 @@ export default function App() {
                         setScreen(1);
                       }}
                     >
-                      View plan <ArrowRight />
+                      Choose who the copy is for <ArrowRight />
                     </Button>
                   </Tile>
                 ))}
             </div>
             <div className="notice-line">
               <span className="blue-rule" />
-              PurposeFit uses utility requirements to choose released tables, columns and protection
-              methods.
+              Uploading your own file is not built yet. This demo uses prepared example data.
             </div>
           </>
         )}
@@ -293,10 +327,9 @@ export default function App() {
           <>
             <div className="section-intro">
               <div>
-                <h2>{compare ? "Compare release plans" : "Field-by-field policy"}</h2>
+                <h2>{compare ? "Compare release plans" : "Who is this copy for?"}</h2>
                 <p>
-                  This table shows what is kept, changed or removed for this job. Each choice
-                  follows the data needs of the selected purpose.
+                  We suggest what to do with each column. You can change any of them.
                 </p>
               </div>
             </div>
@@ -347,10 +380,10 @@ export default function App() {
                                     : "cool-gray"
                               }
                             >
-                              {roleCopy[p.role] ?? "Safe on its own or Technical"}
+                              {roleCopy[p.role] ?? "Safe on its own"}
                             </Tag>
                           ) : (
-                            "Safe on its own or Technical"
+                            "Safe on its own"
                           )}
                         </TableCell>
                         <TableCell>
@@ -433,13 +466,6 @@ export default function App() {
                 )}
               </aside>
             </div>
-            <InlineNotification
-              kind="info"
-              title="Tables not needed for this purpose are withheld"
-              subtitle="The policy rows identify the affected table and explain why it is not released."
-              lowContrast
-              hideCloseButton
-            />
           </>
         )}
         {screen === 2 && (
@@ -456,26 +482,27 @@ export default function App() {
               <div className="export-icon">
                 <Download size={24} />
               </div>
-              <h2>Download release</h2>
+              <h2>Your safe copy is ready.</h2>
+              <p>Same rows, same usefulness, nobody to point at.</p>
               <p>The zip contains the released tables as CSV, a policy card, and the plan report.</p>
               <p className="small muted">Uploading your own file is not built yet.</p>
               <p className="muted small">
-                The release is available only when the data-driven gate passes.
+                Every check must pass before the download opens.
               </p>
               <Button
                 disabled={!verify?.gate.passed}
                 renderIcon={Download}
                 onClick={() => (window.location.href = `/api/runs/${run?.run_id}/export`)}
               >
-                Download release zip
+                Download safe copy
               </Button>
             </Tile>
             <Tile>
               <div className="export-icon">
                 <Document size={24} />
               </div>
-              <h2>Download policy card</h2>
-              <p>A record of the field decisions for this purpose.</p>
+              <h2>Read the report</h2>
+              <p>This report says what was removed, what was changed and what was kept in this copy, and why.</p>
               <p className="muted small">The policy card downloads as JSON.</p>
               <Button
                 kind="secondary"
@@ -483,7 +510,7 @@ export default function App() {
                 renderIcon={Download}
                 onClick={() => downloadPolicy(report?.policy_card)}
               >
-                Download policy card
+                Read the report
               </Button>
             </Tile>
             <InlineNotification

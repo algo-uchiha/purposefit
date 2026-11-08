@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, DocumentTasks, Locked, Search, TaskComplete } from "@carbon/icons-react";
 import claimsData from "../../../docs/claims.json";
 import { api, type LeaderboardRow } from "../api";
-import type { Plan, Redact, Scenario, ScenariosResponse, Verify } from "../types";
+import type { Plan, Redact, ScenariosResponse, Verify } from "../types";
 import "./landing.scss";
 import "../styles/workbench-v3.scss";
 
@@ -336,7 +336,7 @@ function SafetyPanel({ data }: { data: LandingData }) {
   );
 }
 
-function DemoPanel({ scenarios }: { scenarios: Scenario[] }) {
+function DemoPanel() {
   const cards = [
     {
       title: "1. Look at the data",
@@ -345,12 +345,12 @@ function DemoPanel({ scenarios }: { scenarios: Scenario[] }) {
     },
     {
       title: "2. Choose who it's for",
-      text: scenarios.find((scenario) => scenario.id === "CS-S1")?.recipient ?? "Unavailable",
+      text: "Pick who the copy is for.",
       href: "#/workbench",
     },
     {
       title: "3. Check and download",
-      text: scenarios.find((scenario) => scenario.id === "CS-S2")?.recipient ?? "Unavailable",
+      text: "Watch it change, then check and download.",
       href: "#/workbench",
     },
   ];
@@ -425,23 +425,18 @@ export default function Landing() {
       api.redact("CS-S1"),
       api.redact("CS-S2"),
       api.verify("CS-S1"),
-      api.verify("CS-S3"),
     ])
-      .then(([scenarios, leaderboard, plan1, plan2, redact1, redact2, verify1, verify3]) => {
+      .then(([scenarios, leaderboard, plan1, plan2, redact1, redact2, verify1]) => {
         if (!alive) return;
         setData({
           scenarios,
           leaderboard,
           plans: { "CS-S1": plan1, "CS-S2": plan2 },
           redact: { "CS-S1": redact1, "CS-S2": redact2 },
-          verify: { "CS-S1": verify1, "CS-S3": verify3 },
+          verify: { "CS-S1": verify1 },
         });
       })
-      .catch(
-        (reason: unknown) =>
-          alive &&
-          setError(reason instanceof Error ? reason.message : "Could not load the example data."),
-      );
+      .catch(() => alive && setError("Can't reach the server. Is the demo running?"));
     return () => {
       alive = false;
     };
@@ -459,7 +454,11 @@ export default function Landing() {
           Try the demo <ArrowRight size={16} />
         </a>
       </header>
-      {!data && <div className="landing-loading">{error || "Loading the real example data"}</div>}
+      {!data && (
+        <div className="landing-loading">
+          {error || "Working on it. Large files take a moment."}
+        </div>
+      )}
       {data && (
         <>
           <HeroPanel />
@@ -467,7 +466,7 @@ export default function Landing() {
           <ChangesPanel data={data} />
           <ProcessPanel />
           <SafetyPanel data={data} />
-          <DemoPanel scenarios={data.scenarios.scenarios} />
+          <DemoPanel />
         </>
       )}
     </main>
