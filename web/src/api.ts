@@ -19,7 +19,11 @@ export const api = {
   redact: (id: string) => get<Redact>(`/runs/final-${id}/stages/redact`, `stage.redact.${id}.json`),
   verify: (id: string) => get<Verify>(`/runs/final-${id}/stages/verify`, `stage.verify.${id}.json`),
   report: (id: string) => get<Report>(`/runs/final-${id}/stages/report`, `stage.report.${id}.json`),
-  findings: () => get<Finding[]>("/findings", "findings.json"),
+  // The API has no /findings route: findings are part of a run's detect stage.
+  findings: () =>
+    fixtures
+      ? get<Finding[]>("/findings", "findings.json")
+      : get<{ findings: Finding[] }>("/runs/final-CS-S1/stages/detect", "").then((d) => d.findings),
   leaderboard: () => get<LeaderboardRow[]>("/leaderboard", "leaderboard.json"),
 };
 
