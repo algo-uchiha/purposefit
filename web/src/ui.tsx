@@ -36,6 +36,7 @@ const actionCopy: Record<string, string> = {
   hmac: "Replace with a code",
   drop: "Remove",
   generalize: "Group into ranges",
+  generalise: "Group into ranges",
   redact: "Black out private words",
   keep: "Keep as is",
   suppress_k: "Hide rare groups",
