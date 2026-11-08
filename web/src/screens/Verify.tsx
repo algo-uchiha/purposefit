@@ -91,12 +91,16 @@ function riskName(name: string) {
 
 const pctShort = (value: number) => `${(value * 100).toFixed(value < 0.1 && value > 0 ? 1 : 0)}%`;
 
+function leakageKey(a: Record<string, number | null>, b: Record<string, number | null>) {
+  return ["turns: free-text identifier leakage", "conversations: free-text identifier leakage"].find(
+    (key) => a[key] != null && b[key] != null,
+  );
+}
+
 function headlineFacts(data: Verify) {
   const { ours, baseline } = data;
   const facts: { from: string; to: string; label: string }[] = [];
-  const leakKey = ["turns: free-text identifier leakage", "conversations: free-text identifier leakage"].find(
-    (key) => ours.risk_components[key] != null && baseline.risk_components[key] != null,
-  );
+  const leakKey = leakageKey(ours.risk_components, baseline.risk_components);
   if (leakKey) {
     facts.push({
       from: pctShort(baseline.risk_components[leakKey] as number),
@@ -195,10 +199,9 @@ export function VerifyScreen({ data }: { data: Verify }) {
         <ScorePair label="Overall score" purposeFit={ours.summary.composite} standard={baseline.summary.composite} />
         </div>
         {(() => {
-          const riskKey = "turns: free-text identifier leakage";
-          const fallbackKey = "conversations: free-text identifier leakage";
-          const oursRisk = ours.risk_components[riskKey] ?? ours.risk_components[fallbackKey];
-          const baselineRisk = baseline.risk_components[riskKey] ?? baseline.risk_components[fallbackKey];
+          const riskKey = leakageKey(ours.risk_components, baseline.risk_components);
+          const oursRisk = riskKey ? ours.risk_components[riskKey] : null;
+          const baselineRisk = riskKey ? baseline.risk_components[riskKey] : null;
           return oursRisk != null && baselineRisk != null ? (
             <div className="highlighted-pair">
               <ScorePair
