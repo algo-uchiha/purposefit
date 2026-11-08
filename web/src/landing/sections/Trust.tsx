@@ -13,14 +13,14 @@ export function Trust({ plan, verify }: { plan: Plan; verify: Verify }) {
             <dl>
               <dt>Pseudonymisation secret</dt>
               <dd>
-                Key id: <code>{plan.key_id || "Not set"}</code>
+                Key id: <code>{plan.key_id || "Unavailable"}</code>
               </dd>
               <dt>Pseudonymisation domain</dt>
               <dd>{verify.ours.scenario.recipient}</dd>
               <dt>Additional information</dt>
               <dd>Held by the controller.</dd>
               <dt>Technique</dt>
-              <dd>{pseudonym?.guarantee ?? "Not set"}</dd>
+              <dd>{pseudonym?.guarantee ?? "Unavailable"}</dd>
             </dl>
           </article>
           <article className="trust-card">

@@ -84,19 +84,19 @@ function ScorePanel({ data }: { data: LandingData }) {
   const bars = [
     {
       label: "Shared as it is",
-      caption: baseline0?.run_id ?? "Not set",
+      caption: baseline0?.run_id ?? "Unavailable",
       value: baseline0?.composite,
       color: "standard",
     },
     {
       label: "Best standard approach",
-      caption: baselineK?.run_id ?? "Not set",
+      caption: baselineK?.run_id ?? "Unavailable",
       value: baselineK?.composite,
       color: "standard",
     },
     {
       label: "PurposeFit",
-      caption: purposefit?.run_id ?? "Not set",
+      caption: purposefit?.run_id ?? "Unavailable",
       value: purposefit?.composite,
       color: "purposefit",
     },
@@ -131,7 +131,7 @@ function ScorePanel({ data }: { data: LandingData }) {
         <div className="score-bars">
           {bars.map((bar) => (
             <div className={`score-bar-column ${bar.color}`} key={bar.label}>
-              <strong>{bar.value === undefined ? "Not set" : bar.value.toFixed(4)}</strong>
+              <strong>{bar.value === undefined ? "Unavailable" : bar.value.toFixed(4)}</strong>
               <div className="score-bar-track">
                 <div
                   className="score-bar"
@@ -290,25 +290,28 @@ function SafetyPanel({ data }: { data: LandingData }) {
     },
     {
       value:
-        standardLeakage === undefined || purposeFitLeakage === undefined
+        standardLeakage == null || purposeFitLeakage == null
           ? "Unavailable"
           : `${(standardLeakage * 100).toFixed(1)}% → ${(purposeFitLeakage * 100).toFixed(1)}%`,
       label: "Identifying details left in call text",
+      note: "Standard method → PurposeFit",
     },
     {
       value: healthBefore && healthAfter ? `${healthBefore} → ${healthAfter}` : "Unavailable",
       label: "Health details left in call text",
+      note: "Before → after",
     },
     {
       value: `${withheldFields}`,
       label: "Customer fields not shared at all",
+      note: "Not needed for this job",
     },
   ];
   return (
     <section id="safety" className="v3-panel v3-safety">
       <Blobs variant="four" />
       <div className="panel-heading-v3">
-        <p className="section-label">Measured, not promised</p>
+        <p className="section-label">Safety</p>
         <h2>Measured, not promised.</h2>
       </div>
       <div className="safety-stats">
@@ -316,6 +319,7 @@ function SafetyPanel({ data }: { data: LandingData }) {
           <article className="stat-card" key={item.label}>
             <strong>{item.value}</strong>
             <span>{item.label}</span>
+            {item.note && <small>{item.note}</small>}
           </article>
         ))}
       </div>
@@ -336,12 +340,12 @@ function DemoPanel({ scenarios }: { scenarios: Scenario[] }) {
     },
     {
       title: "Choose protection",
-      text: scenarios.find((scenario) => scenario.id === "CS-S1")?.recipient ?? "Not set",
+      text: scenarios.find((scenario) => scenario.id === "CS-S1")?.recipient ?? "Unavailable",
       href: "#/workbench",
     },
     {
       title: "Check the proof",
-      text: scenarios.find((scenario) => scenario.id === "CS-S2")?.recipient ?? "Not set",
+      text: scenarios.find((scenario) => scenario.id === "CS-S2")?.recipient ?? "Unavailable",
       href: "#/workbench",
     },
   ];

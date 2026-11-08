@@ -63,7 +63,7 @@ export function Hero({
           title="Composite score"
           ours={ours?.composite}
           baseline={baseline?.composite}
-          source={`${ours?.run_id ?? "Not set"} vs ${baseline?.run_id ?? "Not set"} · pets-eval`}
+          source={`${ours?.run_id ?? "Unavailable"} vs ${baseline?.run_id ?? "Unavailable"} · pets-eval`}
         />
         <Metric
           title="Text leakage"
@@ -99,7 +99,7 @@ function Metric({
   percent?: boolean;
 }) {
   const show = (value?: number | null) =>
-    value == null ? "Not set" : percent ? `${(value * 100).toFixed(2)} %` : value.toFixed(4);
+    value == null ? "Unavailable" : percent ? `${(value * 100).toFixed(2)} %` : value.toFixed(4);
   return (
     <div className="proof-metric">
       <span>{title}</span>

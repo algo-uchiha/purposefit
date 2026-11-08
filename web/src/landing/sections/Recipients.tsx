@@ -58,8 +58,8 @@ export function Recipients({
                     <h3>{scenario.title}</h3>
                   </div>
                   <span className="case-score">
-                    {own ? own.composite.toFixed(4) : "Not set"}
-                    <small>composite · {own?.run_id ?? "Not set"}</small>
+                    {own ? own.composite.toFixed(4) : "Unavailable"}
+                    <small>composite · {own?.run_id ?? "Unavailable"}</small>
                   </span>
                 </header>
                 <p className="case-recipient">{scenario.recipient}</p>
@@ -81,12 +81,12 @@ export function Recipients({
                       </Tag>
                     ))
                   ) : (
-                    <span>Not set</span>
+                    <span>Unavailable</span>
                   )}
                 </div>
                 <p className="case-baseline">
-                  B2-k composite: {base ? base.composite.toFixed(4) : "Not set"} ·{" "}
-                  {base?.run_id ?? "Not set"}
+                  B2-k composite: {base ? base.composite.toFixed(4) : "Unavailable"} ·{" "}
+                  {base?.run_id ?? "Unavailable"}
                 </p>
                 <Button kind="tertiary" onClick={() => open(scenario.id)}>
                   Open this release plan

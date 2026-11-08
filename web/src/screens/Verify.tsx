@@ -14,7 +14,8 @@ function riskSentence(text: string) {
     .replace("ORG values", "Organization names")
     .replace("SECRET values", "Secret values")
     .replace("NATIONAL_ID values", "National ID numbers")
-    .replace("still recoverable in the released text:", "could still be found in the released text:");
+    .replace("still recoverable in the released text:", "could still be found in the released text:")
+    .replace("(pets-eval)", "");
 }
 
 function riskName(name: string) {

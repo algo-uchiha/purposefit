@@ -91,7 +91,7 @@ export default function App() {
           setScenarioId(
             scenarios.scenarios.find((item) => item.dataset === "customer_service")?.id ??
               scenarios.scenarios[0]?.id ??
-              "Not set",
+              "Unavailable",
           );
         }
       })
@@ -314,14 +314,14 @@ export default function App() {
                   kind={scenarioId === "CS-S1" ? "primary" : "secondary"}
                   onClick={() => scenarioSwitch("CS-S1")}
                 >
-                  {data?.scenarios.find((x) => x.id === "CS-S1")?.title ?? "Not set"}
+                  {data?.scenarios.find((x) => x.id === "CS-S1")?.title ?? "Unavailable"}
                 </Button>
                 <Button
                   size="sm"
                   kind={scenarioId === "CS-S3" ? "primary" : "secondary"}
                   onClick={() => scenarioSwitch("CS-S3")}
                 >
-                  {data?.scenarios.find((x) => x.id === "CS-S3")?.title ?? "Not set"}
+                  {data?.scenarios.find((x) => x.id === "CS-S3")?.title ?? "Unavailable"}
                 </Button>
               </div>
             )}
@@ -388,20 +388,20 @@ export default function App() {
                               <span className="reason-side">
                                 <b>
                                   {data?.scenarios.find((x) => x.id === "CS-S1")?.title ??
-                                    "Not set"}
+                                    "Unavailable"}
                                 </b>{" "}
                                 {reasonCopy(p.reasonA || "Not needed for this job")}
                               </span>
                               <span className="reason-side">
                                 <b>
                                   {data?.scenarios.find((x) => x.id === "CS-S3")?.title ??
-                                    "Not set"}
+                                    "Unavailable"}
                                 </b>{" "}
                                 {reasonCopy(p.reasonB || "Not needed for this job")}
                               </span>
                             </>
                           ) : (
-                            {reasonCopy(p.reason)}
+                            reasonCopy(p.reason)
                           )}
                         </TableCell>
                         <TableCell>

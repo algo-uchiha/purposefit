@@ -46,7 +46,7 @@ export function Results({
   const dataRows = [
     {
       label: "Held-out detection macro-F1",
-      result: `B1 ${claims["detect.b1.heldout.macro_f1"] ?? "Not set"} · rules only ${claims["detect.rules.heldout.macro_f1"] ?? "Not set"} · with LLM ${claims["detect.llm.heldout.macro_f1"] ?? "Not set"}`,
+      result: `B1 ${claims["detect.b1.heldout.macro_f1"] ?? "Unavailable"} · rules only ${claims["detect.rules.heldout.macro_f1"] ?? "Unavailable"} · with LLM ${claims["detect.llm.heldout.macro_f1"] ?? "Unavailable"}`,
       source: "claims.json · held-out detection split",
     },
     ...(claims["health.train_before"]
@@ -60,8 +60,8 @@ export function Results({
       : []),
     {
       label: "CS-S1 AI-off composite",
-      result: `AI off ${noLlm?.composite.toFixed(4) ?? "Not set"} · AI on ${final?.composite.toFixed(4) ?? "Not set"}`,
-      source: `${noLlm?.run_id ?? "Not set"} vs ${final?.run_id ?? "Not set"} · leaderboard`,
+      result: `AI off ${noLlm?.composite.toFixed(4) ?? "Unavailable"} · AI on ${final?.composite.toFixed(4) ?? "Unavailable"}`,
+      source: `${noLlm?.run_id ?? "Unavailable"} vs ${final?.run_id ?? "Unavailable"} · leaderboard`,
     },
   ];
   return (

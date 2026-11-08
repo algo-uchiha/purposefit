@@ -57,7 +57,7 @@ export function Problem({
         </div>
         <div className="facts-row">
           <article>
-            <strong>{leakage === undefined ? "Not set" : `${(leakage * 100).toFixed(1)} %`}</strong>
+            <strong>{leakage === undefined ? "Unavailable" : `${(leakage * 100).toFixed(1)} %`}</strong>
             <p>Identifying values leaked in transcripts after regex redaction.</p>
             <small>
               {verify.baseline_name} · pets-eval · {verify.baseline.scenario.id}
@@ -66,7 +66,7 @@ export function Problem({
           <article>
             <strong>
               {finding?.match_rate === undefined
-                ? "Not set"
+                ? "Unavailable"
                 : `${(finding.match_rate * 100).toFixed(0)} % match`}
             </strong>
             <p>
@@ -77,7 +77,7 @@ export function Problem({
             <small>Detection finding · unseen export</small>
           </article>
           <article>
-            <strong>{failed?.score === null ? "Not answerable" : "Not set"}</strong>
+            <strong>{failed?.score === null ? "Not answerable" : "Unavailable"}</strong>
             <p>
               The baseline cannot answer the intent-model task after required training data is
               missing.
@@ -88,8 +88,8 @@ export function Problem({
           </article>
         </div>
         <p className="baseline-note">
-          Baseline composite: {baseline?.composite.toFixed(4) ?? "Not set"} ·{" "}
-          {baseline?.run_id ?? "Not set"}.
+          Baseline composite: {baseline?.composite.toFixed(4) ?? "Unavailable"} ·{" "}
+          {baseline?.run_id ?? "Unavailable"}.
         </p>
       </div>
     </section>

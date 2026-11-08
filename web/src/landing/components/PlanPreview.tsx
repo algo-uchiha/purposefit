@@ -60,7 +60,7 @@ export function PlanPreview({
                   </TableCell>
                   <TableCell>
                     <Tag type={row.params.role === "direct_identifier" ? "red" : "cool-gray"}>
-                      {String(row.params.role ?? "Not set")}
+                      {String(row.params.role ?? "Unavailable")}
                     </Tag>
                   </TableCell>
                   <TableCell>

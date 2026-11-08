@@ -94,7 +94,7 @@ export function HowItWorks({
               <div className="transform-preview">
                 <h3>Original and protected turn</h3>
                 <p>{turn?.original_text ?? "No example turn in the fixture."}</p>
-                <p>{turn?.protected_text ?? "Not set"}</p>
+                <p>{turn?.protected_text ?? "Unavailable"}</p>
                 <div className="span-list">
                   {(turn?.spans ?? []).slice(0, 5).map((span: Span, i) => (
                     <SpanTag key={i} label={span.label} layer={span.layer} />
