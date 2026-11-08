@@ -398,7 +398,7 @@ export default function App() {
                                     : "teal"
                             }
                           >
-                            {actionCopy[p.action] ?? "Keep"}
+                            {actionCopy[p.action] ?? "Keep as is"}
                           </Tag>
                         </TableCell>
                         <TableCell>
@@ -522,15 +522,16 @@ export default function App() {
             />
           </div>
         )}
-        <footer>
-          <span>
-            PurposeFit <span className="footer-dot">·</span> {scenarioId}
-          </span>
-          <span>
-            Run {run?.run_id ?? "loading"} <span className="footer-dot">·</span>{" "}
-            {run?.status ?? "loading"}
-          </span>
-        </footer>
+        {run && (
+          <footer>
+            <span>
+              PurposeFit <span className="footer-dot">·</span> {scenarioId}
+            </span>
+            <span>
+              Run {run.run_id} <span className="footer-dot">·</span> {run.status}
+            </span>
+          </footer>
+        )}
       </Content>
     </>
   );
