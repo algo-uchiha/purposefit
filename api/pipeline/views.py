@@ -29,7 +29,7 @@ N_NO_SPAN = 3
 EN_STOP = frozenset(["the", "and", "you", "your", "is", "are", "to", "of", "for", "with", "this", "that", "have", "can", "please", "thank", "hello", "not", "will", "what", "from", "was", "they", "there", "would", "about"])
 # pets-eval counts these as context, not identifying (vendor/proving_ground/toolkit/pets_eval/text.py:20),
 # and no redactor layer emits them (NER is not run), so they stay in the text on purpose.
-KEPT_LABELS = frozenset({"DATE", "LOCATION", "ORG"})
+KEPT_LABELS = {"DATE": "dates", "LOCATION": "places", "ORG": "organisation names"}
 # Files whose presence marks a stage as done.
 STAGE_FILES = {"run": "00_manifest.json", "profile": "01_profiles.json",
                "detect": "02_labels_detail.json", "plan": "03_plan.json",
@@ -88,8 +88,10 @@ def residual_risks(ours: dict, plan: dict, gate: dict, per_label: list[dict] | N
     for row in sorted(per_label or [], key=lambda r: -r["rate"]):
         if row["rate"] > LEAK_LIMIT:
             if row["label"] in KEPT_LABELS:
-                txt = (f"{row['label']} values are kept on purpose: not identifying on its own, "
-                       f"needed for meaning ({row['rate']:.1%} of {row['n']} remain in the text).")
+                noun = KEPT_LABELS[row["label"]]
+                txt = (f"Not hidden in this version. The challenge scoring does not treat {noun} "
+                       "as identifying on their own, but combined with other facts they can "
+                       "still help find a person.")
             else:
                 txt = (f"{row['label']} values still recoverable in the released text: "
                        f"{row['rate']:.1%} of {row['n']} (pets-eval).")

@@ -179,5 +179,7 @@ def test_kept_labels_are_described_as_kept_on_purpose():
     rows = [{"label": "DATE", "n": 10, "leaked": 9, "rate": 0.9},
             {"label": "SECRET", "n": 10, "leaked": 1, "rate": 0.1}]  # fmt: skip
     out = {r["id"]: r["text"] for r in views.residual_risks({}, {"policies": []}, gate, rows)}
-    assert "kept on purpose" in out["leak.date"] and "still recoverable" not in out["leak.date"]
+    assert out["leak.date"].startswith("Not hidden in this version.")
+    assert "treat dates as identifying on their own" in out["leak.date"]
+    assert "still recoverable" not in out["leak.date"]
     assert "still recoverable" in out["leak.secret"]

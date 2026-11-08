@@ -7,7 +7,7 @@
 - DATE 90.7% of 2,837, LOCATION 86.9% of 1,281, ORG 86.8% of 1,351.
 - The identifying-text gate (0.0086) counts only labels in `IDENTIFYING` in vendor/proving_ground/toolkit/pets_eval/text.py line 20. The comment on line 18 says LOCATION, DATE and ORG are context. So they are not in the gate number.
 - Our redactor never emits those labels. A count of runs/final-CS-S1/05_spans.jsonl shows none. NER is not run, so these three are kept.
-- Old behaviour: `residual_risks` printed every label above 5% as "still recoverable". Now `KEPT_LABELS` in api/pipeline/views.py handles DATE, LOCATION and ORG with "kept on purpose: not identifying on its own, needed for meaning". Other labels still say "still recoverable". NATIONAL_ID (5.3%) and SECRET (7.3%) are real remaining leaks and keep that wording.
+- Wording: `residual_risks` uses `KEPT_LABELS` in api/pipeline/views.py to say "Not hidden in this version. The challenge scoring does not treat dates, places or organisation names as identifying on their own, but combined with other facts they can still help find a person." Other labels still say "still recoverable".
 - Caveat: "not identifying on its own" is the evaluator's definition. Combined with other facts, a date or place can still help re-identify someone.
 
 ## 3. Export endpoint, run on a local server

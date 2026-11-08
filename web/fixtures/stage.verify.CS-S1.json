@@ -816,17 +816,17 @@
   },
   {
    "id": "leak.date",
-   "text": "DATE values are kept on purpose: not identifying on its own, needed for meaning (90.7% of 2837 remain in the text).",
+   "text": "Not hidden in this version. The challenge scoring does not treat dates as identifying on their own, but combined with other facts they can still help find a person.",
    "source": "pets-eval"
   },
   {
    "id": "leak.location",
-   "text": "LOCATION values are kept on purpose: not identifying on its own, needed for meaning (86.9% of 1281 remain in the text).",
+   "text": "Not hidden in this version. The challenge scoring does not treat places as identifying on their own, but combined with other facts they can still help find a person.",
    "source": "pets-eval"
   },
   {
    "id": "leak.org",
-   "text": "ORG values are kept on purpose: not identifying on its own, needed for meaning (86.8% of 1351 remain in the text).",
+   "text": "Not hidden in this version. The challenge scoring does not treat organisation names as identifying on their own, but combined with other facts they can still help find a person.",
    "source": "pets-eval"
   },
   {
