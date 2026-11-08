@@ -88,6 +88,16 @@ body:has(.landing-v3) {
   font-weight: 600;
   white-space: nowrap;
 }
+.pf-logo-copy {
+  display: grid;
+  gap: 1px;
+  line-height: 1.15;
+}
+.pf-logo-copy small {
+  color: var(--pf-muted);
+  font-size: 10px;
+  font-weight: 400;
+}
 .pf-logo-mark {
   position: relative;
   display: inline-block;

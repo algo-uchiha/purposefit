@@ -34,7 +34,10 @@ function Logo() {
         <i />
         <i />
       </span>
-      <span>PurposeFit</span>
+      <span className="pf-logo-copy">
+        <span>PurposeFit</span>
+        <small>Only the data they need.</small>
+      </span>
     </a>
   );
 }
