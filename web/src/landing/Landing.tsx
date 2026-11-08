@@ -112,19 +112,16 @@ function ScorePanel({ data }: { data: LandingData }) {
   const bars = [
     {
       label: "Shared as it is",
-      caption: baseline0?.run_id ?? "Unavailable",
       value: baseline0?.composite,
       color: "standard",
     },
     {
       label: "Best standard approach",
-      caption: baselineK?.run_id ?? "Unavailable",
       value: baselineK?.composite,
       color: "standard",
     },
     {
       label: "PurposeFit",
-      caption: purposefit?.run_id ?? "Unavailable",
       value: purposefit?.composite,
       color: "purposefit",
     },
@@ -132,24 +129,13 @@ function ScorePanel({ data }: { data: LandingData }) {
   return (
     <section id="score" className="v3-panel v3-score">
       <Blobs variant="one" />
-      <div className="score-copy">
-        <p className="challenge-pill">PurposeFit, built for the TrustED PETs challenge</p>
-        <h1>
-          Same data.
-          <br />
-          Far safer.
-          <br />
-          Still useful.
-        </h1>
-        <p>Give each recipient the parts they need. Check what remains before anything leaves.</p>
-        <div className="button-row">
-          <a className="button-primary" href="#/workbench">
-            Try the demo <ArrowRight size={18} />
-          </a>
-          <a className="button-secondary" href="#changes">
-            See what changes
-          </a>
-        </div>
+      <div className="panel-heading-v3 score-heading">
+        <h2>Hide the details. Keep the value.</h2>
+        <p>
+          Hiding everything makes data safe but useless. Hiding nothing makes it useful but risky.
+          PurposeFit scores {purposefit?.composite.toFixed(2) ?? "Unavailable"} out of 1 on the
+          challenge data. The best standard method scores {baselineK?.composite.toFixed(2) ?? "Unavailable"}.
+        </p>
       </div>
       <div className="score-visual" aria-label="CS-S1 combined score comparison">
         <div className="score-visual-head">
@@ -167,13 +153,13 @@ function ScorePanel({ data }: { data: LandingData }) {
                 />
               </div>
               <b>{bar.label}</b>
-              <small>{bar.caption}</small>
             </div>
           ))}
         </div>
-        <p className="source-note">
-          Composite scores · pets-eval leaderboard · CS-S1 runs shown above.
-        </p>
+      <p className="source-note">
+        Score on the challenge's customer service data. It counts how well people are protected and
+        how useful the data stays.
+      </p>
       </div>
       <ScrollHint />
     </section>
@@ -490,6 +476,7 @@ export default function Landing() {
       {!data && <div className="landing-loading">{error || "Loading the real example data"}</div>}
       {data && (
         <>
+          <HeroPanel />
           <ScorePanel data={data} />
           <ChangesPanel data={data} />
           <ProcessPanel />
