@@ -83,6 +83,7 @@ export type Scorecard = {
     method: string;
   };
   risk_components: Record<string, number | null>;
+  tables?: Record<string, { free_text?: Record<string, { identifying_leakage_rate?: number }> }>;
 };
 export type GateCheck = {
   id: string;

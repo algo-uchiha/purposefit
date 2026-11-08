@@ -47,7 +47,10 @@ type CompareRow = {
 };
 export default function App() {
   const [data, setData] = useState<ScenariosResponse>();
-  const [scenarioId, setScenarioId] = useState("CS-S1");
+  const initialScenario = new URLSearchParams(window.location.hash.split("?")[1] ?? "").get(
+    "scenario",
+  );
+  const [scenarioId, setScenarioId] = useState(initialScenario ?? "CS-S1");
   const [screen, setScreen] = useState(0);
   const [compare, setCompare] = useState(false);
   const [search, setSearch] = useState("");
@@ -65,11 +68,13 @@ export default function App() {
       .scenarios()
       .then((scenarios) => {
         setData(scenarios);
-        setScenarioId(
-          scenarios.scenarios.find((item) => item.dataset === "customer_service")?.id ??
-            scenarios.scenarios[0]?.id ??
-            "Not set",
-        );
+        if (!initialScenario || !scenarios.scenarios.some((item) => item.id === initialScenario)) {
+          setScenarioId(
+            scenarios.scenarios.find((item) => item.dataset === "customer_service")?.id ??
+              scenarios.scenarios[0]?.id ??
+              "Not set",
+          );
+        }
       })
       .catch((e) => setError(String(e)));
     api
@@ -122,7 +127,7 @@ export default function App() {
   return (
     <>
       <Header aria-label="PurposeFit">
-        <HeaderName href="#" prefix="">
+        <HeaderName href="#/" prefix="">
           PurposeFit
         </HeaderName>
         <HeaderGlobalBar>

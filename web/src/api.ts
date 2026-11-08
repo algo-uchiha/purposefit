@@ -20,4 +20,17 @@ export const api = {
   verify: (id: string) => get<Verify>(`/runs/p4-${id}/stages/verify`, `stage.verify.${id}.json`),
   report: (id: string) => get<Report>(`/runs/p4-${id}/stages/report`, `stage.report.${id}.json`),
   findings: () => get<Finding[]>("/findings", "findings.json"),
+  leaderboard: () => get<LeaderboardRow[]>("/leaderboard", "leaderboard.json"),
+};
+
+export type LeaderboardRow = {
+  created_utc: string;
+  run_id: string;
+  dataset: string;
+  scenario: string;
+  method: string;
+  privacy: number;
+  utility: number;
+  composite: number;
+  utility_tasks: Record<string, number | null>;
 };
