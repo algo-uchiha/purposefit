@@ -10,7 +10,7 @@ def test_found_every_module():
     expected = {"api.main", "api.cli", "api.pipeline.contracts", "api.pipeline.llm",
                 "api.pipeline.redact.merge", "api.pipeline.generalise"}  # fmt: skip
     assert expected <= set(MODULES)
-    assert len(MODULES) == 22
+    assert len(MODULES) == 23
 
 
 def test_every_module_imports():

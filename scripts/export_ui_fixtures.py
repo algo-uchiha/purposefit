@@ -1,33 +1,27 @@
-"""Export web/fixtures/*.json for the front-end agent, from real stage files.
+"""Export web/fixtures/*.json for the front-end agent, from real run folders.
 
 Usage (after the p4-CS-S1 and p4-CS-S3 runs exist and runs/leaderboard.csv is current):
-  uv run --env-file .env python -m scripts.export_ui_fixtures
+  uv run --with ./vendor/proving_ground/toolkit --env-file .env python -m scripts.export_ui_fixtures
 
-Shapes are described in docs/API_CONTRACT.md. Reads: runs/<run>/ stage files, the two B2-k
-scorecard.json files, runs/leaderboard.csv, the public scenarios and the customer_service
-turns. Never reads row maps. Checks the output for the HMAC key, row-map names and local paths.
-The gate comes from verify.build_gate. Parts the pipeline does not produce yet (residual
-risks, ablation, spans) are placeholders computed here and marked in docs/API_CONTRACT.md.
+The payloads are produced by api/pipeline/views.py, the same code the API serves, so a fixture
+and an API response for the same run are identical. Never reads row maps or runs/private. Checks
+the output for the HMAC key, row-map names and local paths.
 """
 
 from __future__ import annotations
 
-import csv
 import json
 import os
-import re
 from pathlib import Path
 
-from api.pipeline import io
-from api.pipeline import plan as pl
-from api.pipeline import verify as vf
+from api import cli
+from api.pipeline import views as vw
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNS = ROOT / "runs"
 OUT = ROOT / "web" / "fixtures"
 SCENARIOS = ("CS-S1", "CS-S3")
-N_TURNS = 20
-STAGES = ("run", "profile", "detect", "plan", "transform", "redact", "verify", "report")
+RUN_FOR = {"CS-S1": "p4-CS-S1", "CS-S3": "p4-CS-S3"}  # run folders of the final runs
 
 
 def load(path: Path):
@@ -38,186 +32,28 @@ def write(name: str, obj) -> None:
     (OUT / name).write_text(json.dumps(obj, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def slug(text: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
-
-
-def clean_scorecard(rep: dict, protected_label: str, dataset: str) -> dict:
-    """Same object as pets-eval writes, with local absolute paths replaced by labels."""
-    out = json.loads(json.dumps(rep))
-    out["original"] = f"data/{dataset}"
-    out["protected"] = protected_label
-    return out
-
-
-def gate_for(ours: dict, b2k: dict, plan: dict) -> dict:
-    return vf.build_gate(ours, b2k, plan["policies"], plan["scenario_id"])
-
-
-def residual_risks(ours: dict, plan: dict, gate: dict) -> list[dict]:
-    """Plain statements. Wording follows docs/FACTS.md; numbers come from the scorecard."""
-    out = []
-    for c in gate["checks"]:
-        if c["status"] == "fail":
-            out.append({"id": c["id"], "text": c["reason"], "source": c["source"]})
-    out.append({"id": "pseudonymised_is_personal_data",
-                "text": "Pseudonymised data is still personal data (GDPR Recital 26).",
-                "source": "docs/FACTS.md"})  # fmt: skip
-    if any(p["action"] == "suppress_k" for p in plan["policies"]):
-        out.append({"id": "k_scope",
-                    "text": "k-anonymity limits singling out on the stated quasi-identifiers "
-                            "only; it does not stop attribute inference inside a uniform group.",
-                    "source": "docs/FACTS.md"})  # fmt: skip
-    return out
-
-
-def k_summary(plan: dict) -> list[dict]:
-    return [{"table": p["table"], "qis": p["params"]["qis"], "pipeline_k": p["params"].get("k"),
-             "pycanon_k": p["params"].get("k_pycanon"), "method": p["params"].get("method")}
-            for p in plan["policies"] if p["action"] == "suppress_k"]  # fmt: skip
-
-
-def scenarios_fixture() -> dict:
-    pu = pl._pets_eval()
-    scen = load(pl.proving_ground_root() / "metadata" / "scenarios.json")
-    descr = {t.id: (t.table, t.kind, t.description) for t in pu.all_tasks()}
-    datasets = [d for d in io.list_datasets() if d != "unseen"]
-    items = []
-    for s in scen:
-        tasks = [{"id": t, "table": descr[t][0], "kind": descr[t][1], "description": descr[t][2]}
-                 for t in s["utility_requirements"] if t in descr]  # fmt: skip
-        items.append({k: s[k] for k in ("id", "dataset", "title", "recipient", "purpose",
-                                        "trust_level", "threat_model",
-                                        "suggested_privacy_targets")}
-                     | {"utility_tasks": tasks})  # fmt: skip
-    return {"datasets": [{"id": d, "available": d == "customer_service",
-                          "scenario_ids": [s["id"] for s in items if s["dataset"] == d]}
-                         for d in datasets], "scenarios": items}  # fmt: skip
-
-
-def leaderboard_fixture() -> list[dict]:
-    rows = []
-    for r in csv.DictReader((RUNS / "leaderboard.csv").open(encoding="utf-8")):
-        def num(v):
-            return None if v == "" else float(v)
-
-        rows.append({"created_utc": r["created_utc"], "run_id": r["run_id"],
-                     "git_hash": r["git_hash"], "dataset": r["dataset"],
-                     "scenario": r["scenario"], "method": r["method"],
-                     "privacy": num(r["privacy"]), "utility": num(r["utility"]),
-                     "composite": num(r["composite"]), "worst_risk": num(r["worst_risk"]),
-                     "worst_risk_component": r["worst_risk_component"] or None,
-                     "k": None if r["k"] == "" else int(r["k"]),
-                     "k_pycanon": None if r["k_pycanon"] == "" else int(r["k_pycanon"]),
-                     "utility_tasks": json.loads(r["utility_tasks"]), "note": r["note"]})
-    return rows
-
-
-def turns_fixture(scenario: str, ours: dict) -> dict:
-    """First N_TURNS turns: original text, the redacted release text and their spans."""
-    run = RUNS / f"p4-{scenario}"
-    orig = io.read_csv(io.data_root() / "customer_service" / "turns.csv").head(N_TURNS)
-    rel = io.read_csv(run / "04_release" / "turns.csv").set_index("turn_id")
-    want = set(orig.turn_id)
-    spans: dict[str, list[dict]] = {t: [] for t in want}
-    with (run / "05_spans.jsonl").open(encoding="utf-8") as f:
-        for line in f:
-            r = json.loads(line)
-            if r["record_id"] in want:
-                spans[r["record_id"]].append({k: r[k] for k in ("start", "end", "label", "layer", "score")})
-    turns = []
-    for tid, text in zip(orig.turn_id, orig.text, strict=True):
-        turns.append({"record_id": tid, "conversation_id": rel.loc[tid, "conversation_id"],
-                      "original_text": text, "protected_text": rel.loc[tid, "text"],
-                      "surrogate_text": None, "spans": spans[tid]})  # fmt: skip
-    pl_ = ours["tables"]["turns"]["free_text"]["text"]["per_label"]
-    per_label = [{"label": k, "n": v["n"], "leaked": v["leaked"], "rate": v["rate"]}
-                 for k, v in sorted(pl_.items())]  # fmt: skip
-    stats = load(run / "05_redact_stats.json")
-    return {"dataset": "customer_service", "table": "turns", "column": "text",
-            "redacted": True, "layers_run": stats["layers"], "n_turns": len(turns), "turns": turns,
-            "per_label": per_label,
-            "span_labels_note": "rule layers and LLM health flags; NER is not run yet"}  # fmt: skip
-
-
-def ablation_rows() -> list[dict]:
-    """Per-layer ablation on the train split, from tests/redact_eval.py: the rule layers from
-    runs/p5-redact-train-full.json, the health layer from runs/p6-health-train-full.json."""
-    f5, f6 = RUNS / "p5-redact-train-full.json", RUNS / "p6-health-train-full.json"
-    if not f5.exists():
-        return []
-    rows = []
-
-    def row(layer: str, m: dict) -> dict:
-        return {"layer_off": layer, "leakage": m["identifying_leakage"], "precision": m["precision"],
-                "health_leakage": m["per_label"].get("HEALTH"), "utility": None,
-                "n_spans": m["n_spans"], "scope": "customer_service train split"}  # fmt: skip
-
-    for name, m in load(f5).items():
-        if name.startswith("without "):
-            rows.append(row(name.removeprefix("without "), m))
-    if f6.exists():
-        rows.append(row("health", load(f6)["all layers"]))  # the run without the health layer
-    return rows
-
-
 def export() -> list[str]:
     OUT.mkdir(parents=True, exist_ok=True)
     key = os.environ.get("PURPOSEFIT_HMAC_KEY", "")
-    write("scenarios.json", scenarios_fixture())
-    write("leaderboard.json", leaderboard_fixture())
-    base = RUNS / "p4-CS-S1"
-    labels = load(base / "02_labels_detail.json")
+    write("scenarios.json", vw.scenarios_view())
+    write("leaderboard.json", vw.leaderboard_view(RUNS))
+    base = RUN_FOR["CS-S1"]
     findings = [*load(RUNS / "p2c-after" / "02_findings.json"),
                 *load(RUNS / "p2c-after-unseen" / "02_findings.json")]  # fmt: skip
     write("findings.json", findings)
-    write("stage.profile.json", load(base / "01_profiles.json"))
-    write("stage.detect.json", {"dataset": "customer_service", "labels": labels,
-                                "findings": load(base / "02_findings.json"),
-                                "stats": load(base / "02_detect_stats.json")})  # fmt: skip
-    write("health.json", {"status": "ok", "git_hash": load(base / "00_manifest.json")["git_hash"],
-                          "key_id": load(base / "00_manifest.json")["key_id"],
-                          "llm": {"provider": "none", "model": "none", "enabled": False},
-                          "proving_ground": True})  # fmt: skip
-    for sid in SCENARIOS:
-        run = RUNS / f"p4-{sid}"
-        man, plan = load(run / "00_manifest.json"), load(run / "03_plan.json")
-        ours = clean_scorecard(load(run / "06_scorecard_ours" / "scorecard.json"),
-                               "runs/<run_id>/04_release", "customer_service")  # fmt: skip
-        b2k = clean_scorecard(
-            load(RUNS / "private" / "baselines" / f"b2k_{sid}" / "scorecard.json"),
-            "B2-k baseline release", "customer_service")  # fmt: skip
-        gate = gate_for(ours, b2k, plan)
-        stats = load(run / "04_transform_stats.json")
-        write(f"plan.{sid}.json", plan)
-        write(f"scorecard.ours.{sid}.json", ours)
-        write(f"scorecard.b2k.{sid}.json", b2k)
-        write(f"stage.transform.{sid}.json", stats)
-        write(f"stage.verify.{sid}.json", {
-            "scenario_id": sid, "ours": ours, "baseline": b2k, "baseline_name": "B2-k",
-            "gate": gate, "k": k_summary(plan), "residual_risks": residual_risks(ours, plan, gate),
-            "ablation": ablation_rows() if sid == "CS-S1" else []})  # fmt: skip
-        write(f"stage.report.{sid}.json", {"plan_table_md": (run / "07_plan_table.md").read_text(
-            encoding="utf-8"), "policy_card": None})  # fmt: skip
-        write(f"stage.redact.{sid}.json", turns_fixture(sid, ours) if sid == "CS-S1" else {
-            "dataset": "customer_service", "table": None, "redacted": False, "layers_run": [],
-            "n_turns": 0, "turns": [], "per_label": [],
-            "span_labels_note": "transcripts are withheld in this scenario"})  # fmt: skip
-        status = {"profile": "done", "detect": "done", "plan": "done", "transform": "done",
-                  "redact": "done" if sid == "CS-S1" else "pending", "verify": "done", "report": "done", "run": "done"}
-        dur = {"transform": stats["duration_ms"]}
-        write(f"run.{sid}.json", {
-            "run_id": man["run_id"], "dataset": "customer_service", "scenario_id": sid,
-            "status": "done", "created_utc": man["created_utc"], "git_hash": man["git_hash"],
-            "key_id": man["key_id"], "seed": man["seed"], "llm": man["llm"],
-            "layers": man["layers"],
-            "stages": [{"stage": s, "status": status[s], "duration_ms": dur.get(s)}
-                       for s in STAGES],
-            "gate": {"passed": gate["passed"], "blocking": gate["blocking"]},
-            "headline": {"privacy": ours["summary"]["privacy"],
-                         "utility": ours["summary"]["utility"],
-                         "composite": ours["summary"]["composite"]},
-            "error": None})  # fmt: skip
+    write("stage.profile.json", vw.stage_view(RUNS, base, "profile"))
+    write("stage.detect.json", vw.stage_view(RUNS, base, "detect"))
+    man = load(RUNS / base / "00_manifest.json")
+    write("health.json", {"status": "ok", "git_hash": man["git_hash"], "key_id": man["key_id"],
+                          "llm": vw.llm_view(), "proving_ground": True})  # fmt: skip
+    for sid, run_id in RUN_FOR.items():
+        write(f"run.{sid}.json", vw.run_view(RUNS, run_id))
+        for stage in ("plan", "transform", "redact", "verify", "report"):
+            write(f"stage.{stage}.{sid}.json" if stage != "plan" else f"plan.{sid}.json",
+                  vw.stage_view(RUNS, run_id, stage))  # fmt: skip
+        v = vw.stage_view(RUNS, run_id, "verify")
+        write(f"scorecard.ours.{sid}.json", v["ours"])
+        write(f"scorecard.b2k.{sid}.json", v["baseline"])
     return check_output(key)
 
 
@@ -238,5 +74,6 @@ def check_output(key: str) -> list[str]:
 
 
 if __name__ == "__main__":
+    _ = cli  # the API and the exporter share cli helpers
     files = export()
     print(f"wrote {len(files)} files to {OUT.relative_to(ROOT)}")

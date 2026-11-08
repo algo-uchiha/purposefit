@@ -281,7 +281,10 @@ def cmd_verify(args: argparse.Namespace, key: str) -> int:
                              k=plan.k if ks else None,
                              k_pycanon=min(kp) if kp else None, note=args.note)  # fmt: skip
     vf.append_leaderboard(runs_dir() / "leaderboard.csv", row)
-    gate = vf.build_gate(rep, vf.baseline_scorecard(runs_dir(), plan.scenario_id),
+    baseline = vf.baseline_scorecard(runs_dir(), plan.scenario_id)
+    if baseline is not None:  # a copy beside the run, so the API never reads runs/private
+        (run_path / "06_scorecard_b2k.json").write_text(json.dumps(baseline, indent=1), encoding="utf-8")
+    gate = vf.build_gate(rep, baseline,
                          [p.to_dict() for p in plan.policies], plan.scenario_id)
     (run_path / "06_gate.json").write_text(json.dumps(gate, indent=1) + "\n", encoding="utf-8")
     print(json.dumps({"gate_passed": gate["passed"], "blocking": gate["blocking"]}))
