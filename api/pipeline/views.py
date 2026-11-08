@@ -189,15 +189,63 @@ def run_view(runs: Path, run_id: str) -> dict:
             "gate": gate, "headline": headline, "error": None}  # fmt: skip
 
 
-def policy_card(plan: dict, gate: dict | None, ours: dict | None) -> dict:
-    """What was done to each field and why, the gate, and the stated limits."""
+def policy_card(plan: dict, gate: dict | None, ours: dict | None,
+                residual: list[dict] | None = None, recipient: str | None = None) -> dict:  # fmt: skip
+    """What was done to each field and why, the gate, the residual risks and the pseudonymisation
+    terms of EDPB Guidelines 01/2025: the secret is named by its key id only, the domain is the
+    named recipient, and the additional information (row maps) is held by the controller."""
     return {"scenario_id": plan["scenario_id"], "dataset": plan["dataset"],
-            "key_id": plan["key_id"], "released_tables": plan["released_tables"],
+            "pseudonymisation": {
+                "secret": {"key_id": plan["key_id"], "held_by": "controller",
+                           "note": "Derived per scenario; the key itself is never in a release."},
+                "domain": {"recipient": recipient or plan["scenario_id"],
+                           "note": "Pseudonyms are not valid outside this recipient's release."},
+                "additional_information": {"held_by": "controller", "kept_in": "runs/private",
+                                           "items": ["row maps", "gazetteer values"]}},
+            "released_tables": plan["released_tables"],
             "fields": [{"table": p["table"], "column": p["column"], "action": p["action"],
                         "reason": p["reason"], "guarantee": p["guarantee"]}
                        for p in plan["policies"]],
-            "gate": gate, "headline_label": ours["summary"]["label"] if ours else None,
+            "gate": gate, "residual_risks": residual or [],
+            "headline_label": ours["summary"]["label"] if ours else None,
             "note": "Pseudonymised data is still personal data (GDPR Recital 26)."}
+
+
+def policy_card_md(card: dict) -> str:
+    ps = card["pseudonymisation"]
+    out = [f"# Policy card: {card['scenario_id']}", "",
+           "## Pseudonymisation (EDPB Guidelines 01/2025 terms)", "",
+           f"- Pseudonymisation secret: key id `{ps['secret']['key_id']}`, held by the controller. The key is never released.",
+           f"- Pseudonymisation domain: {ps['domain']['recipient']}.",
+           "- Additional information: row maps and gazetteer values, held by the controller.", "",
+           "## Fields", "", "| Table | Column | Action | Reason | Guarantee |", "| --- | --- | --- | --- | --- |"]
+    for f in card["fields"]:
+        out.append(f"| {f['table']} | {f['column']} | {f['action']} | {f['reason']} | {f['guarantee']} |")
+    out += ["", "## Release gate", ""]
+    if card["gate"]:
+        out.append(f"Result: {'passed' if card['gate']['passed'] else 'failed'}.")
+        out += [f"- {c['status']}: {c['name'] if 'name' in c else c['id']}. {c['reason']}" for c in card["gate"]["checks"]]
+    out += ["", "## Residual risks", ""] + [f"- {r['text']}" for r in card["residual_risks"]]
+    out += ["", card["note"], ""]
+    return "\n".join(out)
+
+
+def write_policy_card(rp: Path) -> None:
+    """07_policy_card.json and .md for a run whose verify stage has finished."""
+    plan, gate = load(rp / "03_plan.json"), load(rp / "06_gate.json")
+    ours = load(rp / "06_scorecard_ours" / "scorecard.json")
+    risks = residual_risks(clean_scorecard(ours, "", plan["dataset"]), plan, gate, per_label_rows(ours))
+    card = policy_card(plan, gate, ours, risks, _recipient(plan["scenario_id"]))
+    (rp / "07_policy_card.json").write_text(json.dumps(card, indent=1, ensure_ascii=False), encoding="utf-8")
+    (rp / "07_policy_card.md").write_text(policy_card_md(card), encoding="utf-8")
+
+
+def _recipient(scenario_id: str) -> str | None:
+    try:
+        scen = load(pl.proving_ground_root() / "metadata" / "scenarios.json")
+    except OSError:
+        return None
+    return next((s["recipient"] for s in scen if s["id"] == scenario_id), None)
 
 
 def redact_view(rp: Path, plan: dict, ours: dict) -> dict:
@@ -241,10 +289,8 @@ def stage_view(runs: Path, run_id: str, stage: str):
         return load(f)
     plan = load(rp / "03_plan.json")
     if stage == "report":
-        gate = load(rp / "06_gate.json") if (rp / "06_gate.json").exists() else None
-        ours = load(rp / "06_scorecard_ours" / "scorecard.json") if gate else None
-        return {"plan_table_md": f.read_text(encoding="utf-8"),
-                "policy_card": policy_card(plan, gate, ours)}  # fmt: skip
+        card = load(rp / "07_policy_card.json") if (rp / "07_policy_card.json").exists() else None
+        return {"plan_table_md": f.read_text(encoding="utf-8"), "policy_card": card}
     ours, b2k = _scorecards(rp)
     if stage == "redact":
         return redact_view(rp, plan, ours)
@@ -273,8 +319,10 @@ def export_zip(runs: Path, run_id: str) -> bytes:
             if f.is_file():
                 z.write(f, f"{table}.csv")
         z.writestr("07_plan_table.md", (rp / "07_plan_table.md").read_text(encoding="utf-8"))
-        card = policy_card(plan, gate, load(rp / "06_scorecard_ours" / "scorecard.json"))
-        z.writestr("policy_card.json", json.dumps(card, indent=1, ensure_ascii=False))
+        if not (rp / "07_policy_card.json").exists():
+            write_policy_card(rp)
+        z.writestr("policy_card.json", (rp / "07_policy_card.json").read_text(encoding="utf-8"))
+        z.writestr("policy_card.md", (rp / "07_policy_card.md").read_text(encoding="utf-8"))
     return buf.getvalue()
 
 

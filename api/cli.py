@@ -312,6 +312,9 @@ def cmd_verify(args: argparse.Namespace, key: str) -> int:
     gate = vf.build_gate(rep, baseline,
                          [p.to_dict() for p in plan.policies], plan.scenario_id)
     (run_path / "06_gate.json").write_text(json.dumps(gate, indent=1) + "\n", encoding="utf-8")
+    from api.pipeline import views
+
+    views.write_policy_card(run_path)
     print(json.dumps({"gate_passed": gate["passed"], "blocking": gate["blocking"]}))
     print(json.dumps({c: row[c] for c in ("scenario", "privacy", "utility", "composite",
                                           "worst_risk", "k", "k_pycanon")}))  # fmt: skip
@@ -382,8 +385,11 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print(f"Stage {args.stage} is not built yet.", file=sys.stderr)
         code = 3
-    log.info(json.dumps({"run_id": args.run, "stage": args.stage, "exit": code,
-                         "duration_ms": int((time.monotonic() - start) * 1000)}))  # fmt: skip
+    ms = int((time.monotonic() - start) * 1000)
+    log.info(json.dumps({"run_id": args.run, "stage": args.stage, "exit": code, "duration_ms": ms}))
+    if code == 0 and (runs_dir() / args.run / "00_manifest.json").exists():
+        m = json.loads((runs_dir() / args.run / "00_manifest.json").read_text(encoding="utf-8"))
+        update_manifest(runs_dir() / args.run, stage_ms={**m.get("stage_ms", {}), args.stage: ms})
     return code
 
 

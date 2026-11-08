@@ -95,7 +95,7 @@ def test_run_and_every_stage(env):
     assert any(x["id"] == "leak.health" for x in v["residual_risks"])  # a label above 5 % is named
     assert not any(x["id"] == "leak.person" for x in v["residual_risks"])
     rep = c.get("/api/runs/r1/stages/report").json()
-    assert rep["policy_card"]["fields"][0]["column"] == "text"
+    assert rep["policy_card"] is None  # written by the verify stage
     assert c.get("/api/runs/r1/stages/detect").status_code == 404  # not written
 
 
@@ -114,8 +114,13 @@ def test_export_holds_only_released_tables_plan_and_card(env):
     assert r.status_code == 200 and r.headers["content-type"] == "application/zip"
     assert 'filename="r1_release.zip"' in r.headers["content-disposition"]
     z = zipfile.ZipFile(io.BytesIO(r.content))
-    assert sorted(z.namelist()) == ["07_plan_table.md", "policy_card.json", "turns.csv"]
+    assert sorted(z.namelist()) == ["07_plan_table.md", "policy_card.json", "policy_card.md", "turns.csv"]
     blob = b"".join(z.read(n) for n in z.namelist())
+    card = json.loads(z.read("policy_card.json"))
+    assert card["pseudonymisation"]["secret"]["key_id"] == "abc123abc123"
+    assert card["pseudonymisation"]["additional_information"]["held_by"] == "controller"
+    assert "Pseudonymisation secret" in z.read("policy_card.md").decode()
+    assert "test-dummy-key-not-secret" not in blob.decode("utf-8", "ignore")
     assert SECRET_ROWMAP.encode() not in blob and b"05_spans" not in blob and b"Maija" not in blob
 
 
