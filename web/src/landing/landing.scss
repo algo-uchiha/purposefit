@@ -537,7 +537,7 @@ body:has(.landing-v3) {
 .stat-card strong {
   margin-bottom: 9px;
   color: var(--pf-accent);
-  font-size: clamp(33px, 3.4vw, 47px);
+  font-size: clamp(30px, 2.9vw, 40px);
   font-weight: 600;
   letter-spacing: -0.045em;
   line-height: 1;
@@ -546,13 +546,13 @@ body:has(.landing-v3) {
 .stat-card strong.stat-card-pair {
   display: flex;
   align-items: center;
-  gap: 0.22em;
+  gap: 0.14em;
   white-space: nowrap;
-  font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+  letter-spacing: -0.06em;
 }
 .stat-card .stat-card-arrow {
   color: var(--pf-muted);
-  font-size: 0.7em;
+  font-size: 0.6em;
   line-height: 1;
 }
 .stat-card span {
