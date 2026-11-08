@@ -126,7 +126,7 @@ function ScorePanel({ data }: { data: LandingData }) {
       <div className="score-visual" aria-label="CS-S1 combined score comparison">
         <div className="score-visual-head">
           <span>One release, compared</span>
-          <span>CS-S1 · combined score</span>
+          <span>{data.verify["CS-S1"].scenario_id} · combined score</span>
         </div>
         <div className="score-bars">
           {bars.map((bar) => (
@@ -288,12 +288,12 @@ function SafetyPanel({ data }: { data: LandingData }) {
     {
       value: hasDirectData ? String(direct) : "Not set",
       label: "Direct identifiers left",
-      note: "CS-S1 verification",
+      note: `${verify.scenario_id} verification`,
     },
     {
       value: smallest === undefined ? "Not set" : smallest.toLocaleString(),
       label: "Smallest group in the audit copy",
-      note: "CS-S3 verification",
+      note: `${verify3.scenario_id} verification`,
     },
     {
       value: trainLeakage ? `${(Number(trainLeakage) * 100).toFixed(1)}%` : "Not set",
