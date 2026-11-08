@@ -16,7 +16,7 @@ from pathlib import Path
 from stdnum import luhn
 
 from api.pipeline.contracts import PolicyPlan, Span
-from api.pipeline.redact import cues, gazetteer, health, normalise, patterns
+from api.pipeline.redact import crossturn, cues, gazetteer, health, normalise, patterns
 from api.pipeline.redact.merge import Cand, merge
 
 log = logging.getLogger("purposefit.redact")
@@ -135,9 +135,12 @@ def _apply_health(merged: list[Cand], flagged: list[Cand]) -> list[Cand]:
 def redact(texts: dict[str, str], plan: PolicyPlan | None = None, *,
            private_dir: Path | None = None, layers: Layers | None = None,
            controller: gazetteer.Controller | None = None, client=None,
-           use_cache: bool = True) -> Result:  # fmt: skip
+           use_cache: bool = True,
+           groups: dict[str, tuple[str, str]] | None = None) -> Result:  # fmt: skip
     """Redact each text. `plan` identifies the release; controller values come from
-    `private_dir/gazetteer_values.csv` (or `controller`). Logs hold counts and timings only."""
+    `private_dir/gazetteer_values.csv` (or `controller`). `groups` maps a record to its
+    (conversation, speaker) so an id read out over several turns can be joined and validated.
+    Logs hold counts and timings only."""
     t0 = time.monotonic()
     layers = layers or Layers()
     ctl = controller
@@ -152,7 +155,9 @@ def redact(texts: dict[str, str], plan: PolicyPlan | None = None, *,
     known = (frozenset(ctl.names) if ctl else frozenset()) | (dvv.safe if dvv else frozenset())
     # Rule layers first. The health layer only ever sees the text with those spans replaced by
     # typed placeholders, so no detected identifier is sent to the LLM.
-    base = {rid: merge(_candidates(texts[rid], layers, ctl, dvv, known)) for rid in ids}
+    split_ids = crossturn.find(texts, groups) if (groups and layers.normalise) else {}
+    base = {rid: merge(_candidates(texts[rid], layers, ctl, dvv, known) + split_ids.get(rid, []))
+            for rid in ids}  # fmt: skip
     flagged: dict[str, list[Cand]] = {}
     health_stats: dict = {}
     if layers.health:

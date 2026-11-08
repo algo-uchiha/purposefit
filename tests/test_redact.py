@@ -288,3 +288,29 @@ def test_health_span_found_on_masked_text_maps_back_to_the_original():
     assert res.redacted["r"] == "[PERSON] [PERSON] kertoi: [HEALTH]."
     sp = next(x for x in res.spans["r"] if x.label == "HEALTH")
     assert s[sp.start : sp.end] == "minulla on diabetes"
+
+
+def test_hetu_read_out_in_chunks_over_several_turns_is_joined_and_validated():
+    texts = {"t1": "päivää", "t2": "tarkistan henkilötunnuksesi", "t3": "yksi kolme nolla",
+             "t4": "joo", "t5": "viiva kolme nolla kahdeksan", "t6": "T", "t7": "kiitos nimi",
+             "t8": "nolla yksi", "t9": "viisi viisi"}  # fmt: skip
+    groups = {"t1": ("c", "customer"), "t2": ("c", "agent"), "t3": ("c", "customer"),
+              "t4": ("c", "agent"), "t5": ("c", "customer"), "t6": ("c", "customer"),
+              "t7": ("c", "customer"), "t8": ("c", "customer"), "t9": ("c", "customer")}  # fmt: skip
+    texts.update({"t3": "131052", "t5": "-308", "t6": "T"})
+    res = redact(texts, layers=NONE, groups=groups)
+    assert res.redacted["t3"] == "[NATIONAL_ID]" and res.redacted["t5"] == "[NATIONAL_ID]"
+    assert res.redacted["t6"] == "[NATIONAL_ID]"
+    assert res.redacted["t8"] == "nolla yksi" and res.redacted["t2"] == texts["t2"]  # not an id: left alone
+
+
+def test_spoken_pairs_and_a_closing_chunk_are_joined():
+    groups = {k: ("c", "customer") for k in ("a", "b", "c", "d")}
+    texts = {"a": "yksi kolme", "b": "nolla viisi", "c": "yksi kaksi", "d": "-308t"}
+    assert redact(texts, layers=NONE, groups=groups).redacted == {k: "[NATIONAL_ID]" for k in texts} | {"d": "[NATIONAL_ID]"}
+
+
+def test_chunks_that_do_not_form_a_valid_hetu_are_left_alone():
+    groups = {"a": ("c", "customer"), "b": ("c", "customer"), "c": ("c", "customer")}
+    texts = {"a": "451052", "b": "-308", "c": "T"}  # day 45 is not a date
+    assert redact(texts, layers=replace(NONE, patterns=False), groups=groups).redacted == texts

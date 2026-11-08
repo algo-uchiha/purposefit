@@ -27,6 +27,9 @@ from api.pipeline.redact import Layers, redact
 PG = ROOT / "vendor" / "proving_ground"
 
 
+GROUPS: dict = {}
+
+
 def load_train(limit: int | None):
     d = PG / "data" / "customer_service"
     conv = pd.read_csv(d / "conversations.csv", dtype=str, keep_default_na=False)
@@ -36,6 +39,8 @@ def load_train(limit: int | None):
     if limit:
         turns = turns.head(limit)
     texts = dict(zip(turns.turn_id, turns.text, strict=True))
+    GROUPS.clear()
+    GROUPS.update({t: (c, sp) for t, c, sp in zip(turns.turn_id, turns.conversation_id, turns.speaker, strict=True)})
     gold = {}
     for line in (PG / "metadata" / "pii_spans" / "customer_service__turns__text.jsonl").open():
         r = json.loads(line)
@@ -61,7 +66,8 @@ def health_precision(gold, res) -> dict:
 
 
 def measure(texts, gold, private_dir, layers: Layers, client=None) -> dict:
-    res = redact(texts, None, private_dir=private_dir, layers=layers, client=client)
+    res = redact(texts, None, private_dir=private_dir, layers=layers, client=client,
+                 groups=GROUPS or None)
     pred = {rid: [{"start": s.start, "end": s.end, "label": s.label} for s in sp]
             for rid, sp in res.spans.items()}  # fmt: skip
     sc = T.span_scores(gold, pred, mode="overlap", label_agnostic=True)["micro"]

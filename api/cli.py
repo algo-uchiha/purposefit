@@ -226,6 +226,23 @@ def cmd_transform(args: argparse.Namespace, key: str) -> int:
     return 0
 
 
+def _speaker_groups(table: str, df, key: str | None, dataset: str):
+    """(conversation, speaker) per record, from the controller's own table, when it has both."""
+    from api.pipeline import io
+
+    f = io.data_root() / dataset / f"{table}.csv"
+    if key is None or not f.exists():
+        return None
+    head = io.read_csv(f, nrows=1)
+    if not {"speaker", "conversation_id", key} <= set(head.columns):
+        return None
+    orig = io.read_csv(f)[[key, "speaker", "conversation_id"]].set_index(key)
+    conv = dict(zip(df[key], df["conversation_id"], strict=True)) if "conversation_id" in df else {}
+    known = set(orig.index)
+    return {k: (conv.get(k, orig.at[k, "conversation_id"]), orig.at[k, "speaker"])
+            for k in df[key] if k in known}  # fmt: skip
+
+
 def cmd_redact(args: argparse.Namespace, key: str) -> int:
     """Stage 5: redact the text columns the plan marks `redact`, in the release files."""
     import time
@@ -270,7 +287,9 @@ def cmd_redact(args: argparse.Namespace, key: str) -> int:
             df = io.read_csv(f)
             keys = [c for c in df.columns if c.endswith("_id") and df[c].is_unique]
             texts = {(df[keys[0]][i] if keys else str(i)): df[pol.column][i] for i in range(len(df))}
-            res = rd.redact(texts, plan, private_dir=private, layers=layers, client=client)
+            groups = _speaker_groups(pol.table, df, keys[0] if keys else None, plan.dataset)
+            res = rd.redact(texts, plan, private_dir=private, layers=layers, client=client,
+                            groups=groups)  # fmt: skip
             mapped = df[keys[0]] if keys else pd.Series([str(i) for i in range(len(df))])
             df[pol.column] = [res.redacted[k] for k in mapped]
             df.to_csv(f, index=False)
