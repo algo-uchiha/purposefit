@@ -11,165 +11,8 @@
   "cues",
   "health"
  ],
- "n_turns": 20,
+ "n_turns": 12,
  "turns": [
-  {
-   "record_id": "T0000001",
-   "conversation_id": "cv_bdac46f251d75effc5bb",
-   "original_text": "aallokko kundtjänst det är stefan hur kan jag hjälpa till",
-   "protected_text": "aallokko kundtjänst det är [PERSON] hur kan jag hjälpa till",
-   "surrogate_text": null,
-   "spans": [
-    {
-     "start": 27,
-     "end": 33,
-     "label": "PERSON",
-     "layer": "gazetteer",
-     "score": 0.9
-    }
-   ]
-  },
-  {
-   "record_id": "T0000002",
-   "conversation_id": "cv_bdac46f251d75effc5bb",
-   "original_text": "hej jag heter oscar lindberg det är fel på avbetalningen för telefonen månadsbeloppet har höjts",
-   "protected_text": "hej jag heter [PERSON] [PERSON] det är fel på avbetalningen för telefonen månadsbeloppet har höjts",
-   "surrogate_text": null,
-   "spans": [
-    {
-     "start": 14,
-     "end": 19,
-     "label": "PERSON",
-     "layer": "gazetteer",
-     "score": 0.9
-    },
-    {
-     "start": 20,
-     "end": 28,
-     "label": "PERSON",
-     "layer": "gazetteer",
-     "score": 0.9
-    }
-   ]
-  },
-  {
-   "record_id": "T0000003",
-   "conversation_id": "cv_bdac46f251d75effc5bb",
-   "original_text": "kan jag få ditt kundnummer eller personbeteckning",
-   "protected_text": "kan jag få ditt kundnummer eller personbeteckning",
-   "surrogate_text": null,
-   "spans": []
-  },
-  {
-   "record_id": "T0000004",
-   "conversation_id": "cv_bdac46f251d75effc5bb",
-   "original_text": "oscar lindberg personbeteckningen är 070889 streck 965 2",
-   "protected_text": "[PERSON] [PERSON] personbeteckningen är [NATIONAL_ID]",
-   "surrogate_text": null,
-   "spans": [
-    {
-     "start": 0,
-     "end": 5,
-     "label": "PERSON",
-     "layer": "gazetteer",
-     "score": 0.9
-    },
-    {
-     "start": 6,
-     "end": 14,
-     "label": "PERSON",
-     "layer": "gazetteer",
-     "score": 0.9
-    },
-    {
-     "start": 37,
-     "end": 56,
-     "label": "NATIONAL_ID",
-     "layer": "normalise",
-     "score": 0.97
-    }
-   ]
-  },
-  {
-   "record_id": "T0000005",
-   "conversation_id": "cv_bdac46f251d75effc5bb",
-   "original_text": "tack oscar nu är du verifierad",
-   "protected_text": "tack [PERSON] nu är du verifierad",
-   "surrogate_text": null,
-   "spans": [
-    {
-     "start": 5,
-     "end": 10,
-     "label": "PERSON",
-     "layer": "gazetteer",
-     "score": 0.9
-    }
-   ]
-  },
-  {
-   "record_id": "T0000006",
-   "conversation_id": "cv_bdac46f251d75effc5bb",
-   "original_text": "det återstår 156,01 euro på avbetalningen",
-   "protected_text": "det återstår 156,01 euro på avbetalningen",
-   "surrogate_text": null,
-   "spans": []
-  },
-  {
-   "record_id": "T0000007",
-   "conversation_id": "cv_bdac46f251d75effc5bb",
-   "original_text": "jag vill betala allt nu",
-   "protected_text": "jag vill betala allt nu",
-   "surrogate_text": null,
-   "spans": []
-  },
-  {
-   "record_id": "T0000008",
-   "conversation_id": "cv_bdac46f251d75effc5bb",
-   "original_text": "jag skickar en slutfaktura",
-   "protected_text": "jag skickar en slutfaktura",
-   "surrogate_text": null,
-   "spans": []
-  },
-  {
-   "record_id": "T0000009",
-   "conversation_id": "cv_bdac46f251d75effc5bb",
-   "original_text": "var det något mer ja jag kan hjälpa till med",
-   "protected_text": "var det något mer ja jag kan hjälpa till med",
-   "surrogate_text": null,
-   "spans": []
-  },
-  {
-   "record_id": "T0000010",
-   "conversation_id": "cv_bdac46f251d75effc5bb",
-   "original_text": "nej det var alltså allt tack",
-   "protected_text": "nej det var alltså allt tack",
-   "surrogate_text": null,
-   "spans": []
-  },
-  {
-   "record_id": "T0000011",
-   "conversation_id": "cv_927567e2449b2497bd25",
-   "original_text": "Welcome to Aallokko chat! Type your question and I'll connect you to the right team.",
-   "protected_text": "Welcome to Aallokko chat! Type your question and I'll connect you to the right team.",
-   "surrogate_text": null,
-   "spans": []
-  },
-  {
-   "record_id": "T0000012",
-   "conversation_id": "cv_927567e2449b2497bd25",
-   "original_text": "My spot-price electricity bill for December was €113.67, is that right?",
-   "protected_text": "My spot-price electricity bill for December was €113.67, is that right?",
-   "surrogate_text": null,
-   "spans": []
-  },
-  {
-   "record_id": "T0000013",
-   "conversation_id": "cv_927567e2449b2497bd25",
-   "original_text": "Got it. Connecting you to a specialist, please hold on.",
-   "protected_text": "Got it. Connecting you to a specialist, please hold on.",
-   "surrogate_text": null,
-   "spans": []
-  },
   {
    "record_id": "T0000014",
    "conversation_id": "cv_927567e2449b2497bd25",
@@ -195,30 +38,6 @@
    "spans": []
   },
   {
-   "record_id": "T0000016",
-   "conversation_id": "cv_927567e2449b2497bd25",
-   "original_text": "251263-976J",
-   "protected_text": "[NATIONAL_ID]",
-   "surrogate_text": null,
-   "spans": [
-    {
-     "start": 0,
-     "end": 11,
-     "label": "NATIONAL_ID",
-     "layer": "gazetteer",
-     "score": 0.97
-    }
-   ]
-  },
-  {
-   "record_id": "T0000017",
-   "conversation_id": "cv_927567e2449b2497bd25",
-   "original_text": "Thank you, I've found your account.",
-   "protected_text": "Thank you, I've found your account.",
-   "surrogate_text": null,
-   "spans": []
-  },
-  {
    "record_id": "T0000018",
    "conversation_id": "cv_927567e2449b2497bd25",
    "original_text": "The fixed price is 8.9 c/kWh for 12 months.",
@@ -227,20 +46,147 @@
    "spans": []
   },
   {
-   "record_id": "T0000019",
+   "record_id": "T0000021",
    "conversation_id": "cv_927567e2449b2497bd25",
-   "original_text": "Sounds good.",
-   "protected_text": "Sounds good.",
+   "original_text": "Is there anything else I can help you with?",
+   "protected_text": "Is there anything else I can help you with?",
    "surrogate_text": null,
    "spans": []
   },
   {
-   "record_id": "T0000020",
-   "conversation_id": "cv_927567e2449b2497bd25",
-   "original_text": "You'll get a confirmation email.",
-   "protected_text": "You'll get a confirmation email.",
+   "record_id": "T0000135",
+   "conversation_id": "cv_20d1d9b8f2e835532220",
+   "original_text": "hello you're through to aallokko this is toni",
+   "protected_text": "hello you're through to aallokko this is [PERSON]",
    "surrogate_text": null,
-   "spans": []
+   "spans": [
+    {
+     "start": 41,
+     "end": 45,
+     "label": "PERSON",
+     "layer": "gazetteer",
+     "score": 0.9
+    }
+   ]
+  },
+  {
+   "record_id": "T0000136",
+   "conversation_id": "cv_20d1d9b8f2e835532220",
+   "original_text": "hello my name is layla abdullah why was i charged roaming fees when i was inside the eu",
+   "protected_text": "hello my name is [PERSON] [PERSON] why was i charged roaming fees when i was inside the eu",
+   "surrogate_text": null,
+   "spans": [
+    {
+     "start": 17,
+     "end": 22,
+     "label": "PERSON",
+     "layer": "gazetteer",
+     "score": 0.9
+    },
+    {
+     "start": 23,
+     "end": 31,
+     "label": "PERSON",
+     "layer": "gazetteer",
+     "score": 0.9
+    }
+   ]
+  },
+  {
+   "record_id": "T0000142",
+   "conversation_id": "cv_20d1d9b8f2e835532220",
+   "original_text": "is 041 943 0364 still the best number to reach you",
+   "protected_text": "is [PHONE] still the best number to reach you",
+   "surrogate_text": null,
+   "spans": [
+    {
+     "start": 3,
+     "end": 15,
+     "label": "PHONE",
+     "layer": "gazetteer",
+     "score": 0.97
+    }
+   ]
+  },
+  {
+   "record_id": "T0000201",
+   "conversation_id": "cv_84d001f22e0ead8712c5",
+   "original_text": "hello you're through to aallokko this is tarmo",
+   "protected_text": "hello you're through to aallokko this is [PERSON]",
+   "surrogate_text": null,
+   "spans": [
+    {
+     "start": 41,
+     "end": 46,
+     "label": "PERSON",
+     "layer": "gazetteer",
+     "score": 0.9
+    }
+   ]
+  },
+  {
+   "record_id": "T0000208",
+   "conversation_id": "cv_84d001f22e0ead8712c5",
+   "original_text": "i can see your public ip 100.76.16.130 the line is up on our side",
+   "protected_text": "i can see your public ip [IP_ADDRESS] the line is up on our side",
+   "surrogate_text": null,
+   "spans": [
+    {
+     "start": 25,
+     "end": 38,
+     "label": "IP_ADDRESS",
+     "layer": "patterns",
+     "score": 0.9
+    }
+   ]
+  },
+  {
+   "record_id": "T0000366",
+   "conversation_id": "cv_db4a40dfa49ea2ced684",
+   "original_text": "Hello! My name is Kristina and I'll be helping you today.",
+   "protected_text": "Hello! My name is [PERSON] and I'll be helping you today.",
+   "surrogate_text": null,
+   "spans": [
+    {
+     "start": 18,
+     "end": 26,
+     "label": "PERSON",
+     "layer": "gazetteer",
+     "score": 0.9
+    }
+   ]
+  },
+  {
+   "record_id": "T0000482",
+   "conversation_id": "cv_3ee21de921e7ac5692c1",
+   "original_text": "Hello, you're through to Aallokko, this is Petri.",
+   "protected_text": "Hello, you're through to Aallokko, this is [PERSON].",
+   "surrogate_text": null,
+   "spans": [
+    {
+     "start": 43,
+     "end": 48,
+     "label": "PERSON",
+     "layer": "gazetteer",
+     "score": 0.9
+    }
+   ]
+  },
+  {
+   "record_id": "T0000483",
+   "conversation_id": "cv_3ee21de921e7ac5692c1",
+   "original_text": "I got invoice 257 777 900 6 and there are extra services on it that I never ordered.",
+   "protected_text": "I got invoice [ACCOUNT_NUMBER] and there are extra services on it that I never ordered.",
+   "surrogate_text": null,
+   "spans": [
+    {
+     "start": 14,
+     "end": 27,
+     "label": "ACCOUNT_NUMBER",
+     "layer": "patterns",
+     "score": 0.4
+    }
+   ]
   }
  ],
  "per_label": [
@@ -359,5 +305,5 @@
    "rate": 0.0323
   }
  ],
- "span_labels_note": "rule layers and LLM health flags; NER is not run yet"
+ "span_labels_note": "No private words found in this turn"
 }

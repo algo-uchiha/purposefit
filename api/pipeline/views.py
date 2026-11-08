@@ -14,6 +14,8 @@ import re
 import zipfile
 from pathlib import Path
 
+import pandas as pd
+
 from api.pipeline import io
 from api.pipeline import llm as llm_mod
 from api.pipeline import plan as pl
@@ -22,7 +24,12 @@ from api.pipeline import verify as vf
 STAGES = ("run", "profile", "detect", "plan", "transform", "redact", "verify", "report")
 PAYLOAD_STAGES = STAGES[1:]
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
-N_TURNS = 20
+N_TURNS = 12
+N_NO_SPAN = 3
+EN_STOP = frozenset(["the", "and", "you", "your", "is", "are", "to", "of", "for", "with", "this", "that", "have", "can", "please", "thank", "hello", "not", "will", "what", "from", "was", "they", "there", "would", "about"])
+# pets-eval counts these as context, not identifying (vendor/proving_ground/toolkit/pets_eval/text.py:20),
+# and no redactor layer emits them (NER is not run), so they stay in the text on purpose.
+KEPT_LABELS = {"DATE": "dates", "LOCATION": "places", "ORG": "organisation names"}
 # Files whose presence marks a stage as done.
 STAGE_FILES = {"run": "00_manifest.json", "profile": "01_profiles.json",
                "detect": "02_labels_detail.json", "plan": "03_plan.json",
@@ -80,10 +87,15 @@ def residual_risks(ours: dict, plan: dict, gate: dict, per_label: list[dict] | N
                     "source": "docs/FACTS.md"})  # fmt: skip
     for row in sorted(per_label or [], key=lambda r: -r["rate"]):
         if row["rate"] > LEAK_LIMIT:
-            out.append({"id": f"leak.{row['label'].lower()}",
-                        "text": f"{row['label']} values still recoverable in the released text: "
-                                f"{row['rate']:.1%} of {row['n']} (pets-eval).",
-                        "source": "pets-eval"})  # fmt: skip
+            if row["label"] in KEPT_LABELS:
+                noun = KEPT_LABELS[row["label"]]
+                txt = (f"Not hidden in this version. The challenge scoring does not treat {noun} "
+                       "as identifying on their own, but combined with other facts they can "
+                       "still help find a person.")
+            else:
+                txt = (f"{row['label']} values still recoverable in the released text: "
+                       f"{row['rate']:.1%} of {row['n']} (pets-eval).")
+            out.append({"id": f"leak.{row['label'].lower()}", "text": txt, "source": "pets-eval"})
     return out
 
 
@@ -248,29 +260,38 @@ def _recipient(scenario_id: str) -> str | None:
     return next((s["recipient"] for s in scen if s["id"] == scenario_id), None)
 
 
+def is_english(text: str) -> bool:
+    words = re.findall(r"[a-z]+", text.lower())
+    return len(words) >= 6 and sum(w in EN_STOP for w in words) / len(words) >= 0.2
+
+
 def redact_view(rp: Path, plan: dict, ours: dict) -> dict:
     if "turns" not in plan["released_tables"] or not (rp / "05_spans.jsonl").exists():
         return {"dataset": plan["dataset"], "table": None, "redacted": False, "layers_run": [],
                 "n_turns": 0, "turns": [], "per_label": [],
                 "span_labels_note": "transcripts are withheld in this scenario"}  # fmt: skip
-    orig = io.read_csv(io.data_root() / plan["dataset"] / "turns.csv").head(N_TURNS)
+    full = io.read_csv(io.data_root() / plan["dataset"] / "turns.csv").reset_index(drop=True)
     rel = io.read_csv(rp / "04_release" / "turns.csv").set_index("turn_id")
-    want = set(orig.turn_id)
-    spans: dict[str, list[dict]] = {t: [] for t in want}
+    spans: dict[str, list[dict]] = {}
     with (rp / "05_spans.jsonl").open(encoding="utf-8") as f:
         for line in f:
             r = json.loads(line)
-            if r["record_id"] in want:
-                spans[r["record_id"]].append({k: r[k] for k in ("start", "end", "label", "layer", "score")})
+            spans.setdefault(r["record_id"], []).append({k: r[k] for k in ("start", "end", "label", "layer", "score")})
+    orig = full[full.text.map(is_english)]
+    with_span = orig[orig.turn_id.isin(spans)].head(N_TURNS - N_NO_SPAN)
+    first = int(with_span.index.min()) if len(with_span) else 0
+    quiet = ~orig.turn_id.isin(spans) & (orig.text.map(len) > 40)
+    no_span = orig[quiet & (orig.index > first)]
+    pick = pd.concat([with_span, no_span.head(N_NO_SPAN)]).sort_index()
     turns = [{"record_id": tid, "conversation_id": rel.loc[tid, "conversation_id"],
               "original_text": text, "protected_text": rel.loc[tid, "text"],
-              "surrogate_text": None, "spans": spans[tid]}
-             for tid, text in zip(orig.turn_id, orig.text, strict=True)]  # fmt: skip
+              "surrogate_text": None, "spans": spans.get(tid, [])}
+             for tid, text in zip(pick.turn_id, pick.text, strict=True)]  # fmt: skip
     stats = load(rp / "05_redact_stats.json")
     return {"dataset": plan["dataset"], "table": "turns", "column": "text", "redacted": True,
             "layers_run": stats["layers"], "n_turns": len(turns), "turns": turns,
             "per_label": per_label_rows(ours),
-            "span_labels_note": "rule layers and LLM health flags; NER is not run yet"}  # fmt: skip
+            "span_labels_note": "No private words found in this turn"}  # fmt: skip
 
 
 def stage_view(runs: Path, run_id: str, stage: str):
