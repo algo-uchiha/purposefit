@@ -58,14 +58,15 @@ def test_unanswerable_utility_is_null_not_zero():
     assert tasks["CS-U1"]["score"] is None and tasks["CS-U1"]["metric"] == "not answerable"
 
 
-def test_turns_fixture_has_twenty_redacted_turns_with_spans():
+def test_turns_fixture_has_twelve_english_turns_with_spans():
     t = _load("stage.redact.CS-S1.json")
-    assert t["n_turns"] == len(t["turns"]) == 20 and t["redacted"] is True
+    assert t["n_turns"] == len(t["turns"]) == 12 and t["redacted"] is True
     assert {"patterns", "normalise", "controller", "dvv", "cues", "health"} == set(t["layers_run"])
     assert sum(len(x["spans"]) for x in t["turns"]) > 0 and t["per_label"]
     for x in t["turns"]:
         for sp in x["spans"]:
             assert 0 <= sp["start"] < sp["end"] <= len(x["original_text"])
+    assert 0 < sum(not x["spans"] for x in t["turns"]) <= 3
     assert _load("stage.redact.CS-S3.json")["turns"] == []
 
 

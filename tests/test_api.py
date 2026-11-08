@@ -56,7 +56,7 @@ def env(tmp_path, monkeypatch):
     (runs / "cache" / "llm").mkdir(parents=True)
     data = tmp_path / "data" / "customer_service"
     data.mkdir(parents=True)
-    (data / "turns.csv").write_text("turn_id,conversation_id,speaker,text\nT1,C1,customer,hello Maija\n")
+    (data / "turns.csv").write_text("turn_id,conversation_id,speaker,text\nT1,C1,customer,\"hello Maija, please help me with the card that you have\"\n")
     monkeypatch.setenv("PURPOSEFIT_DATA_DIR", str(tmp_path / "data"))
     make_run(runs)
     return runs, TestClient(create_app(runs, web_dist=tmp_path / "none"))
@@ -170,3 +170,14 @@ def test_web_dist_is_served_from_the_same_app(tmp_path, monkeypatch):
     c = TestClient(create_app(tmp_path / "runs", web_dist=dist))
     assert "PurposeFit" in c.get("/").text and c.get("/api/health").status_code == 200
     assert c.get("/api/nothing").json()["error"]["code"] == "not_found"
+
+
+def test_kept_labels_are_described_as_kept_on_purpose():
+    from api.pipeline import views
+
+    gate = {"checks": []}
+    rows = [{"label": "DATE", "n": 10, "leaked": 9, "rate": 0.9},
+            {"label": "SECRET", "n": 10, "leaked": 1, "rate": 0.1}]  # fmt: skip
+    out = {r["id"]: r["text"] for r in views.residual_risks({}, {"policies": []}, gate, rows)}
+    assert "kept on purpose" in out["leak.date"] and "still recoverable" not in out["leak.date"]
+    assert "still recoverable" in out["leak.secret"]

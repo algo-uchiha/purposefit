@@ -791,17 +791,17 @@
   },
   {
    "id": "leak.date",
-   "text": "DATE values still recoverable in the released text: 90.7% of 2837 (pets-eval).",
+   "text": "DATE values are kept on purpose: not identifying on its own, needed for meaning (90.7% of 2837 remain in the text).",
    "source": "pets-eval"
   },
   {
    "id": "leak.location",
-   "text": "LOCATION values still recoverable in the released text: 86.9% of 1281 (pets-eval).",
+   "text": "LOCATION values are kept on purpose: not identifying on its own, needed for meaning (86.9% of 1281 remain in the text).",
    "source": "pets-eval"
   },
   {
    "id": "leak.org",
-   "text": "ORG values still recoverable in the released text: 86.8% of 1351 (pets-eval).",
+   "text": "ORG values are kept on purpose: not identifying on its own, needed for meaning (86.8% of 1351 remain in the text).",
    "source": "pets-eval"
   },
   {
