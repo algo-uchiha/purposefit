@@ -378,9 +378,17 @@ function DemoPanel({ scenarios }: { scenarios: Scenario[] }) {
         Try the demo <ArrowRight size={18} />
       </a>
       <footer className="v3-footer">
-        <Logo />
-        <span>Built for the TrustED PETs Transformer challenge, Since AI Hackathon 2026</span>
-        <a href="https://github.com/algo-uchiha/purposefit">GitHub</a>
+        <span>PurposeFit. Built at Since AI Hackathon 2026, Turku.</span>
+        <a href="https://github.com/algo-uchiha/purposefit" target="_blank" rel="noopener">
+          Source code
+        </a>
+        <a
+          href="https://github.com/algo-uchiha/purposefit/tree/main/docs"
+          target="_blank"
+          rel="noopener"
+        >
+          Documentation
+        </a>
       </footer>
     </section>
   );
