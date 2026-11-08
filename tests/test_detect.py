@@ -375,3 +375,21 @@ def test_numeric_duration_is_not_a_quasi_identifier():
                       {"integer": 1.0, "decimal": 1.0})  # fmt: skip
     r = det.classify(p, 3)
     assert (r.role, r.subtype, r.family) == ("non_sensitive", "DURATION", "name_duration")
+
+
+def test_llm_sees_only_frequent_values_and_masks_for_the_rest(tmp_path):
+    d = tmp_path / "ds"
+    d.mkdir()
+    pd.DataFrame({"row_id": [str(i) for i in range(40)],
+                  "c1": ["red"] * 10 + ["blue"] * 10 + [f"Maija{i:02d}x" for i in range(20)],
+                  "c2": ["Mäkinen Mika"] * 6 + [f"Nimi{i}" for i in range(34)]}).to_csv(d / "t.csv", index=False)  # fmt: skip
+    from api.pipeline.contracts import FieldLabel
+
+    labs = [FieldLabel("ds", "t", "c1", "non_sensitive", "OTHER", 0.3, "x", "rule"),
+            FieldLabel("ds", "t", "c2", "direct_identifier", "PERSON_NAME", 0.3, "x", "rule")]
+    got = det._table_samples(labs, 1, tmp_path)
+    c1, c2 = got[("ds", "t", "c1")], got[("ds", "t", "c2")]
+    assert sorted(c1["sample_values"]) == ["blue", "red"] and c1["value_formats"] == ["Aa+9+a"]
+    assert c2["sample_values"] == []  # a direct identifier column shows masks only
+    assert "Mäkinen Mika" not in json.dumps({"|".join(k): v for k, v in got.items()}, ensure_ascii=False) and "Maija01x" not in json.dumps({"|".join(k): v for k, v in got.items()}, ensure_ascii=False)
+    assert det.value_format("040 123 4567") == "9+ 9+ 9+" or det.value_format("040 123 4567") == "999 999 9+"

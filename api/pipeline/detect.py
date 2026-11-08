@@ -19,6 +19,7 @@ import time
 from dataclasses import dataclass, replace
 from pathlib import Path
 
+import pandas as pd
 from stdnum import iban as std_iban
 from stdnum.fi import hetu as std_hetu
 
@@ -401,7 +402,9 @@ def detect(profiles: list[ColumnProfile]) -> list[FieldLabel]:
 
 LLM_SYSTEM = (
     "You classify columns of tabular datasets for privacy review. You get a JSON object with a "
-    "list of columns, each with a key, table, column name and sample values. Answer with one "
+    "list of columns, each with a key, table, column name, sample_values (values that occur in "
+    "many rows) and value_formats (masks of the rarer values: A upper case, a lower case, 9 digit, "
+    "+ repeats). Answer with one "
     "JSON object only, keyed by the exact key of each column, with one entry for every key and "
     'no other keys: {"<key>": {"privacy_role": ..., "subtype": ...}, ...}. privacy_role must be one of: '
     + ", ".join(sorted(PRIVACY_ROLES))
@@ -456,27 +459,40 @@ def _parse_llm_batch(text: str, keys: list[str]) -> dict[str, tuple[str, str]]:
     return out
 
 
+FREQUENT_MIN_ROWS = 5  # a value shown to the LLM must occur in at least this many rows
+
+
+def value_format(v: str) -> str:
+    """Format mask of a value: letters A or a, digits 9, other characters kept, runs shortened."""
+    m = "".join("A" if c.isupper() else "a" if c.isalpha() else "9" if c.isdigit() else c for c in v)
+    return re.sub(r"(.)\1+", r"\1+", m)
+
+
 def _table_samples(labels: list[FieldLabel], seed: int, root: Path | None
-                   ) -> dict[tuple[str, str, str], list[str]]:  # fmt: skip
-    """Up to LLM_SAMPLE_VALUES distinct values per column; each table is read once."""
-    by_table: dict[tuple[str, str], list[str]] = {}
+                   ) -> dict[tuple[str, str, str], dict[str, list[str]]]:  # fmt: skip
+    """Per column what the LLM may see: up to LLM_SAMPLE_VALUES values that occur in at least
+    FREQUENT_MIN_ROWS rows, and format masks for the rarer values. A column the rules already
+    call a direct identifier shows masks only. Each table is read once."""
+    by_table: dict[tuple[str, str], list[FieldLabel]] = {}
     for lab in labels:
-        by_table.setdefault((lab.dataset, lab.table), []).append(lab.column)
+        by_table.setdefault((lab.dataset, lab.table), []).append(lab)
     out = {}
-    for (dataset, table), cols in by_table.items():
+    for (dataset, table), labs in by_table.items():
         df = io.read_csv((root or io.data_root()) / dataset / f"{table}.csv")
-        for c in cols:
-            col = df[c][df[c].str.strip() != ""].drop_duplicates()
-            n = min(LLM_SAMPLE_VALUES, len(col))
-            vals = col.sample(n=n, random_state=seed).str.slice(0, LLM_VALUE_CHARS).tolist()
-            out[(dataset, table, c)] = vals if n else []
+        for lab in labs:
+            col = df[lab.column][df[lab.column].str.strip() != ""].str.slice(0, LLM_VALUE_CHARS)
+            counts = col.value_counts()
+            frequent = [] if lab.privacy_role == "direct_identifier" else sorted(
+                counts[counts >= FREQUENT_MIN_ROWS].index)  # fmt: skip
+            frequent = frequent[:LLM_SAMPLE_VALUES]
+            if len(frequent) > 0:
+                frequent = list(pd.Series(frequent).sample(n=len(frequent), random_state=seed))
+            rare = counts[~counts.index.isin(frequent)].index
+            masks = sorted({value_format(v) for v in rare})
+            out[(dataset, table, lab.column)] = {
+                "sample_values": frequent,
+                "value_formats": masks[:LLM_SAMPLE_VALUES]}  # fmt: skip
     return out
-
-
-def sample_values(dataset: str, table: str, column: str, seed: int, root: Path | None = None
-                  ) -> list[str]:  # fmt: skip
-    lab = FieldLabel(dataset, table, column, "non_sensitive", "OTHER", 0.0, "", "rule")
-    return _table_samples([lab], seed, root)[(dataset, table, column)]
 
 
 def llm_pass(labels: list[FieldLabel], client, seed: int, root: Path | None = None,
@@ -508,8 +524,8 @@ def llm_pass(labels: list[FieldLabel], client, seed: int, root: Path | None = No
         keys = _batch_keys(labels, batch)
         by_idx = {i: k for k, i in keys.items()}
         cols = [{"key": by_idx[i], "table": labels[i].table, "column": labels[i].column,
-                 "sample_values": samples[(labels[i].dataset, labels[i].table,
-                                           labels[i].column)]} for i in batch]  # fmt: skip
+                 **samples[(labels[i].dataset, labels[i].table, labels[i].column)]}
+                for i in batch]  # fmt: skip
         payload: dict = {"columns": cols}
         if readmes.get(labels[batch[0]].dataset):
             payload = {"dataset_description": readmes[labels[batch[0]].dataset], **payload}
