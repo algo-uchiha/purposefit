@@ -164,9 +164,18 @@ export function VerifyScreen({ data }: { data: Verify }) {
             </div>
             <div className="utility-result-bar standard">
               <span>Standard method</span>
-              <div className="utility-bar-track"><i style={{ width: `${(standard?.score ?? 0) * 100}%` }} /></div>
-              <b>{pct(standard?.score ?? null)}</b>
+              {standard?.score == null ? (
+                <b className="unmeasured-score">Could not be measured</b>
+              ) : (
+                <>
+                  <div className="utility-bar-track"><i style={{ width: `${standard.score * 100}%` }} /></div>
+                  <b>{pct(standard.score)}</b>
+                </>
+              )}
             </div>
+            {task.score != null && standard?.score != null && task.score < standard.score && (
+              <small className="muted">Slightly lower because protection removes some words.</small>
+            )}
           </article>
         ))}
       </section>

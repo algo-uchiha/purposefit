@@ -265,6 +265,11 @@ body {
   background: var(--cds-text-secondary);
 }
 
+.utility-result-bar .unmeasured-score {
+  grid-column: 2 / 4;
+  font-weight: 400;
+}
+
 .advanced-details {
   margin: 1.5rem 0;
 }
