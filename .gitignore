@@ -41,3 +41,6 @@ web/dist/
 
 # Organiser material, not redistributed
 docs/challenge/
+
+# Organiser submission: the one place row maps are committed (synthetic data, see pets_submission/README.md)
+!pets_submission/customer_service/rowmap_*.csv

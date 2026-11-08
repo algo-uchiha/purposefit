@@ -1,4 +1,416 @@
 {
- "plan_table_md": "| Table | Column | Role | Action | Level | Reason |\n| --- | --- | --- | --- | --- | --- |\n| conversations | conversation_id | record_key | keyed pseudonym |  | joins released tables; the same keyed pseudonym in every table keeps the join |\n| conversations | customer_id | technical_identifier | drop |  | technical identifier no task needs or joins on |\n| conversations | agent_id | technical_identifier | drop |  | technical identifier no task needs or joins on |\n| conversations | agent_name | direct_identifier | drop |  | direct identifier no task needs |\n| conversations | channel | non_sensitive | drop |  | no task of this scenario uses it |\n| conversations | language | quasi_identifier | drop |  | quasi-identifier no task needs |\n| conversations | started_ts | quasi_identifier | drop |  | quasi-identifier no task needs |\n| conversations | intent | non_sensitive | keep |  | used by CS-U1, CS-U3, CS-U4 |\n| conversations | sentiment | non_sensitive | drop |  | no task of this scenario uses it |\n| conversations | csat | non_sensitive | drop |  | no task of this scenario uses it |\n| conversations | resolved | non_sensitive | drop |  | no task of this scenario uses it |\n| conversations | handle_time_s | non_sensitive | keep |  | used by CS-U4 |\n| conversations | n_turns | non_sensitive | drop |  | no task of this scenario uses it |\n| conversations | split | non_sensitive | keep |  | train and eval marker; the model task chooses its training rows by it |\n| conversations | agent_note | free_text | drop |  | free text no task needs |\n| customers | customer_id | record_key | withhold (table) |  | no task of this scenario uses this table |\n| customers | customer_number | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | full_name | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | hetu | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | street_address | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | postcode | quasi_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | city | quasi_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | email | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | phone | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | preferred_language | quasi_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | customer_since | quasi_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | products | non_sensitive | withhold (table) |  | no task of this scenario uses this table |\n| customers | contract_number | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | payment_method | non_sensitive | withhold (table) |  | no task of this scenario uses this table |\n| customers | iban | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | marketing_consent | non_sensitive | withhold (table) |  | no task of this scenario uses this table |\n| customers | payment_default_flag | sensitive_attribute | withhold (table) |  | no task of this scenario uses this table |\n| customers | accessibility_needs | sensitive_attribute | withhold (table) |  | no task of this scenario uses this table |\n| turns | turn_id | record_key | keep |  | row key no other table refers to; links to nothing outside this table, rows are matched by it |\n| turns | conversation_id | technical_identifier | keyed pseudonym |  | joins released tables; the same keyed pseudonym in every table keeps the join |\n| turns | seq | non_sensitive | drop |  | no task of this scenario uses it |\n| turns | speaker | non_sensitive | drop |  | no task of this scenario uses it |\n| turns | ts | quasi_identifier | drop |  | quasi-identifier no task needs |\n| turns | text | free_text | keep for text redaction |  | used by CS-U1, CS-U5; text kept for the task |\n",
- "policy_card": null
+ "plan_table_md": "| Table | Column | Role | Action | Level | Reason |\n| --- | --- | --- | --- | --- | --- |\n| conversations | conversation_id | record_key | keyed pseudonym |  | joins released tables; the same keyed pseudonym in every table keeps the join |\n| conversations | customer_id | technical_identifier | drop |  | technical identifier no task needs or joins on |\n| conversations | agent_id | technical_identifier | drop |  | technical identifier no task needs or joins on |\n| conversations | agent_name | direct_identifier | drop |  | direct identifier no task needs |\n| conversations | channel | non_sensitive | drop |  | no task of this scenario uses it |\n| conversations | language | quasi_identifier | drop |  | quasi-identifier no task needs |\n| conversations | started_ts | quasi_identifier | drop |  | quasi-identifier no task needs |\n| conversations | intent | non_sensitive | keep |  | used by CS-U1, CS-U3, CS-U4 |\n| conversations | sentiment | non_sensitive | drop |  | no task of this scenario uses it |\n| conversations | csat | non_sensitive | drop |  | no task of this scenario uses it |\n| conversations | resolved | non_sensitive | drop |  | no task of this scenario uses it |\n| conversations | handle_time_s | non_sensitive | keep |  | used by CS-U4 |\n| conversations | n_turns | non_sensitive | drop |  | no task of this scenario uses it |\n| conversations | split | technical_identifier | keep |  | train and eval marker; the model task chooses its training rows by it |\n| conversations | agent_note | free_text | drop |  | free text no task needs |\n| customers | customer_id | record_key | withhold (table) |  | no task of this scenario uses this table |\n| customers | customer_number | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | full_name | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | hetu | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | street_address | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | postcode | quasi_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | city | quasi_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | email | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | phone | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | preferred_language | quasi_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | customer_since | quasi_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | products | quasi_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | contract_number | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | payment_method | non_sensitive | withhold (table) |  | no task of this scenario uses this table |\n| customers | iban | direct_identifier | withhold (table) |  | no task of this scenario uses this table |\n| customers | marketing_consent | non_sensitive | withhold (table) |  | no task of this scenario uses this table |\n| customers | payment_default_flag | sensitive_attribute | withhold (table) |  | no task of this scenario uses this table |\n| customers | accessibility_needs | sensitive_attribute | withhold (table) |  | no task of this scenario uses this table |\n| turns | turn_id | record_key | keep |  | row key no other table refers to; links to nothing outside this table, rows are matched by it |\n| turns | conversation_id | technical_identifier | keyed pseudonym |  | joins released tables; the same keyed pseudonym in every table keeps the join |\n| turns | seq | technical_identifier | drop |  | technical identifier no task needs or joins on |\n| turns | speaker | non_sensitive | drop |  | no task of this scenario uses it |\n| turns | ts | quasi_identifier | drop |  | quasi-identifier no task needs |\n| turns | text | free_text | keep for text redaction |  | used by CS-U1, CS-U5; text kept for the task |\n",
+ "policy_card": {
+  "scenario_id": "CS-S1",
+  "dataset": "customer_service",
+  "pseudonymisation": {
+   "secret": {
+    "key_id": "d8a26adaa22f",
+    "held_by": "controller",
+    "note": "Derived per scenario; the key itself is never in a release."
+   },
+   "domain": {
+    "recipient": "Cloud AI vendor (processor, outside the EU possible)",
+    "note": "Pseudonyms are not valid outside this recipient's release."
+   },
+   "additional_information": {
+    "held_by": "controller",
+    "kept_in": "runs/private",
+    "items": [
+     "row maps",
+     "gazetteer values"
+    ]
+   }
+  },
+  "released_tables": [
+   "conversations",
+   "turns"
+  ],
+  "fields": [
+   {
+    "table": "conversations",
+    "column": "conversation_id",
+    "action": "hmac",
+    "reason": "joins released tables; the same keyed pseudonym in every table keeps the join",
+    "guarantee": "keyed pseudonym (HMAC-SHA256); still personal data"
+   },
+   {
+    "table": "conversations",
+    "column": "customer_id",
+    "action": "drop",
+    "reason": "technical identifier no task needs or joins on",
+    "guarantee": "not released"
+   },
+   {
+    "table": "conversations",
+    "column": "agent_id",
+    "action": "drop",
+    "reason": "technical identifier no task needs or joins on",
+    "guarantee": "not released"
+   },
+   {
+    "table": "conversations",
+    "column": "agent_name",
+    "action": "drop",
+    "reason": "direct identifier no task needs",
+    "guarantee": "not released"
+   },
+   {
+    "table": "conversations",
+    "column": "channel",
+    "action": "drop",
+    "reason": "no task of this scenario uses it",
+    "guarantee": "not released"
+   },
+   {
+    "table": "conversations",
+    "column": "language",
+    "action": "drop",
+    "reason": "quasi-identifier no task needs",
+    "guarantee": "not released"
+   },
+   {
+    "table": "conversations",
+    "column": "started_ts",
+    "action": "drop",
+    "reason": "quasi-identifier no task needs",
+    "guarantee": "not released"
+   },
+   {
+    "table": "conversations",
+    "column": "intent",
+    "action": "keep",
+    "reason": "used by CS-U1, CS-U3, CS-U4",
+    "guarantee": "released as is"
+   },
+   {
+    "table": "conversations",
+    "column": "sentiment",
+    "action": "drop",
+    "reason": "no task of this scenario uses it",
+    "guarantee": "not released"
+   },
+   {
+    "table": "conversations",
+    "column": "csat",
+    "action": "drop",
+    "reason": "no task of this scenario uses it",
+    "guarantee": "not released"
+   },
+   {
+    "table": "conversations",
+    "column": "resolved",
+    "action": "drop",
+    "reason": "no task of this scenario uses it",
+    "guarantee": "not released"
+   },
+   {
+    "table": "conversations",
+    "column": "handle_time_s",
+    "action": "keep",
+    "reason": "used by CS-U4",
+    "guarantee": "released as is"
+   },
+   {
+    "table": "conversations",
+    "column": "n_turns",
+    "action": "drop",
+    "reason": "no task of this scenario uses it",
+    "guarantee": "not released"
+   },
+   {
+    "table": "conversations",
+    "column": "split",
+    "action": "keep",
+    "reason": "train and eval marker; the model task chooses its training rows by it",
+    "guarantee": "released as is"
+   },
+   {
+    "table": "conversations",
+    "column": "agent_note",
+    "action": "drop",
+    "reason": "free text no task needs",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "customer_id",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "customer_number",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "full_name",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "hetu",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "street_address",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "postcode",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "city",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "email",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "phone",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "preferred_language",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "customer_since",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "products",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "contract_number",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "payment_method",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "iban",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "marketing_consent",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "payment_default_flag",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "customers",
+    "column": "accessibility_needs",
+    "action": "withhold_table",
+    "reason": "no task of this scenario uses this table",
+    "guarantee": "not released"
+   },
+   {
+    "table": "turns",
+    "column": "turn_id",
+    "action": "keep",
+    "reason": "row key no other table refers to; links to nothing outside this table, rows are matched by it",
+    "guarantee": "released as is"
+   },
+   {
+    "table": "turns",
+    "column": "conversation_id",
+    "action": "hmac",
+    "reason": "joins released tables; the same keyed pseudonym in every table keeps the join",
+    "guarantee": "keyed pseudonym (HMAC-SHA256); still personal data"
+   },
+   {
+    "table": "turns",
+    "column": "seq",
+    "action": "drop",
+    "reason": "technical identifier no task needs or joins on",
+    "guarantee": "not released"
+   },
+   {
+    "table": "turns",
+    "column": "speaker",
+    "action": "drop",
+    "reason": "no task of this scenario uses it",
+    "guarantee": "not released"
+   },
+   {
+    "table": "turns",
+    "column": "ts",
+    "action": "drop",
+    "reason": "quasi-identifier no task needs",
+    "guarantee": "not released"
+   },
+   {
+    "table": "turns",
+    "column": "text",
+    "action": "redact",
+    "reason": "used by CS-U1, CS-U5; text kept for the task",
+    "guarantee": "free text; identifiers replaced by typed placeholders (rule redactor); leakage measured by pets-eval"
+   }
+  ],
+  "gate": {
+   "passed": true,
+   "scenario_id": "CS-S1",
+   "checks": [
+    {
+     "id": "direct_identifiers",
+     "name": "Residual direct identifiers",
+     "kind": "direct_identifiers",
+     "status": "pass",
+     "value": 0.0,
+     "threshold": 0.0,
+     "comparison": "at_most",
+     "reason": "No direct identifier is retained in any released table.",
+     "source": "pets-eval"
+    },
+    {
+     "id": "k_anonymity",
+     "name": "k-anonymity",
+     "kind": "k",
+     "status": "pass",
+     "value": null,
+     "threshold": 5,
+     "comparison": "at_least",
+     "reason": "No quasi-identifier is released, so there is nothing to group.",
+     "source": "plan"
+    },
+    {
+     "id": "risk_vs_baseline",
+     "name": "Risk components against B2-k",
+     "kind": "baseline",
+     "status": "pass",
+     "value": 0,
+     "threshold": 0,
+     "comparison": "at_most",
+     "reason": "All 4 shared risk components are lower than B2-k's, or zero where B2-k is also zero.",
+     "source": "pets-eval",
+     "details": [
+      {
+       "name": "conversations: direct identifiers retained",
+       "ours": 0.0,
+       "baseline": 0.0,
+       "ok": true
+      },
+      {
+       "name": "conversations: free-text identifier leakage",
+       "ours": 0.0,
+       "baseline": 0.8286,
+       "ok": true
+      },
+      {
+       "name": "turns: direct identifiers retained",
+       "ours": 0.0,
+       "baseline": 0.0,
+       "ok": true
+      },
+      {
+       "name": "turns: free-text identifier leakage",
+       "ours": 0.0086,
+       "baseline": 0.8012,
+       "ok": true
+      }
+     ]
+    },
+    {
+     "id": "text_leakage",
+     "name": "Identifying leakage in free text",
+     "kind": "text",
+     "status": "pass",
+     "value": 0.0086,
+     "threshold": 0.1,
+     "comparison": "at_most",
+     "reason": "Identifying leakage is 0.009 in turns.text, within the limit of 0.10.",
+     "source": "pets-eval"
+    }
+   ],
+   "blocking": []
+  },
+  "residual_risks": [
+   {
+    "id": "pseudonymised_is_personal_data",
+    "text": "Pseudonymised data is still personal data (GDPR Recital 26).",
+    "source": "docs/FACTS.md"
+   },
+   {
+    "id": "leak.date",
+    "text": "DATE values still recoverable in the released text: 90.7% of 2837 (pets-eval).",
+    "source": "pets-eval"
+   },
+   {
+    "id": "leak.location",
+    "text": "LOCATION values still recoverable in the released text: 86.9% of 1281 (pets-eval).",
+    "source": "pets-eval"
+   },
+   {
+    "id": "leak.org",
+    "text": "ORG values still recoverable in the released text: 86.8% of 1351 (pets-eval).",
+    "source": "pets-eval"
+   },
+   {
+    "id": "leak.secret",
+    "text": "SECRET values still recoverable in the released text: 7.3% of 466 (pets-eval).",
+    "source": "pets-eval"
+   },
+   {
+    "id": "leak.national_id",
+    "text": "NATIONAL_ID values still recoverable in the released text: 5.3% of 5120 (pets-eval).",
+    "source": "pets-eval"
+   }
+  ],
+  "headline_label": "self-assessment, not the official judging score",
+  "note": "Pseudonymised data is still personal data (GDPR Recital 26)."
+ }
 }

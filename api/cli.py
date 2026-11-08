@@ -16,6 +16,7 @@ import re
 import subprocess  # nosec B404 (fixed git command, no shell, no user input)
 import sys
 import time
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -52,6 +53,25 @@ def key_id(key: str) -> str:
     return hmac.new(key.encode(), b"purposefit-key-id", hashlib.sha256).hexdigest()[:12]
 
 
+def git_dirty() -> bool:
+    try:
+        out = subprocess.run(  # nosec B603 B607 (fixed git command, no shell)
+            ["git", "status", "--porcelain", "--untracked-files=no"], capture_output=True,
+            text=True, timeout=10, cwd=PROJECT_ROOT, check=False)  # fmt: skip
+        return bool(out.stdout.strip())
+    except (OSError, subprocess.SubprocessError):
+        return True
+
+
+def update_manifest(run_path: Path, **fields: object) -> None:
+    """Add facts learned in a later stage (key ids, LLM answer fingerprint) to 00_manifest.json."""
+    f = run_path / "00_manifest.json"
+    if f.exists():
+        m = json.loads(f.read_text(encoding="utf-8"))
+        m.update(fields)
+        f.write_text(json.dumps(m, indent=2), encoding="utf-8")
+
+
 def git_hash() -> str:
     try:
         out = subprocess.run(  # nosec B603 B607
@@ -84,6 +104,7 @@ def build_manifest(args: argparse.Namespace, key: str) -> dict:
         "run_id": args.run,
         "created_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "git_hash": git_hash(),
+        "git_dirty": git_dirty(),
         "key_id": key_id(key),
         "seed": args.seed,
         "llm": {"provider": provider, "model": model},
@@ -138,9 +159,11 @@ def cmd_detect(args: argparse.Namespace, key: str) -> int:
             log.warning(json.dumps({"run_id": args.run, "stage": "detect",
                                     "event": "llm_unavailable"}))  # fmt: skip
             unavailable = True
-    labels, stats, findings = det.detect_pipeline(profiles, args.seed, client)
+    labels, stats, findings = det.detect_pipeline(profiles, args.seed, client, use_cache=not args.no_llm_cache)
     if unavailable:
         stats = {"status": "unavailable"}
+    if client is not None:
+        update_manifest(run_path, llm_answers_detect=client.fingerprint())
     (run_path / "02_findings.json").write_text(json.dumps(findings, indent=2), encoding="utf-8")
     det.write_labels(labels, run_path / "02_labels.csv")
     det.write_label_details(labels, run_path / "02_labels_detail.json")
@@ -170,10 +193,14 @@ def cmd_plan(args: argparse.Namespace, key: str) -> int:
     labels = [FieldLabel(**d) for d in json.loads(
         (run_path / "02_labels_detail.json").read_text(encoding="utf-8"))]  # fmt: skip
     profiles = read_profiles(run_path / "01_profiles.json")
+    from api.pipeline.transform import derive_key
+
     scenario = pl.load_scenario(args.scenario)
+    # The plan records the id of the key derived for this scenario, never a key.
     plan = pl.build_plan(scenario, labels, profiles, pl.load_tasks(scenario["dataset"]),
-                         key_id(key))  # fmt: skip
+                         key_id(derive_key(key, scenario["id"])))  # fmt: skip
     pl.write_plan(plan, run_path / "03_plan.json")
+    update_manifest(run_path, scenario_id=scenario["id"], derived_key_id=plan.key_id)
     return 0
 
 
@@ -199,6 +226,90 @@ def cmd_transform(args: argparse.Namespace, key: str) -> int:
     return 0
 
 
+def _speaker_groups(table: str, df, key: str | None, dataset: str):
+    """(conversation, speaker) per record, from the controller's own table, when it has both."""
+    from api.pipeline import io
+
+    f = io.data_root() / dataset / f"{table}.csv"
+    if key is None or not f.exists():
+        return None
+    head = io.read_csv(f, nrows=1)
+    if not {"speaker", "conversation_id", key} <= set(head.columns):
+        return None
+    orig = io.read_csv(f)[[key, "speaker", "conversation_id"]].set_index(key)
+    conv = dict(zip(df[key], df["conversation_id"], strict=True)) if "conversation_id" in df else {}
+    known = set(orig.index)
+    return {k: (conv.get(k, orig.at[k, "conversation_id"]), orig.at[k, "speaker"])
+            for k in df[key] if k in known}  # fmt: skip
+
+
+def cmd_redact(args: argparse.Namespace, key: str) -> int:
+    """Stage 5: redact the text columns the plan marks `redact`, in the release files."""
+    import time
+
+    import pandas as pd
+
+    from api.pipeline import io
+    from api.pipeline import plan as pl
+    from api.pipeline import redact as rd
+
+    run_path = runs_dir() / args.run
+    _need(run_path / "03_plan.json", "plan")
+    _need(run_path / "04_release", "transform")
+    plan = pl.read_plan(run_path / "03_plan.json")
+    layers = rd.Layers(patterns=not args.no_patterns, normalise=not args.no_normalise,
+                       controller=not (args.no_controller or args.no_gazetteer),
+                       dvv=not (args.no_dvv or args.no_gazetteer), cues=not args.no_cues,
+                       health=not (args.no_health or args.no_llm))  # fmt: skip
+    client = None
+    if layers.health:
+        from api.pipeline import llm as llm_mod
+
+        try:
+            client = llm_mod.get_client()
+            if not client.enabled:
+                layers = replace(layers, health=False)
+        except llm_mod.LLMError:
+            log.warning(json.dumps({"run_id": args.run, "stage": "redact", "event": "llm_unavailable"}))
+            layers = replace(layers, health=False)
+    private = runs_dir() / "private" / args.run
+    t0 = time.monotonic()
+    total: dict[str, int] = {}
+    health_stats: dict = {}
+    rows = 0
+    with (run_path / "05_spans.jsonl").open("w", encoding="utf-8") as out:
+        for pol in plan.policies:
+            if pol.action != "redact":
+                continue
+            f = run_path / "04_release" / f"{pol.table}.csv"
+            if not f.exists():
+                continue
+            df = io.read_csv(f)
+            keys = [c for c in df.columns if c.endswith("_id") and df[c].is_unique]
+            texts = {(df[keys[0]][i] if keys else str(i)): df[pol.column][i] for i in range(len(df))}
+            groups = _speaker_groups(pol.table, df, keys[0] if keys else None, plan.dataset)
+            res = rd.redact(texts, plan, private_dir=private, layers=layers, client=client,
+                            groups=groups)  # fmt: skip
+            mapped = df[keys[0]] if keys else pd.Series([str(i) for i in range(len(df))])
+            df[pol.column] = [res.redacted[k] for k in mapped]
+            df.to_csv(f, index=False)
+            for rid, spans in res.spans.items():
+                for sp, src in zip(spans, res.sources[rid], strict=True):
+                    out.write(json.dumps({"table": pol.table, "column": pol.column, **sp.to_dict(),
+                                          "source": src}) + "\n")  # fmt: skip
+            rows += len(df)
+            for k, v in res.stats["by_layer"].items():
+                total[k] = total.get(k, 0) + v
+            if res.stats.get("health"):
+                health_stats = res.stats["health"]
+    stats = {"records": rows, "layers": layers.names(), "spans_by_layer": total, "health": health_stats,
+             "duration_ms": int((time.monotonic() - t0) * 1000)}  # fmt: skip
+    (run_path / "05_redact_stats.json").write_text(json.dumps(stats, indent=2), encoding="utf-8")
+    if client is not None and layers.health:
+        update_manifest(run_path, llm_answers_redact=client.fingerprint())
+    return 0
+
+
 def cmd_verify(args: argparse.Namespace, key: str) -> int:
     from api.pipeline import plan as pl
     from api.pipeline import verify as vf
@@ -214,6 +325,16 @@ def cmd_verify(args: argparse.Namespace, key: str) -> int:
                              k=plan.k if ks else None,
                              k_pycanon=min(kp) if kp else None, note=args.note)  # fmt: skip
     vf.append_leaderboard(runs_dir() / "leaderboard.csv", row)
+    baseline = vf.baseline_scorecard(runs_dir(), plan.scenario_id)
+    if baseline is not None:  # a copy beside the run, so the API never reads runs/private
+        (run_path / "06_scorecard_b2k.json").write_text(json.dumps(baseline, indent=1), encoding="utf-8")
+    gate = vf.build_gate(rep, baseline,
+                         [p.to_dict() for p in plan.policies], plan.scenario_id)
+    (run_path / "06_gate.json").write_text(json.dumps(gate, indent=1) + "\n", encoding="utf-8")
+    from api.pipeline import views
+
+    views.write_policy_card(run_path)
+    print(json.dumps({"gate_passed": gate["passed"], "blocking": gate["blocking"]}))
     print(json.dumps({c: row[c] for c in ("scenario", "privacy", "utility", "composite",
                                           "worst_risk", "k", "k_pycanon")}))  # fmt: skip
     return 0
@@ -231,7 +352,7 @@ def cmd_report(args: argparse.Namespace, key: str) -> int:
 
 
 HANDLERS = {"run": cmd_run, "profile": cmd_profile, "detect": cmd_detect, "plan": cmd_plan,
-            "transform": cmd_transform, "verify": cmd_verify, "report": cmd_report}
+            "transform": cmd_transform, "redact": cmd_redact, "verify": cmd_verify, "report": cmd_report}
 
 
 def parser() -> argparse.ArgumentParser:
@@ -249,7 +370,14 @@ def parser() -> argparse.ArgumentParser:
         if stage == "detect":
             s.add_argument("--llm", action="store_true",
                            help="send low-confidence columns to the LLM (off by default)")
+            s.add_argument("--no-llm-cache", action="store_true",
+                           help="ask the LLM again instead of reading cached answers")
             s.add_argument("--unseen-out", help="also write column,privacy_role,subtype here")
+        if stage == "redact":
+            s.add_argument("--no-health", action="store_true",
+                           help="switch off the LLM health layer (also off with --no-llm)")
+            for flag in ("patterns", "normalise", "controller", "dvv", "cues"):
+                s.add_argument(f"--no-{flag}", action="store_true", help=f"switch off the {flag} layer")
         if stage == "plan":
             s.add_argument("--scenario", required=True, help="scenario id, e.g. CS-S1")
         if stage == "verify":
@@ -276,8 +404,11 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print(f"Stage {args.stage} is not built yet.", file=sys.stderr)
         code = 3
-    log.info(json.dumps({"run_id": args.run, "stage": args.stage, "exit": code,
-                         "duration_ms": int((time.monotonic() - start) * 1000)}))  # fmt: skip
+    ms = int((time.monotonic() - start) * 1000)
+    log.info(json.dumps({"run_id": args.run, "stage": args.stage, "exit": code, "duration_ms": ms}))
+    if code == 0 and (runs_dir() / args.run / "00_manifest.json").exists():
+        m = json.loads((runs_dir() / args.run / "00_manifest.json").read_text(encoding="utf-8"))
+        update_manifest(runs_dir() / args.run, stage_ms={**m.get("stage_ms", {}), args.stage: ms})
     return code
 
 

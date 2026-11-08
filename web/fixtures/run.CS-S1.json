@@ -1,20 +1,21 @@
 {
- "run_id": "p4-CS-S1",
+ "run_id": "final-CS-S1",
  "dataset": "customer_service",
  "scenario_id": "CS-S1",
  "status": "done",
- "created_utc": "2026-11-07T23:40:04+00:00",
- "git_hash": "8c60fac",
+ "created_utc": "2026-11-08T02:00:47+00:00",
+ "git_hash": "4d1b250",
  "key_id": "39ffd61450cc",
+ "derived_key_id": "d8a26adaa22f",
  "seed": 20261107,
  "llm": {
-  "provider": "none",
-  "model": "none"
+  "provider": "gemini",
+  "model": "gemini-3.6-flash"
  },
  "layers": {
-  "llm": false,
-  "ner": false,
-  "gazetteer": false
+  "llm": true,
+  "ner": true,
+  "gazetteer": true
  },
  "stages": [
   {
@@ -40,12 +41,12 @@
   {
    "stage": "transform",
    "status": "done",
-   "duration_ms": 942
+   "duration_ms": 1273
   },
   {
    "stage": "redact",
-   "status": "pending",
-   "duration_ms": null
+   "status": "done",
+   "duration_ms": 174975
   },
   {
    "stage": "verify",
@@ -59,15 +60,13 @@
   }
  ],
  "gate": {
-  "passed": false,
-  "blocking": [
-   "risk.turns_free_text_identifier_leakage"
-  ]
+  "passed": true,
+  "blocking": []
  },
  "headline": {
-  "privacy": 0.375,
-  "utility": 1.0,
-  "composite": 0.5238
+  "privacy": 0.9946,
+  "utility": 0.972,
+  "composite": 0.9842
  },
  "error": null
 }

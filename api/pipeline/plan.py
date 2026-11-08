@@ -37,7 +37,7 @@ GUARANTEE = {
     "withhold_table": "not released",
     "hmac": "keyed pseudonym (HMAC-SHA256); still personal data",
     "generalise": "coarsened to a fixed level; checked for k >= 5",
-    "redact": "free text; identifiers to be removed by the text redactor (not yet built)",
+    "redact": "free text; identifiers replaced by typed placeholders (rule redactor); leakage measured by pets-eval",
     "suppress_k": "k-anonymity on the kept quasi-identifiers",
 }
 

@@ -98,31 +98,81 @@ def _write_table(tmp_path, n_cols):
     return det.detect(prof.profile_dataset("ds", 1, tmp_path))
 
 
+def _answer(keys, role="non_sensitive", sub="CATEGORY"):
+    return {k: {"privacy_role": role, "subtype": sub} for k in keys}
+
+
 def test_llm_answers_accepted_only_if_in_taxonomy(tmp_path):
     labels = _write_table(tmp_path, 3)
     low = [i for i, lab in enumerate(labels) if lab.confidence < det.LLM_CONFIDENCE_THRESHOLD]
     assert len(low) == 3
 
     def reply(cols):
-        a, b, _c = (x["id"] for x in cols)
-        return json.dumps([
-            {"id": a, "privacy_role": "sensitive_attribute", "subtype": "SOCIAL_DATA"},
-            {"id": b, "privacy_role": "pii", "subtype": "SOCIAL_DATA"},
-            {"id": 999, "privacy_role": "free_text", "subtype": "FREE_TEXT"},
-        ])  # c missing, 999 unknown
+        a, b, c = (x["key"] for x in cols)
+        return json.dumps({a: {"privacy_role": "sensitive_attribute", "subtype": "SOCIAL_DATA"},
+                           b: {"privacy_role": "pii", "subtype": "SOCIAL_DATA"},
+                           c: {"privacy_role": "free_text", "subtype": "FREE_TEXT"}})
 
     client = FakeClient(reply)
     out, stats = det.llm_pass(labels, client, 1, tmp_path)
-    assert (stats["sent"], stats["calls"], stats["accepted"], stats["rejected"]) == (3, 1, 1, 2)
+    assert (stats["sent"], stats["calls"], stats["accepted"], stats["rejected"]) == (3, 1, 2, 1)
     assert (out[low[0]].privacy_role, out[low[0]].source) == ("sensitive_attribute", "llm")
-    assert out[low[1]] == labels[low[1]] and out[low[2]] == labels[low[2]]
+    assert out[low[1]] == labels[low[1]] and out[low[2]].subtype == "FREE_TEXT"
     assert all(len(c["sample_values"]) <= 20 for p in client.prompts for c in p["columns"])
+
+
+def test_llm_answers_are_mapped_by_column_name_not_by_position(tmp_path):
+    labels = _write_table(tmp_path, 4)
+    kinds = {"x00": ("sensitive_attribute", "HEALTH_DATA"), "x01": ("direct_identifier", "EMAIL"),
+             "x02": ("quasi_identifier", "AGE"), "x03": ("free_text", "FREE_TEXT")}  # fmt: skip
+
+    def shuffled(cols):
+        reply = {c["key"]: dict(zip(("privacy_role", "subtype"), kinds[c["column"]], strict=True))
+                 for c in cols}  # fmt: skip
+        return json.dumps(dict(reversed(list(reply.items()))))  # a different order than asked
+
+    out, stats = det.llm_pass(labels, FakeClient(shuffled), 1, tmp_path)
+    assert stats["accepted"] == 4
+    for lab in out:
+        if lab.column in kinds:
+            assert (lab.privacy_role, lab.subtype) == kinds[lab.column]
+
+
+@pytest.mark.parametrize("bad", ["unknown", "missing", "extra"])
+def test_llm_batch_with_wrong_names_is_rejected_whole(tmp_path, bad):
+    labels = _write_table(tmp_path, 3)
+
+    def reply(cols):
+        keys = [c["key"] for c in cols]
+        if bad == "unknown":
+            keys[0] = "c99"
+        elif bad == "missing":
+            keys = keys[:-1]
+        else:
+            keys.append("x99")
+        return json.dumps(_answer(keys, "sensitive_attribute", "SOCIAL_DATA"))
+
+    out, stats = det.llm_pass(labels, FakeClient(reply), 1, tmp_path)
+    assert out == labels and stats["accepted"] == 0 and stats["rejected"] == 3
+
+
+def test_llm_cache_can_be_bypassed(tmp_path):
+    labels = _write_table(tmp_path, 2)
+    seen = []
+
+    class Spy(FakeClient):
+        def complete(self, prompt, **kw):
+            seen.append(kw["use_cache"])
+            return super().complete(prompt, **kw)
+
+    det.llm_pass(labels, Spy(lambda cols: json.dumps(_answer([c["key"] for c in cols]))), 1,
+                 tmp_path, use_cache=False)
+    assert seen == [False]
 
 
 def test_llm_batches_of_twenty_with_output_cap(tmp_path):
     labels = _write_table(tmp_path, 45)
-    client = FakeClient(lambda cols: json.dumps(
-        [{"id": c["id"], "privacy_role": "non_sensitive", "subtype": "CATEGORY"} for c in cols]))
+    client = FakeClient(lambda cols: json.dumps(_answer([c["key"] for c in cols])))
     _out, stats = det.llm_pass(labels, client, 1, tmp_path)
     sizes = sorted(len(p["columns"]) for p in client.prompts)
     assert sizes == [5, 20, 20] and stats["calls"] == 3 and stats["accepted"] == 45
@@ -148,7 +198,7 @@ def test_llm_failure_keeps_rule_labels(tmp_path):
 
 def test_high_confidence_columns_never_reach_llm():
     labels = det.detect(prof.profile_table("d", "t", pd.DataFrame({"email": ["a@b.fi"] * 5}), 1))
-    client = FakeClient(lambda cols: "[]")
+    client = FakeClient(lambda cols: "{}")
     out, stats = det.llm_pass(labels, client, 1)
     assert stats["sent"] == 0 and out == labels and client.prompts == []
 
@@ -251,6 +301,33 @@ def test_dependency_on_sensitive_column(tmp_path):
     assert "union_code" in got["c9"].reason and findings[-1]["kind"] == "dependency"
 
 
+def test_dependency_runs_after_the_llm_and_sees_its_sensitive_labels(tmp_path):
+    n = 200
+    note = ["x" if i % 3 else "" for i in range(n)]
+    df = pd.DataFrame({"row_id": [str(i) for i in range(n)], "c13": note,
+                       "c14": ["12,50" if v else "0,00" for v in note]})  # fmt: skip
+    d = tmp_path / "ds"
+    d.mkdir()
+    df.to_csv(d / "t.csv", index=False)
+    profiles = prof.profile_dataset("ds", 1, tmp_path)
+
+    labels, _, findings = det.detect_pipeline(profiles, 1, _Pair(), tmp_path)
+    got = {x.column: x for x in labels}
+    assert got["c13"].source == "llm" and got["c14"].privacy_role == "sensitive_attribute"
+    assert "[dependency]" in got["c14"].reason and findings[-1]["kind"] == "dependency"
+
+
+class _Pair(FakeClient):
+    def __init__(self):
+        super().__init__(None)
+
+    def complete(self, prompt, **kw):
+        cols = json.loads(prompt)["columns"]
+        kind = {"c13": ("sensitive_attribute", "SOCIAL_DATA"), "c14": ("quasi_identifier", "AGE")}
+        return FakeResp(json.dumps({c["key"]: dict(zip(("privacy_role", "subtype"), kind[c["column"]],
+                                                       strict=True)) for c in cols if c["column"] in kind}))
+
+
 def test_dependency_never_relabels_an_identifier(tmp_path):
     n = 200
     hr = ["80" if i % 3 else "" for i in range(n)]
@@ -278,7 +355,7 @@ def test_llm_prompt_carries_readme(tmp_path):
         d / "t.csv", index=False)
     (d / "README.md").write_text("Care company HR export.", encoding="utf-8")
     labels = det.detect(prof.profile_dataset("ds", 1, tmp_path))
-    client = FakeClient(lambda cols: "[]")
+    client = FakeClient(lambda cols: "{}")
     det.llm_pass(labels, client, 1, tmp_path)
     assert client.prompts[0]["dataset_description"] == "Care company HR export."
     assert "trade union" in det.LLM_SYSTEM and "shift" in det.LLM_SYSTEM
@@ -298,3 +375,21 @@ def test_numeric_duration_is_not_a_quasi_identifier():
                       {"integer": 1.0, "decimal": 1.0})  # fmt: skip
     r = det.classify(p, 3)
     assert (r.role, r.subtype, r.family) == ("non_sensitive", "DURATION", "name_duration")
+
+
+def test_llm_sees_only_frequent_values_and_masks_for_the_rest(tmp_path):
+    d = tmp_path / "ds"
+    d.mkdir()
+    pd.DataFrame({"row_id": [str(i) for i in range(40)],
+                  "c1": ["red"] * 10 + ["blue"] * 10 + [f"Maija{i:02d}x" for i in range(20)],
+                  "c2": ["Mäkinen Mika"] * 6 + [f"Nimi{i}" for i in range(34)]}).to_csv(d / "t.csv", index=False)  # fmt: skip
+    from api.pipeline.contracts import FieldLabel
+
+    labs = [FieldLabel("ds", "t", "c1", "non_sensitive", "OTHER", 0.3, "x", "rule"),
+            FieldLabel("ds", "t", "c2", "direct_identifier", "PERSON_NAME", 0.3, "x", "rule")]
+    got = det._table_samples(labs, 1, tmp_path)
+    c1, c2 = got[("ds", "t", "c1")], got[("ds", "t", "c2")]
+    assert sorted(c1["sample_values"]) == ["blue", "red"] and c1["value_formats"] == ["Aa+9+a"]
+    assert c2["sample_values"] == []  # a direct identifier column shows masks only
+    assert "Mäkinen Mika" not in json.dumps({"|".join(k): v for k, v in got.items()}, ensure_ascii=False) and "Maija01x" not in json.dumps({"|".join(k): v for k, v in got.items()}, ensure_ascii=False)
+    assert det.value_format("040 123 4567") == "9+ 9+ 9+" or det.value_format("040 123 4567") == "999 999 9+"

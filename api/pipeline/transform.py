@@ -18,38 +18,61 @@ from pathlib import Path
 
 import pandas as pd
 
+from api.pipeline import config, io
 from api.pipeline import generalise as gen
-from api.pipeline import io
 from api.pipeline.contracts import FieldPolicy, PolicyPlan
 
 log = logging.getLogger("purposefit.transform")
 
-TOKEN_HEX = 20
+PREFIXES = {"conversation_id": "cv", "customer_id": "cu", "patient_id": "pt", "account_id": "ac",
+            "employee_id": "em", "student_id": "st", "card_id": "cd", "device_id": "dv",
+            "session_id": "ss", "user_id": "us", "turn_id": "tn"}  # fmt: skip
 
 
-def pseudonym(key: str, value: str) -> str:
-    """Keyed pseudonym of one value. Equal inputs give equal outputs in every table."""
+def prefix_for(column: str) -> str:
+    """Two lowercase letters naming the column, never digits, so a pseudonym cannot pass for
+    a phone number, card or other identifier. Known columns use PREFIXES; others take the
+    first two letters of the name."""
+    known = PREFIXES.get(column.strip().lower())
+    if known:
+        return known
+    letters = [c for c in column.lower() if "a" <= c <= "z"]
+    return ("".join(letters[:2]) or "id").ljust(2, "x")
+
+
+def derive_key(master_key: str, scenario_id: str) -> str:
+    """Per-recipient key: HMAC(master, "purposefit-v1|" + scenario id). The same id gets
+    different pseudonyms in two scenarios, so two recipients cannot link their releases."""
+    return hmac.new(master_key.encode(), f"purposefit-v1|{scenario_id}".encode(),
+                    hashlib.sha256).hexdigest()  # fmt: skip
+
+
+def pseudonym(key: str, value: str, column: str = "id") -> str:
+    """Keyed pseudonym of one value: a letter prefix per column, then lowercase hex.
+    Equal inputs give equal outputs in every table that uses the same column name."""
     v = value.strip()
     if not v:
         return ""
-    return hmac.new(key.encode(), v.encode("utf-8"), hashlib.sha256).hexdigest()[:TOKEN_HEX]
+    digest = hmac.new(key.encode(), v.encode("utf-8"), hashlib.sha256).hexdigest()
+    return f"{prefix_for(column)}_{digest[:config.PSEUDONYM_HEX]}"
 
 
 def _apply_column(col: pd.Series, p: FieldPolicy, key: str) -> pd.Series:
     if p.action == "hmac":
-        return col.map(lambda v: pseudonym(key, v))
+        return col.map(lambda v: pseudonym(key, v, p.column))
     if p.action == "generalise":
         return gen.apply_level(col, p.params["level"])
     return col
 
 
-def apply_plan(plan: PolicyPlan, run_path: Path, private_dir: Path, key: str,
+def apply_plan(plan: PolicyPlan, run_path: Path, private_dir: Path, key: str,  # master key
                root: Path | None = None,
                utility: Callable[[dict[str, pd.DataFrame]], float | None] | None = None,
                ) -> tuple[PolicyPlan, dict]:  # fmt: skip
     """`utility` scores a candidate release (dict of tables) for the level search; without it
     the search keeps the qualifying combination with the fewest suppressed rows, then the finest."""
     t0 = time.monotonic()
+    key = derive_key(key, plan.scenario_id)  # callers pass the master key
     base = (root or io.data_root()) / plan.dataset
     release = run_path / "04_release"
     release.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,11 @@
+.git
+.venv
+runs
+vendor
+.env
+**/__pycache__
+web/node_modules
+web/dist
+pets_submission
+tests
+spike

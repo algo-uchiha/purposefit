@@ -56,11 +56,7 @@
      "identifying_leakage_rate": 0.0
     }
    },
-   "regex_residuals": {
-    "conversation_id": {
-     "PHONE": 2
-    }
-   },
+   "regex_residuals": {},
    "risks": {
     "direct identifiers retained": 0.0,
     "free-text identifier leakage": 0.0
@@ -94,129 +90,115 @@
    "free_text": {
     "text": {
      "evaluated": true,
-     "leakage_rate": 1.0,
-     "leakage_rate_chars": 1.0,
-     "identifying_leakage_rate": 1.0,
+     "leakage_rate": 0.1086,
+     "leakage_rate_chars": 0.066,
+     "identifying_leakage_rate": 0.0086,
      "per_label": {
       "ACCOUNT_NUMBER": {
        "n": 3967,
-       "leaked": 3967,
-       "rate": 1.0
+       "leaked": 0,
+       "rate": 0.0
       },
       "ADDRESS": {
        "n": 2388,
-       "leaked": 2388,
-       "rate": 1.0
+       "leaked": 0,
+       "rate": 0.0
       },
       "DATE": {
        "n": 2837,
-       "leaked": 2837,
-       "rate": 1.0
+       "leaked": 2574,
+       "rate": 0.9073
       },
       "DEVICE_ID": {
        "n": 572,
-       "leaked": 572,
-       "rate": 1.0
+       "leaked": 0,
+       "rate": 0.0
       },
       "EMAIL": {
        "n": 1999,
-       "leaked": 1999,
-       "rate": 1.0
+       "leaked": 0,
+       "rate": 0.0
       },
       "HEALTH": {
        "n": 700,
-       "leaked": 700,
-       "rate": 1.0
+       "leaked": 0,
+       "rate": 0.0
       },
       "IBAN": {
        "n": 1473,
-       "leaked": 1473,
-       "rate": 1.0
+       "leaked": 0,
+       "rate": 0.0
       },
       "IP_ADDRESS": {
        "n": 356,
-       "leaked": 356,
-       "rate": 1.0
+       "leaked": 0,
+       "rate": 0.0
       },
       "LICENSE_PLATE": {
        "n": 27,
-       "leaked": 27,
-       "rate": 1.0
+       "leaked": 0,
+       "rate": 0.0
       },
       "LOCATION": {
        "n": 1281,
-       "leaked": 1281,
-       "rate": 1.0
+       "leaked": 1113,
+       "rate": 0.8689
       },
       "NATIONAL_ID": {
        "n": 5120,
-       "leaked": 5120,
-       "rate": 1.0
+       "leaked": 270,
+       "rate": 0.0527
       },
       "ORG": {
        "n": 1351,
-       "leaked": 1351,
-       "rate": 1.0
+       "leaked": 1172,
+       "rate": 0.8675
       },
       "PAYMENT_CARD": {
        "n": 856,
-       "leaked": 856,
-       "rate": 1.0
+       "leaked": 2,
+       "rate": 0.0023
       },
       "PERSON": {
        "n": 19843,
-       "leaked": 19843,
-       "rate": 1.0
+       "leaked": 20,
+       "rate": 0.001
       },
       "PHONE": {
        "n": 4217,
-       "leaked": 4217,
-       "rate": 1.0
+       "leaked": 31,
+       "rate": 0.0074
       },
       "PROPERTY_ID": {
        "n": 103,
-       "leaked": 103,
-       "rate": 1.0
+       "leaked": 0,
+       "rate": 0.0
       },
       "SECRET": {
        "n": 466,
-       "leaked": 466,
-       "rate": 1.0
+       "leaked": 34,
+       "rate": 0.073
       },
       "URL": {
        "n": 440,
-       "leaked": 440,
-       "rate": 1.0
+       "leaked": 0,
+       "rate": 0.0
       },
       "USERNAME": {
        "n": 62,
-       "leaked": 62,
-       "rate": 1.0
+       "leaked": 2,
+       "rate": 0.0323
       }
      },
      "n_values": 48058
     }
    },
-   "regex_residuals": {
-    "conversation_id": {
-     "PHONE": 12
-    },
-    "text": {
-     "NATIONAL_ID": 379,
-     "IBAN": 145,
-     "PAYMENT_CARD": 77,
-     "IMEI": 52,
-     "EMAIL": 186,
-     "PHONE": 547,
-     "IP_ADDRESS": 54,
-     "LICENSE_PLATE": 1
-    }
-   },
+   "regex_residuals": {},
    "risks": {
     "direct identifiers retained": 0.0,
-    "free-text identifier leakage": 1.0
+    "free-text identifier leakage": 0.0086
    },
-   "seconds": 0.9
+   "seconds": 1.1
   }
  },
  "extra_protected_files": [],
@@ -227,11 +209,11 @@
    "kind": "model",
    "description": "Intent classifier (TF-IDF + logistic regression) trained on protected train text, tested on original eval text.",
    "required": true,
-   "score": 1.0,
+   "score": 0.9994016942136873,
    "metric": "macro-F1 ratio (protected-trained / original-trained) on original eval",
    "detail": {
     "f1_original": 0.9452,
-    "f1_protected": 0.9452
+    "f1_protected": 0.9447
    }
   },
   {
@@ -264,17 +246,17 @@
    "kind": "text",
    "description": "Ordinary vocabulary retained in text (redaction should remove identifiers, not meaning).",
    "required": true,
-   "score": 1.0,
+   "score": 0.8884392343816707,
    "metric": "share of common (non-identifying) word tokens retained, matched by turn_id",
    "detail": {
-    "retained": 1.0
+    "retained": 0.8884
    }
   }
  ],
  "summary": {
-  "privacy": 0.375,
-  "utility": 1.0,
-  "composite": 0.5238,
+  "privacy": 0.9946,
+  "utility": 0.972,
+  "composite": 0.9842,
   "label": "self-assessment, not the official judging score",
   "method": "privacy = 1 - (0.5*worst + 0.5*mean risk); utility = mean task score (required unanswerable = 0); composite = weighted harmonic mean (privacy 30, utility 25)"
  },
@@ -282,6 +264,6 @@
   "conversations: direct identifiers retained": 0.0,
   "conversations: free-text identifier leakage": 0.0,
   "turns: direct identifiers retained": 0.0,
-  "turns: free-text identifier leakage": 1.0
+  "turns: free-text identifier leakage": 0.0086
  }
 }

@@ -162,7 +162,7 @@
    "action": "drop",
    "params": {
     "role": "non_sensitive",
-    "subtype": "MEASUREMENT",
+    "subtype": "AGGREGATE",
     "gazetteer": false
    },
    "reason": "no task of this scenario uses it",
@@ -173,8 +173,8 @@
    "column": "split",
    "action": "keep",
    "params": {
-    "role": "non_sensitive",
-    "subtype": "CATEGORY"
+    "role": "technical_identifier",
+    "subtype": "OTHER"
    },
    "reason": "train and eval marker; the model task chooses its training rows by it",
    "guarantee": "released as is"
@@ -328,7 +328,7 @@
    "column": "products",
    "action": "withhold_table",
    "params": {
-    "role": "non_sensitive",
+    "role": "quasi_identifier",
     "subtype": "CATEGORY",
     "gazetteer": false
    },
@@ -436,11 +436,11 @@
    "column": "seq",
    "action": "drop",
    "params": {
-    "role": "non_sensitive",
-    "subtype": "MEASUREMENT",
+    "role": "technical_identifier",
+    "subtype": "OTHER",
     "gazetteer": false
    },
-   "reason": "no task of this scenario uses it",
+   "reason": "technical identifier no task needs or joins on",
    "guarantee": "not released"
   },
   {
@@ -480,9 +480,9 @@
     ]
    },
    "reason": "used by CS-U1, CS-U5; text kept for the task",
-   "guarantee": "free text; identifiers to be removed by the text redactor (not yet built)"
+   "guarantee": "free text; identifiers replaced by typed placeholders (rule redactor); leakage measured by pets-eval"
   }
  ],
  "k": 1,
- "key_id": "39ffd61450cc"
+ "key_id": "d8a26adaa22f"
 }

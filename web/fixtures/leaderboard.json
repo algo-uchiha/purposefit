@@ -1,28 +1,134 @@
 [
  {
-  "created_utc": "2026-11-07T23:20:57+00:00",
-  "run_id": "p3-CS-S1",
-  "git_hash": "034bc5e",
+  "created_utc": "2026-11-08T02:04:55+00:00",
+  "run_id": "b0_CS-S1",
+  "git_hash": "vendor",
   "dataset": "customer_service",
   "scenario": "CS-S1",
-  "method": "purposefit",
-  "privacy": 0.375,
-  "utility": 0.9281,
-  "composite": 0.5143,
+  "method": "B0 (rerun)",
+  "privacy": 0.2222,
+  "utility": 1.0,
+  "composite": 0.3438,
   "worst_risk": 1.0,
-  "worst_risk_component": "turns: free-text identifier leakage",
-  "k": 5,
-  "k_pycanon": 5,
+  "worst_risk_component": "conversations: records with k<5",
+  "k": null,
+  "k_pycanon": null,
   "utility_tasks": {
    "CS-U1": 1.0,
    "CS-U3": 1.0,
-   "CS-U4": 0.7124,
+   "CS-U4": 1.0,
    "CS-U5": 1.0
   },
-  "note": "structured only; text raw; rules-only labels"
+  "note": "proving ground baseline b0; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-07T23:20:58+00:00",
+  "created_utc": "2026-11-08T02:04:55+00:00",
+  "run_id": "b0_CS-S2",
+  "git_hash": "vendor",
+  "dataset": "customer_service",
+  "scenario": "CS-S2",
+  "method": "B0 (rerun)",
+  "privacy": 0.2222,
+  "utility": 1.0,
+  "composite": 0.3438,
+  "worst_risk": 1.0,
+  "worst_risk_component": "conversations: records with k<5",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": 1.0,
+   "CS-U2": 1.0,
+   "CS-U5": 1.0
+  },
+  "note": "proving ground baseline b0; catalog labels; regex text redaction"
+ },
+ {
+  "created_utc": "2026-11-08T02:04:55+00:00",
+  "run_id": "b0_CS-S3",
+  "git_hash": "vendor",
+  "dataset": "customer_service",
+  "scenario": "CS-S3",
+  "method": "B0 (rerun)",
+  "privacy": 0.2222,
+  "utility": 1.0,
+  "composite": 0.3438,
+  "worst_risk": 1.0,
+  "worst_risk_component": "conversations: records with k<5",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U4": 1.0,
+   "CS-U6": 1.0,
+   "CS-U7": 1.0
+  },
+  "note": "proving ground baseline b0; catalog labels; regex text redaction"
+ },
+ {
+  "created_utc": "2026-11-08T02:04:55+00:00",
+  "run_id": "b2_CS-S1",
+  "git_hash": "vendor",
+  "dataset": "customer_service",
+  "scenario": "CS-S1",
+  "method": "B2 (rerun)",
+  "privacy": 0.3126,
+  "utility": 0.7475,
+  "composite": 0.425,
+  "worst_risk": 1.0,
+  "worst_risk_component": "customers: records with k<5",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": null,
+   "CS-U3": 1.0,
+   "CS-U4": 1.0,
+   "CS-U5": 0.9899
+  },
+  "note": "proving ground baseline b2; catalog labels; regex text redaction"
+ },
+ {
+  "created_utc": "2026-11-08T02:04:55+00:00",
+  "run_id": "b2_CS-S2",
+  "git_hash": "vendor",
+  "dataset": "customer_service",
+  "scenario": "CS-S2",
+  "method": "B2 (rerun)",
+  "privacy": 0.3126,
+  "utility": 0.6633,
+  "composite": 0.4115,
+  "worst_risk": 1.0,
+  "worst_risk_component": "customers: records with k<5",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": null,
+   "CS-U2": 1.0,
+   "CS-U5": 0.9899
+  },
+  "note": "proving ground baseline b2; catalog labels; regex text redaction"
+ },
+ {
+  "created_utc": "2026-11-08T02:04:55+00:00",
+  "run_id": "b2_CS-S3",
+  "git_hash": "vendor",
+  "dataset": "customer_service",
+  "scenario": "CS-S3",
+  "method": "B2 (rerun)",
+  "privacy": 0.3126,
+  "utility": 1.0,
+  "composite": 0.4547,
+  "worst_risk": 1.0,
+  "worst_risk_component": "customers: records with k<5",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U4": 1.0,
+   "CS-U6": 1.0,
+   "CS-U7": 1.0
+  },
+  "note": "proving ground baseline b2; catalog labels; regex text redaction"
+ },
+ {
+  "created_utc": "2026-11-08T02:04:55+00:00",
   "run_id": "b2k_CS-S1",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -41,53 +147,31 @@
    "CS-U4": 1.0,
    "CS-U5": 0.9899
   },
-  "note": "proving ground baseline; catalog labels; regex text"
+  "note": "proving ground baseline b2k; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-07T23:31:38+00:00",
-  "run_id": "p4-CS-S1",
-  "git_hash": "9a5f9c6",
+  "created_utc": "2026-11-08T02:04:55+00:00",
+  "run_id": "b2k_CS-S2",
+  "git_hash": "vendor",
   "dataset": "customer_service",
-  "scenario": "CS-S1",
-  "method": "purposefit",
-  "privacy": 0.375,
-  "utility": 1.0,
-  "composite": 0.5238,
-  "worst_risk": 1.0,
-  "worst_risk_component": "turns: free-text identifier leakage",
-  "k": null,
+  "scenario": "CS-S2",
+  "method": "B2-k (rerun)",
+  "privacy": 0.4952,
+  "utility": 0.6633,
+  "composite": 0.5596,
+  "worst_risk": 0.8286,
+  "worst_risk_component": "conversations: free-text identifier leakage",
+  "k": 5,
   "k_pycanon": null,
   "utility_tasks": {
-   "CS-U1": 1.0,
-   "CS-U3": 1.0,
-   "CS-U4": 1.0,
-   "CS-U5": 1.0
+   "CS-U1": null,
+   "CS-U2": 1.0,
+   "CS-U5": 0.9899
   },
-  "note": "phase 4 search; structured only; text raw; rules-only labels"
+  "note": "proving ground baseline b2k; catalog labels; regex text redaction"
  },
  {
-  "created_utc": "2026-11-07T23:31:43+00:00",
-  "run_id": "p4-CS-S3",
-  "git_hash": "9a5f9c6",
-  "dataset": "customer_service",
-  "scenario": "CS-S3",
-  "method": "purposefit",
-  "privacy": 1.0,
-  "utility": 1.0,
-  "composite": 1.0,
-  "worst_risk": 0.0,
-  "worst_risk_component": null,
-  "k": 751,
-  "k_pycanon": 751,
-  "utility_tasks": {
-   "CS-U4": 1.0,
-   "CS-U6": 1.0,
-   "CS-U7": 1.0
-  },
-  "note": "phase 4 search; structured only; text raw; rules-only labels"
- },
- {
-  "created_utc": "2026-11-07T23:31:44+00:00",
+  "created_utc": "2026-11-08T02:04:55+00:00",
   "run_id": "b2k_CS-S3",
   "git_hash": "vendor",
   "dataset": "customer_service",
@@ -105,6 +189,92 @@
    "CS-U6": 1.0,
    "CS-U7": 1.0
   },
-  "note": "proving ground baseline; catalog labels; regex text"
+  "note": "proving ground baseline b2k; catalog labels; regex text redaction"
+ },
+ {
+  "created_utc": "2026-11-08T02:01:04+00:00",
+  "run_id": "final-CS-S3",
+  "git_hash": "4d1b250",
+  "dataset": "customer_service",
+  "scenario": "CS-S3",
+  "method": "purposefit",
+  "privacy": 1.0,
+  "utility": 1.0,
+  "composite": 1.0,
+  "worst_risk": 0.0,
+  "worst_risk_component": null,
+  "k": 751,
+  "k_pycanon": 751,
+  "utility_tasks": {
+   "CS-U4": 1.0,
+   "CS-U6": 1.0,
+   "CS-U7": 1.0
+  },
+  "note": "final run: CS-S3, rule redactor + LLM health flags on masked text, per-recipient key"
+ },
+ {
+  "created_utc": "2026-11-08T02:04:02+00:00",
+  "run_id": "final-CS-S1-nollm",
+  "git_hash": "4d1b250",
+  "dataset": "customer_service",
+  "scenario": "CS-S1",
+  "method": "purposefit",
+  "privacy": 0.9946,
+  "utility": 0.9728,
+  "composite": 0.9846,
+  "worst_risk": 0.0086,
+  "worst_risk_component": "turns: free-text identifier leakage",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": 1.0,
+   "CS-U3": 1.0,
+   "CS-U4": 1.0,
+   "CS-U5": 0.8913
+  },
+  "note": "final run: CS-S1, AI off: rules only, no LLM calls, per-recipient key"
+ },
+ {
+  "created_utc": "2026-11-08T02:04:12+00:00",
+  "run_id": "final-CS-S2",
+  "git_hash": "4d1b250",
+  "dataset": "customer_service",
+  "scenario": "CS-S2",
+  "method": "purposefit",
+  "privacy": 0.9946,
+  "utility": 0.9626,
+  "composite": 0.9798,
+  "worst_risk": 0.0086,
+  "worst_risk_component": "turns: free-text identifier leakage",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": 0.9994,
+   "CS-U2": 1.0,
+   "CS-U5": 0.8884
+  },
+  "note": "final run: CS-S2, rule redactor + LLM health flags on masked text, per-recipient key"
+ },
+ {
+  "created_utc": "2026-11-08T02:04:15+00:00",
+  "run_id": "final-CS-S1",
+  "git_hash": "4d1b250",
+  "dataset": "customer_service",
+  "scenario": "CS-S1",
+  "method": "purposefit",
+  "privacy": 0.9946,
+  "utility": 0.972,
+  "composite": 0.9842,
+  "worst_risk": 0.0086,
+  "worst_risk_component": "turns: free-text identifier leakage",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": 0.9994,
+   "CS-U3": 1.0,
+   "CS-U4": 1.0,
+   "CS-U5": 0.8884
+  },
+  "note": "final run: CS-S1, rule redactor + LLM health flags on masked text, per-recipient key"
  }
 ]

@@ -306,3 +306,36 @@ def test_worst_risk_names_nothing_when_all_risks_are_zero():
 
     assert vf.worst_risk({"risk_components": {"a": 0.0, "b": 0.0}}) == (0.0, "")
     assert vf.worst_risk({"risk_components": {"a": 0.2, "b": 0.7}}) == (0.7, "b")
+
+
+def test_pseudonym_has_letter_prefix_and_lowercase_hex():
+    import re
+
+    tok = tr.pseudonym("k1", "C1", "conversation_id")
+    assert re.fullmatch(r"cv_[0-9a-f]{20}", tok)
+    assert tr.pseudonym("k1", "C1", "customer_id").startswith("cu_")
+    assert re.fullmatch(r"[a-z]{2}_[0-9a-f]{20}", tr.pseudonym("k1", "C1", "Weird Column"))
+    assert not re.search(r"\d{6}", tok.split("_")[0])
+    assert tr.pseudonym("k1", "C1", "conversation_id") == tr.pseudonym("k1", " C1 ", "conversation_id")
+
+
+def test_pseudonyms_differ_between_scenarios_and_repeat_within_one(data, tmp_path):
+    def conv_ids(scenario, name):
+        run = tmp_path / "runs" / name
+        tr.apply_plan(_plan(scenario), run, tmp_path / "runs" / "private" / name, "master")
+        return pd.read_csv(run / "04_release" / "convs.csv", dtype=str, keep_default_na=False)
+
+    a, a2 = conv_ids(S1, "a"), conv_ids(S1, "a2")
+    b = conv_ids(S2, "b")
+    assert list(a.conv_id) == list(a2.conv_id)  # same scenario, same key, same pseudonyms
+    assert not set(a.conv_id) & set(b.conv_id)  # another recipient, no shared token
+    assert tr.derive_key("m", "CS-S1") != tr.derive_key("m", "CS-S3")
+    assert tr.derive_key("m", "CS-S1") == tr.derive_key("m", "CS-S1")
+    assert tr.derive_key("m", "CS-S1") != tr.derive_key("m2", "CS-S1")
+
+
+def test_plan_stage_records_the_derived_key_id_not_a_key(monkeypatch, capsys):
+    from api.cli import key_id
+
+    assert key_id(tr.derive_key("k", "CS-S1")) != key_id("k")
+    assert len(key_id(tr.derive_key("k", "CS-S1"))) == 12

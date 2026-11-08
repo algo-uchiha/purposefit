@@ -172,7 +172,7 @@
    "action": "drop",
    "params": {
     "role": "non_sensitive",
-    "subtype": "MEASUREMENT",
+    "subtype": "AGGREGATE",
     "gazetteer": false
    },
    "reason": "no task of this scenario uses it",
@@ -183,11 +183,11 @@
    "column": "split",
    "action": "drop",
    "params": {
-    "role": "non_sensitive",
-    "subtype": "CATEGORY",
+    "role": "technical_identifier",
+    "subtype": "OTHER",
     "gazetteer": false
    },
-   "reason": "no task of this scenario uses it",
+   "reason": "technical identifier no task needs or joins on",
    "guarantee": "not released"
   },
   {
@@ -339,7 +339,7 @@
    "column": "products",
    "action": "withhold_table",
    "params": {
-    "role": "non_sensitive",
+    "role": "quasi_identifier",
     "subtype": "CATEGORY",
     "gazetteer": false
    },
@@ -447,8 +447,8 @@
    "column": "seq",
    "action": "withhold_table",
    "params": {
-    "role": "non_sensitive",
-    "subtype": "MEASUREMENT",
+    "role": "technical_identifier",
+    "subtype": "OTHER",
     "gazetteer": false
    },
    "reason": "no task of this scenario uses this table",
@@ -526,5 +526,5 @@
   }
  ],
  "k": 751,
- "key_id": "39ffd61450cc"
+ "key_id": "8ffa44629c5e"
 }

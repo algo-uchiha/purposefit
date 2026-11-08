@@ -1,0 +1,488 @@
+{
+ "dataset": "customer_service",
+ "scenario_id": "CS-S2",
+ "released_tables": [
+  "conversations",
+  "turns"
+ ],
+ "policies": [
+  {
+   "table": "conversations",
+   "column": "conversation_id",
+   "action": "hmac",
+   "params": {
+    "role": "record_key",
+    "subtype": "RECORD_ID",
+    "tasks": []
+   },
+   "reason": "joins released tables; the same keyed pseudonym in every table keeps the join",
+   "guarantee": "keyed pseudonym (HMAC-SHA256); still personal data"
+  },
+  {
+   "table": "conversations",
+   "column": "customer_id",
+   "action": "drop",
+   "params": {
+    "role": "technical_identifier",
+    "subtype": "CUSTOMER_ID",
+    "gazetteer": false
+   },
+   "reason": "technical identifier no task needs or joins on",
+   "guarantee": "not released"
+  },
+  {
+   "table": "conversations",
+   "column": "agent_id",
+   "action": "drop",
+   "params": {
+    "role": "technical_identifier",
+    "subtype": "EMPLOYEE_ID",
+    "gazetteer": false
+   },
+   "reason": "technical identifier no task needs or joins on",
+   "guarantee": "not released"
+  },
+  {
+   "table": "conversations",
+   "column": "agent_name",
+   "action": "drop",
+   "params": {
+    "role": "direct_identifier",
+    "subtype": "PERSON_NAME",
+    "gazetteer": true
+   },
+   "reason": "direct identifier no task needs",
+   "guarantee": "not released"
+  },
+  {
+   "table": "conversations",
+   "column": "channel",
+   "action": "drop",
+   "params": {
+    "role": "non_sensitive",
+    "subtype": "CATEGORY",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses it",
+   "guarantee": "not released"
+  },
+  {
+   "table": "conversations",
+   "column": "language",
+   "action": "drop",
+   "params": {
+    "role": "quasi_identifier",
+    "subtype": "LANGUAGE",
+    "gazetteer": false
+   },
+   "reason": "quasi-identifier no task needs",
+   "guarantee": "not released"
+  },
+  {
+   "table": "conversations",
+   "column": "started_ts",
+   "action": "drop",
+   "params": {
+    "role": "quasi_identifier",
+    "subtype": "TIMESTAMP",
+    "gazetteer": false
+   },
+   "reason": "quasi-identifier no task needs",
+   "guarantee": "not released"
+  },
+  {
+   "table": "conversations",
+   "column": "intent",
+   "action": "keep",
+   "params": {
+    "role": "non_sensitive",
+    "subtype": "CATEGORY",
+    "tasks": [
+     "CS-U1"
+    ]
+   },
+   "reason": "used by CS-U1",
+   "guarantee": "released as is"
+  },
+  {
+   "table": "conversations",
+   "column": "sentiment",
+   "action": "keep",
+   "params": {
+    "role": "non_sensitive",
+    "subtype": "CATEGORY",
+    "tasks": [
+     "CS-U2"
+    ]
+   },
+   "reason": "used by CS-U2",
+   "guarantee": "released as is"
+  },
+  {
+   "table": "conversations",
+   "column": "csat",
+   "action": "keep",
+   "params": {
+    "role": "non_sensitive",
+    "subtype": "MEASUREMENT",
+    "tasks": [
+     "CS-U2"
+    ]
+   },
+   "reason": "used by CS-U2",
+   "guarantee": "released as is"
+  },
+  {
+   "table": "conversations",
+   "column": "resolved",
+   "action": "drop",
+   "params": {
+    "role": "non_sensitive",
+    "subtype": "CATEGORY",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses it",
+   "guarantee": "not released"
+  },
+  {
+   "table": "conversations",
+   "column": "handle_time_s",
+   "action": "drop",
+   "params": {
+    "role": "non_sensitive",
+    "subtype": "DURATION",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses it",
+   "guarantee": "not released"
+  },
+  {
+   "table": "conversations",
+   "column": "n_turns",
+   "action": "drop",
+   "params": {
+    "role": "non_sensitive",
+    "subtype": "AGGREGATE",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses it",
+   "guarantee": "not released"
+  },
+  {
+   "table": "conversations",
+   "column": "split",
+   "action": "keep",
+   "params": {
+    "role": "technical_identifier",
+    "subtype": "OTHER"
+   },
+   "reason": "train and eval marker; the model task chooses its training rows by it",
+   "guarantee": "released as is"
+  },
+  {
+   "table": "conversations",
+   "column": "agent_note",
+   "action": "drop",
+   "params": {
+    "role": "free_text",
+    "subtype": "FREE_TEXT",
+    "gazetteer": false
+   },
+   "reason": "free text no task needs",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "customer_id",
+   "action": "withhold_table",
+   "params": {
+    "role": "record_key",
+    "subtype": "CUSTOMER_ID",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "customer_number",
+   "action": "withhold_table",
+   "params": {
+    "role": "direct_identifier",
+    "subtype": "CUSTOMER_ID",
+    "gazetteer": true
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "full_name",
+   "action": "withhold_table",
+   "params": {
+    "role": "direct_identifier",
+    "subtype": "PERSON_NAME",
+    "gazetteer": true
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "hetu",
+   "action": "withhold_table",
+   "params": {
+    "role": "direct_identifier",
+    "subtype": "NATIONAL_ID",
+    "gazetteer": true
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "street_address",
+   "action": "withhold_table",
+   "params": {
+    "role": "direct_identifier",
+    "subtype": "STREET_ADDRESS",
+    "gazetteer": true
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "postcode",
+   "action": "withhold_table",
+   "params": {
+    "role": "quasi_identifier",
+    "subtype": "POSTCODE",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "city",
+   "action": "withhold_table",
+   "params": {
+    "role": "quasi_identifier",
+    "subtype": "MUNICIPALITY",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "email",
+   "action": "withhold_table",
+   "params": {
+    "role": "direct_identifier",
+    "subtype": "EMAIL",
+    "gazetteer": true
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "phone",
+   "action": "withhold_table",
+   "params": {
+    "role": "direct_identifier",
+    "subtype": "PHONE",
+    "gazetteer": true
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "preferred_language",
+   "action": "withhold_table",
+   "params": {
+    "role": "quasi_identifier",
+    "subtype": "LANGUAGE",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "customer_since",
+   "action": "withhold_table",
+   "params": {
+    "role": "quasi_identifier",
+    "subtype": "DATE",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "products",
+   "action": "withhold_table",
+   "params": {
+    "role": "quasi_identifier",
+    "subtype": "CATEGORY",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "contract_number",
+   "action": "withhold_table",
+   "params": {
+    "role": "direct_identifier",
+    "subtype": "ACCOUNT_ID",
+    "gazetteer": true
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "payment_method",
+   "action": "withhold_table",
+   "params": {
+    "role": "non_sensitive",
+    "subtype": "CATEGORY",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "iban",
+   "action": "withhold_table",
+   "params": {
+    "role": "direct_identifier",
+    "subtype": "IBAN",
+    "gazetteer": true
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "marketing_consent",
+   "action": "withhold_table",
+   "params": {
+    "role": "non_sensitive",
+    "subtype": "CATEGORY",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "payment_default_flag",
+   "action": "withhold_table",
+   "params": {
+    "role": "sensitive_attribute",
+    "subtype": "FINANCIAL_DATA",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "customers",
+   "column": "accessibility_needs",
+   "action": "withhold_table",
+   "params": {
+    "role": "sensitive_attribute",
+    "subtype": "HEALTH_DATA",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses this table",
+   "guarantee": "not released"
+  },
+  {
+   "table": "turns",
+   "column": "turn_id",
+   "action": "keep",
+   "params": {
+    "role": "record_key",
+    "subtype": "RECORD_ID",
+    "tasks": []
+   },
+   "reason": "row key no other table refers to; links to nothing outside this table, rows are matched by it",
+   "guarantee": "released as is"
+  },
+  {
+   "table": "turns",
+   "column": "conversation_id",
+   "action": "hmac",
+   "params": {
+    "role": "technical_identifier",
+    "subtype": "RECORD_ID",
+    "tasks": []
+   },
+   "reason": "joins released tables; the same keyed pseudonym in every table keeps the join",
+   "guarantee": "keyed pseudonym (HMAC-SHA256); still personal data"
+  },
+  {
+   "table": "turns",
+   "column": "seq",
+   "action": "drop",
+   "params": {
+    "role": "technical_identifier",
+    "subtype": "OTHER",
+    "gazetteer": false
+   },
+   "reason": "technical identifier no task needs or joins on",
+   "guarantee": "not released"
+  },
+  {
+   "table": "turns",
+   "column": "speaker",
+   "action": "drop",
+   "params": {
+    "role": "non_sensitive",
+    "subtype": "CATEGORY",
+    "gazetteer": false
+   },
+   "reason": "no task of this scenario uses it",
+   "guarantee": "not released"
+  },
+  {
+   "table": "turns",
+   "column": "ts",
+   "action": "drop",
+   "params": {
+    "role": "quasi_identifier",
+    "subtype": "TIMESTAMP",
+    "gazetteer": false
+   },
+   "reason": "quasi-identifier no task needs",
+   "guarantee": "not released"
+  },
+  {
+   "table": "turns",
+   "column": "text",
+   "action": "redact",
+   "params": {
+    "role": "free_text",
+    "subtype": "FREE_TEXT",
+    "tasks": [
+     "CS-U1",
+     "CS-U5"
+    ]
+   },
+   "reason": "used by CS-U1, CS-U5; text kept for the task",
+   "guarantee": "free text; identifiers replaced by typed placeholders (rule redactor); leakage measured by pets-eval"
+  }
+ ],
+ "k": 1,
+ "key_id": "c8259a86c347"
+}

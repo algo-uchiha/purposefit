@@ -1,0 +1,691 @@
+{"record_id": "R000436", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000381", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 40, "label": "PERSON"}]}
+{"record_id": "R000672", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R002098", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 55, "end": 60, "label": "PERSON"}]}
+{"record_id": "R000704", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001507", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 26, "label": "PERSON"}, {"start": 27, "end": 36, "label": "PERSON"}]}
+{"record_id": "R001725", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}, {"start": 60, "end": 64, "label": "PERSON"}]}
+{"record_id": "R002258", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001199", "spans": []}
+{"record_id": "R002365", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R002192", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000856", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 39, "label": "PERSON"}, {"start": 40, "end": 45, "label": "PERSON"}]}
+{"record_id": "R000863", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002741", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R001772", "spans": [{"start": 44, "end": 48, "label": "PERSON"}]}
+{"record_id": "R000397", "spans": []}
+{"record_id": "R001325", "spans": []}
+{"record_id": "R000283", "spans": []}
+{"record_id": "R001135", "spans": []}
+{"record_id": "R000737", "spans": []}
+{"record_id": "R001873", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 20, "label": "PERSON"}]}
+{"record_id": "R000216", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000027", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002042", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 55, "end": 61, "label": "PERSON"}]}
+{"record_id": "R001937", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R002054", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R000034", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 41, "label": "PERSON"}, {"start": 42, "end": 47, "label": "PERSON"}]}
+{"record_id": "R000634", "spans": []}
+{"record_id": "R002702", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R000663", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001624", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002443", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002139", "spans": []}
+{"record_id": "R001317", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 46, "label": "PERSON"}, {"start": 47, "end": 58, "label": "PERSON"}]}
+{"record_id": "R001949", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 62, "end": 66, "label": "PERSON"}]}
+{"record_id": "R002746", "spans": [{"start": 32, "end": 35, "label": "PERSON"}]}
+{"record_id": "R002267", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000457", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}, {"start": 60, "end": 66, "label": "PERSON"}]}
+{"record_id": "R002444", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002761", "spans": []}
+{"record_id": "R001906", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R000750", "spans": []}
+{"record_id": "R000665", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000072", "spans": []}
+{"record_id": "R001074", "spans": []}
+{"record_id": "R001422", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 50, "end": 58, "label": "PERSON"}, {"start": 61, "end": 67, "label": "PERSON"}]}
+{"record_id": "R000178", "spans": []}
+{"record_id": "R002585", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 21, "label": "PERSON"}]}
+{"record_id": "R000109", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 25, "label": "PERSON"}, {"start": 26, "end": 35, "label": "PERSON"}]}
+{"record_id": "R002621", "spans": [{"start": 44, "end": 48, "label": "PERSON"}]}
+{"record_id": "R002686", "spans": []}
+{"record_id": "R001922", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 22, "label": "PERSON"}]}
+{"record_id": "R001786", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001607", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 55, "end": 63, "label": "PERSON"}]}
+{"record_id": "R000146", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 43, "end": 47, "label": "PERSON"}]}
+{"record_id": "R001883", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 46, "label": "PERSON"}, {"start": 47, "end": 58, "label": "PERSON"}]}
+{"record_id": "R001482", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000974", "spans": []}
+{"record_id": "R002749", "spans": []}
+{"record_id": "R002696", "spans": [{"start": 41, "end": 46, "label": "PERSON"}]}
+{"record_id": "R002496", "spans": []}
+{"record_id": "R001434", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000806", "spans": [{"start": 44, "end": 49, "label": "PERSON"}]}
+{"record_id": "R002801", "spans": []}
+{"record_id": "R002052", "spans": []}
+{"record_id": "R002535", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001739", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 21, "label": "PERSON"}]}
+{"record_id": "R000410", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001379", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 20, "label": "PERSON"}, {"start": 43, "end": 48, "label": "PERSON"}]}
+{"record_id": "R000822", "spans": []}
+{"record_id": "R002213", "spans": []}
+{"record_id": "R001416", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 52, "end": 60, "label": "PERSON"}]}
+{"record_id": "R002380", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R000647", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 47, "label": "PERSON"}, {"start": 48, "end": 59, "label": "PERSON"}, {"start": 102, "end": 107, "label": "PERSON"}]}
+{"record_id": "R002652", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 52, "end": 60, "label": "PERSON"}]}
+{"record_id": "R000210", "spans": []}
+{"record_id": "R002355", "spans": []}
+{"record_id": "R000286", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 16, "end": 35, "label": "HEALTH"}, {"start": 55, "end": 60, "label": "PERSON"}]}
+{"record_id": "R002545", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 22, "label": "PERSON"}]}
+{"record_id": "R001843", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 15, "end": 34, "label": "HEALTH"}]}
+{"record_id": "R000611", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000758", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 34, "end": 38, "label": "PERSON"}]}
+{"record_id": "R000062", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002326", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 46, "label": "PERSON"}, {"start": 47, "end": 56, "label": "PERSON"}, {"start": 99, "end": 104, "label": "PERSON"}]}
+{"record_id": "R001088", "spans": [{"start": 44, "end": 48, "label": "PERSON"}]}
+{"record_id": "R002594", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000028", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000205", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 55, "end": 63, "label": "PERSON"}]}
+{"record_id": "R002453", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001305", "spans": []}
+{"record_id": "R002248", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 21, "label": "PERSON"}]}
+{"record_id": "R002145", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002518", "spans": []}
+{"record_id": "R000277", "spans": []}
+{"record_id": "R002701", "spans": []}
+{"record_id": "R001631", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000439", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 56, "end": 61, "label": "PERSON"}]}
+{"record_id": "R001380", "spans": []}
+{"record_id": "R002425", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 53, "end": 61, "label": "PERSON"}]}
+{"record_id": "R002331", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 55, "label": "PERSON"}]}
+{"record_id": "R000035", "spans": []}
+{"record_id": "R000396", "spans": []}
+{"record_id": "R000619", "spans": [{"start": 41, "end": 45, "label": "PERSON"}]}
+{"record_id": "R002310", "spans": []}
+{"record_id": "R000764", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000479", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000556", "spans": []}
+{"record_id": "R002215", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R000928", "spans": []}
+{"record_id": "R000329", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 22, "label": "PERSON"}]}
+{"record_id": "R000679", "spans": []}
+{"record_id": "R001919", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002303", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 17, "end": 36, "label": "HEALTH"}]}
+{"record_id": "R001124", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001565", "spans": []}
+{"record_id": "R001400", "spans": []}
+{"record_id": "R000009", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002722", "spans": []}
+{"record_id": "R002684", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R000970", "spans": []}
+{"record_id": "R002445", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001523", "spans": []}
+{"record_id": "R001261", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 48, "label": "PERSON"}, {"start": 49, "end": 59, "label": "PERSON"}]}
+{"record_id": "R001579", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002674", "spans": []}
+{"record_id": "R002532", "spans": []}
+{"record_id": "R002602", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R000799", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000061", "spans": []}
+{"record_id": "R000600", "spans": []}
+{"record_id": "R002744", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001436", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001571", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R001774", "spans": [{"start": 91, "end": 95, "label": "PERSON"}]}
+{"record_id": "R001377", "spans": []}
+{"record_id": "R001551", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002143", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 20, "label": "PERSON"}]}
+{"record_id": "R002765", "spans": [{"start": 44, "end": 49, "label": "PERSON"}]}
+{"record_id": "R001987", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R000628", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 16, "end": 35, "label": "HEALTH"}, {"start": 55, "end": 60, "label": "PERSON"}]}
+{"record_id": "R002186", "spans": []}
+{"record_id": "R001686", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001610", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R000304", "spans": []}
+{"record_id": "R000784", "spans": []}
+{"record_id": "R002038", "spans": []}
+{"record_id": "R001042", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 25, "label": "PERSON"}, {"start": 26, "end": 35, "label": "PERSON"}, {"start": 78, "end": 81, "label": "PERSON"}]}
+{"record_id": "R000933", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 62, "end": 68, "label": "PERSON"}]}
+{"record_id": "R000960", "spans": []}
+{"record_id": "R002292", "spans": []}
+{"record_id": "R000003", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 21, "label": "PERSON"}]}
+{"record_id": "R002666", "spans": []}
+{"record_id": "R002385", "spans": []}
+{"record_id": "R000994", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R002179", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 40, "label": "PERSON"}, {"start": 41, "end": 52, "label": "PERSON"}]}
+{"record_id": "R002346", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001719", "spans": []}
+{"record_id": "R002730", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R000528", "spans": [{"start": 41, "end": 48, "label": "PERSON"}]}
+{"record_id": "R000326", "spans": [{"start": 32, "end": 37, "label": "PERSON"}]}
+{"record_id": "R001346", "spans": [{"start": 44, "end": 49, "label": "PERSON"}]}
+{"record_id": "R001656", "spans": []}
+{"record_id": "R001878", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R002217", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 27, "label": "PERSON"}]}
+{"record_id": "R002177", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002270", "spans": [{"start": 44, "end": 48, "label": "PERSON"}]}
+{"record_id": "R000285", "spans": []}
+{"record_id": "R002626", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 63, "end": 67, "label": "PERSON"}]}
+{"record_id": "R000418", "spans": []}
+{"record_id": "R000195", "spans": []}
+{"record_id": "R002685", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001244", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R000452", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 47, "label": "PERSON"}, {"start": 48, "end": 53, "label": "PERSON"}]}
+{"record_id": "R002779", "spans": []}
+{"record_id": "R000272", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 23, "label": "PERSON"}]}
+{"record_id": "R002088", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 53, "end": 58, "label": "PERSON"}]}
+{"record_id": "R001740", "spans": []}
+{"record_id": "R000520", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002448", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000942", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001989", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001311", "spans": []}
+{"record_id": "R001824", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002311", "spans": []}
+{"record_id": "R001444", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R002204", "spans": []}
+{"record_id": "R000576", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002172", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R000041", "spans": []}
+{"record_id": "R000847", "spans": []}
+{"record_id": "R000571", "spans": []}
+{"record_id": "R000403", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 63, "end": 70, "label": "PERSON"}]}
+{"record_id": "R001578", "spans": []}
+{"record_id": "R002008", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R002537", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R002404", "spans": [{"start": 44, "end": 48, "label": "PERSON"}]}
+{"record_id": "R000646", "spans": []}
+{"record_id": "R001708", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002713", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 20, "label": "PERSON"}]}
+{"record_id": "R000675", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001041", "spans": []}
+{"record_id": "R001509", "spans": []}
+{"record_id": "R001050", "spans": [{"start": 44, "end": 49, "label": "PERSON"}]}
+{"record_id": "R001046", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R001638", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000352", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002635", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000559", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002285", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 54, "label": "PERSON"}]}
+{"record_id": "R002766", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002322", "spans": []}
+{"record_id": "R001904", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002017", "spans": []}
+{"record_id": "R001409", "spans": []}
+{"record_id": "R001752", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000688", "spans": [{"start": 92, "end": 96, "label": "PERSON"}]}
+{"record_id": "R002574", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R000879", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002027", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 62, "end": 68, "label": "PERSON"}]}
+{"record_id": "R001004", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000055", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 22, "label": "PERSON"}]}
+{"record_id": "R000898", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}, {"start": 53, "end": 57, "label": "PERSON"}]}
+{"record_id": "R000475", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R002750", "spans": []}
+{"record_id": "R001556", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000119", "spans": []}
+{"record_id": "R001128", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002641", "spans": []}
+{"record_id": "R001308", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001424", "spans": []}
+{"record_id": "R000905", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001383", "spans": [{"start": 44, "end": 49, "label": "PERSON"}]}
+{"record_id": "R002308", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R002396", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 54, "label": "PERSON"}]}
+{"record_id": "R000794", "spans": []}
+{"record_id": "R000040", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001092", "spans": []}
+{"record_id": "R000206", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 46, "label": "PERSON"}, {"start": 47, "end": 57, "label": "PERSON"}]}
+{"record_id": "R002246", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R002216", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 38, "label": "PERSON"}]}
+{"record_id": "R002390", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 62, "end": 67, "label": "PERSON"}]}
+{"record_id": "R000092", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000161", "spans": []}
+{"record_id": "R000447", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 26, "label": "PERSON"}, {"start": 27, "end": 36, "label": "PERSON"}]}
+{"record_id": "R001478", "spans": []}
+{"record_id": "R002278", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 45, "label": "PERSON"}, {"start": 46, "end": 51, "label": "PERSON"}]}
+{"record_id": "R002534", "spans": []}
+{"record_id": "R000043", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 21, "label": "PERSON"}]}
+{"record_id": "R002039", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 39, "label": "PERSON"}, {"start": 40, "end": 51, "label": "PERSON"}]}
+{"record_id": "R002772", "spans": []}
+{"record_id": "R000623", "spans": []}
+{"record_id": "R001466", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000778", "spans": []}
+{"record_id": "R002795", "spans": []}
+{"record_id": "R002067", "spans": [{"start": 44, "end": 51, "label": "PERSON"}]}
+{"record_id": "R000557", "spans": []}
+{"record_id": "R000661", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 21, "label": "PERSON"}]}
+{"record_id": "R000874", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 26, "label": "PERSON"}, {"start": 27, "end": 36, "label": "PERSON"}]}
+{"record_id": "R000001", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002000", "spans": []}
+{"record_id": "R001662", "spans": []}
+{"record_id": "R001777", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}, {"start": 53, "end": 59, "label": "PERSON"}]}
+{"record_id": "R000808", "spans": []}
+{"record_id": "R001747", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}, {"start": 60, "end": 64, "label": "PERSON"}]}
+{"record_id": "R001151", "spans": []}
+{"record_id": "R001165", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000590", "spans": []}
+{"record_id": "R001547", "spans": []}
+{"record_id": "R000443", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002221", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002697", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001403", "spans": []}
+{"record_id": "R002281", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002615", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R002550", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 42, "end": 46, "label": "PERSON"}]}
+{"record_id": "R002132", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 45, "label": "PERSON"}]}
+{"record_id": "R001439", "spans": []}
+{"record_id": "R002752", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 61, "end": 67, "label": "PERSON"}]}
+{"record_id": "R002160", "spans": []}
+{"record_id": "R000026", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R002587", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001160", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 50, "end": 58, "label": "PERSON"}]}
+{"record_id": "R001063", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 47, "label": "PERSON"}, {"start": 48, "end": 56, "label": "PERSON"}]}
+{"record_id": "R000617", "spans": [{"start": 44, "end": 48, "label": "PERSON"}]}
+{"record_id": "R000860", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 56, "end": 64, "label": "PERSON"}]}
+{"record_id": "R002121", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 54, "end": 62, "label": "PERSON"}]}
+{"record_id": "R001389", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R000122", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}]}
+{"record_id": "R001040", "spans": []}
+{"record_id": "R001797", "spans": [{"start": 44, "end": 48, "label": "PERSON"}]}
+{"record_id": "R001351", "spans": []}
+{"record_id": "R000235", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 39, "label": "PERSON"}, {"start": 40, "end": 45, "label": "PERSON"}]}
+{"record_id": "R000107", "spans": []}
+{"record_id": "R000261", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000878", "spans": []}
+{"record_id": "R000655", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001248", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 50, "end": 58, "label": "PERSON"}]}
+{"record_id": "R000885", "spans": [{"start": 44, "end": 48, "label": "PERSON"}]}
+{"record_id": "R000151", "spans": []}
+{"record_id": "R002783", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000589", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 17, "end": 36, "label": "HEALTH"}, {"start": 59, "end": 67, "label": "PERSON"}]}
+{"record_id": "R000323", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R001102", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R000687", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R000431", "spans": []}
+{"record_id": "R002251", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002647", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 40, "label": "PERSON"}, {"start": 41, "end": 50, "label": "PERSON"}]}
+{"record_id": "R000988", "spans": [{"start": 44, "end": 47, "label": "PERSON"}]}
+{"record_id": "R001748", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001039", "spans": []}
+{"record_id": "R000653", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 22, "label": "PERSON"}]}
+{"record_id": "R000828", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 64, "end": 69, "label": "PERSON"}]}
+{"record_id": "R002543", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 17, "end": 36, "label": "HEALTH"}, {"start": 59, "end": 64, "label": "PERSON"}]}
+{"record_id": "R000194", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 55, "label": "PERSON"}]}
+{"record_id": "R000848", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000938", "spans": [{"start": 93, "end": 98, "label": "PERSON"}]}
+{"record_id": "R002317", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000867", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 56, "end": 61, "label": "PERSON"}, {"start": 64, "end": 72, "label": "PERSON"}]}
+{"record_id": "R002728", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R000288", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 62, "end": 66, "label": "PERSON"}]}
+{"record_id": "R001932", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R002305", "spans": []}
+{"record_id": "R002433", "spans": []}
+{"record_id": "R000149", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001778", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001495", "spans": []}
+{"record_id": "R000597", "spans": [{"start": 44, "end": 50, "label": "PERSON"}]}
+{"record_id": "R002002", "spans": []}
+{"record_id": "R000335", "spans": []}
+{"record_id": "R000843", "spans": []}
+{"record_id": "R000824", "spans": []}
+{"record_id": "R002487", "spans": []}
+{"record_id": "R001673", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000821", "spans": []}
+{"record_id": "R001100", "spans": []}
+{"record_id": "R000906", "spans": []}
+{"record_id": "R001968", "spans": [{"start": 44, "end": 50, "label": "PERSON"}]}
+{"record_id": "R000654", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 22, "label": "PERSON"}]}
+{"record_id": "R000064", "spans": []}
+{"record_id": "R000854", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 20, "label": "PERSON"}, {"start": 34, "end": 41, "label": "PERSON"}]}
+{"record_id": "R001288", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 17, "end": 36, "label": "HEALTH"}, {"start": 59, "end": 64, "label": "PERSON"}]}
+{"record_id": "R001646", "spans": []}
+{"record_id": "R001642", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001411", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R002045", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001603", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 43, "end": 47, "label": "PERSON"}]}
+{"record_id": "R001274", "spans": []}
+{"record_id": "R002339", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R002556", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001271", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R001866", "spans": []}
+{"record_id": "R001520", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001365", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R002455", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 57, "label": "PERSON"}]}
+{"record_id": "R001119", "spans": []}
+{"record_id": "R000716", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 21, "label": "PERSON"}, {"start": 43, "end": 48, "label": "PERSON"}]}
+{"record_id": "R000298", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002323", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 46, "label": "PERSON"}, {"start": 47, "end": 58, "label": "PERSON"}]}
+{"record_id": "R000469", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000813", "spans": []}
+{"record_id": "R002330", "spans": [{"start": 44, "end": 49, "label": "PERSON"}]}
+{"record_id": "R000306", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 38, "label": "PERSON"}, {"start": 39, "end": 48, "label": "PERSON"}]}
+{"record_id": "R000328", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 63, "end": 68, "label": "PERSON"}]}
+{"record_id": "R000368", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R000815", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002387", "spans": [{"start": 44, "end": 49, "label": "PERSON"}]}
+{"record_id": "R000539", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 22, "label": "PERSON"}]}
+{"record_id": "R000032", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000526", "spans": []}
+{"record_id": "R001962", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 25, "label": "PERSON"}, {"start": 26, "end": 37, "label": "PERSON"}, {"start": 80, "end": 85, "label": "PERSON"}]}
+{"record_id": "R000651", "spans": []}
+{"record_id": "R002596", "spans": []}
+{"record_id": "R000139", "spans": []}
+{"record_id": "R000422", "spans": [{"start": 93, "end": 99, "label": "PERSON"}]}
+{"record_id": "R000168", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 56, "end": 64, "label": "PERSON"}]}
+{"record_id": "R002336", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 26, "label": "PERSON"}, {"start": 27, "end": 32, "label": "PERSON"}]}
+{"record_id": "R001238", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001388", "spans": []}
+{"record_id": "R000791", "spans": []}
+{"record_id": "R002044", "spans": []}
+{"record_id": "R002202", "spans": []}
+{"record_id": "R002009", "spans": []}
+{"record_id": "R000020", "spans": [{"start": 41, "end": 45, "label": "PERSON"}]}
+{"record_id": "R000069", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 21, "label": "PERSON"}]}
+{"record_id": "R001842", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 56, "label": "PERSON"}]}
+{"record_id": "R000007", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002040", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000818", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}, {"start": 56, "end": 61, "label": "PERSON"}]}
+{"record_id": "R000219", "spans": [{"start": 44, "end": 47, "label": "PERSON"}]}
+{"record_id": "R002197", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R002454", "spans": []}
+{"record_id": "R000224", "spans": []}
+{"record_id": "R000564", "spans": []}
+{"record_id": "R001591", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 54, "end": 62, "label": "PERSON"}]}
+{"record_id": "R001668", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 39, "label": "PERSON"}, {"start": 40, "end": 45, "label": "PERSON"}]}
+{"record_id": "R001430", "spans": []}
+{"record_id": "R000957", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002492", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002731", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 54, "end": 62, "label": "PERSON"}]}
+{"record_id": "R001834", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R001930", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 24, "label": "PERSON"}, {"start": 25, "end": 34, "label": "PERSON"}]}
+{"record_id": "R002796", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R002464", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R001339", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 24, "label": "PERSON"}, {"start": 25, "end": 30, "label": "PERSON"}]}
+{"record_id": "R000592", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002188", "spans": []}
+{"record_id": "R000852", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001423", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 24, "label": "PERSON"}, {"start": 25, "end": 30, "label": "PERSON"}]}
+{"record_id": "R000114", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 20, "label": "PERSON"}]}
+{"record_id": "R002699", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000085", "spans": []}
+{"record_id": "R000674", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000626", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R000212", "spans": [{"start": 44, "end": 49, "label": "PERSON"}]}
+{"record_id": "R002792", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 40, "label": "PERSON"}]}
+{"record_id": "R002539", "spans": []}
+{"record_id": "R002260", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001913", "spans": []}
+{"record_id": "R000185", "spans": []}
+{"record_id": "R000919", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000670", "spans": []}
+{"record_id": "R002426", "spans": []}
+{"record_id": "R001268", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 54, "label": "PERSON"}]}
+{"record_id": "R000695", "spans": [{"start": 94, "end": 100, "label": "PERSON"}]}
+{"record_id": "R002383", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R000177", "spans": []}
+{"record_id": "R002756", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001943", "spans": []}
+{"record_id": "R000432", "spans": []}
+{"record_id": "R002495", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002450", "spans": []}
+{"record_id": "R000446", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001173", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000045", "spans": []}
+{"record_id": "R002784", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001543", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R002579", "spans": []}
+{"record_id": "R000015", "spans": []}
+{"record_id": "R000823", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002144", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001395", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002633", "spans": []}
+{"record_id": "R002517", "spans": []}
+{"record_id": "R002173", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 54, "end": 62, "label": "PERSON"}]}
+{"record_id": "R001608", "spans": []}
+{"record_id": "R002441", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002551", "spans": []}
+{"record_id": "R000596", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 25, "label": "PERSON"}, {"start": 26, "end": 35, "label": "PERSON"}]}
+{"record_id": "R001808", "spans": [{"start": 44, "end": 49, "label": "PERSON"}]}
+{"record_id": "R001492", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002676", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 21, "label": "PERSON"}]}
+{"record_id": "R002224", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002353", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002693", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 16, "end": 35, "label": "HEALTH"}, {"start": 58, "end": 63, "label": "PERSON"}, {"start": 66, "end": 70, "label": "PERSON"}]}
+{"record_id": "R001796", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 41, "label": "PERSON"}, {"start": 42, "end": 50, "label": "PERSON"}]}
+{"record_id": "R000769", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002794", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 56, "end": 64, "label": "PERSON"}]}
+{"record_id": "R002140", "spans": []}
+{"record_id": "R000924", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}, {"start": 56, "end": 61, "label": "PERSON"}]}
+{"record_id": "R000145", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R002035", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001105", "spans": [{"start": 90, "end": 94, "label": "PERSON"}]}
+{"record_id": "R000380", "spans": []}
+{"record_id": "R001315", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 55, "end": 63, "label": "PERSON"}, {"start": 66, "end": 71, "label": "PERSON"}]}
+{"record_id": "R001552", "spans": []}
+{"record_id": "R000466", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002490", "spans": []}
+{"record_id": "R000351", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 51, "end": 59, "label": "PERSON"}]}
+{"record_id": "R001734", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001487", "spans": []}
+{"record_id": "R000485", "spans": [{"start": 44, "end": 48, "label": "PERSON"}]}
+{"record_id": "R001886", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 55, "label": "PERSON"}]}
+{"record_id": "R000199", "spans": [{"start": 44, "end": 52, "label": "PERSON"}]}
+{"record_id": "R000971", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 46, "label": "PERSON"}, {"start": 47, "end": 56, "label": "PERSON"}]}
+{"record_id": "R000358", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R000082", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000374", "spans": []}
+{"record_id": "R000448", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 63, "end": 68, "label": "PERSON"}]}
+{"record_id": "R002004", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 54, "end": 59, "label": "PERSON"}]}
+{"record_id": "R001208", "spans": []}
+{"record_id": "R001414", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 48, "label": "PERSON"}, {"start": 49, "end": 60, "label": "PERSON"}]}
+{"record_id": "R000183", "spans": []}
+{"record_id": "R001948", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002418", "spans": []}
+{"record_id": "R000650", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001971", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 42, "end": 46, "label": "PERSON"}]}
+{"record_id": "R002416", "spans": []}
+{"record_id": "R001357", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 45, "label": "PERSON"}, {"start": 46, "end": 57, "label": "PERSON"}]}
+{"record_id": "R002167", "spans": [{"start": 93, "end": 98, "label": "PERSON"}]}
+{"record_id": "R001666", "spans": []}
+{"record_id": "R001716", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 40, "label": "PERSON"}, {"start": 41, "end": 46, "label": "PERSON"}]}
+{"record_id": "R002552", "spans": []}
+{"record_id": "R001294", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001927", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R000152", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000050", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R000464", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R001532", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R001437", "spans": []}
+{"record_id": "R002169", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000711", "spans": []}
+{"record_id": "R001413", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 57, "end": 62, "label": "PERSON"}]}
+{"record_id": "R002612", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001350", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}, {"start": 53, "end": 57, "label": "PERSON"}]}
+{"record_id": "R002103", "spans": []}
+{"record_id": "R001019", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 45, "label": "PERSON"}, {"start": 46, "end": 51, "label": "PERSON"}, {"start": 94, "end": 99, "label": "PERSON"}]}
+{"record_id": "R002024", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000755", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R001614", "spans": []}
+{"record_id": "R002106", "spans": []}
+{"record_id": "R000491", "spans": []}
+{"record_id": "R000608", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002449", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 40, "label": "PERSON"}, {"start": 41, "end": 46, "label": "PERSON"}, {"start": 89, "end": 94, "label": "PERSON"}]}
+{"record_id": "R001534", "spans": []}
+{"record_id": "R000582", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001221", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R002417", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002758", "spans": []}
+{"record_id": "R001572", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 57, "end": 62, "label": "PERSON"}]}
+{"record_id": "R002229", "spans": []}
+{"record_id": "R000137", "spans": []}
+{"record_id": "R000193", "spans": [{"start": 90, "end": 95, "label": "PERSON"}]}
+{"record_id": "R001217", "spans": [{"start": 44, "end": 48, "label": "PERSON"}]}
+{"record_id": "R001994", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R000423", "spans": []}
+{"record_id": "R000819", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 59, "end": 63, "label": "PERSON"}]}
+{"record_id": "R002181", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 56, "end": 64, "label": "PERSON"}]}
+{"record_id": "R001222", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001691", "spans": []}
+{"record_id": "R001172", "spans": []}
+{"record_id": "R001644", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R000776", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 40, "label": "PERSON"}]}
+{"record_id": "R001387", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 22, "label": "PERSON"}]}
+{"record_id": "R000462", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R000694", "spans": []}
+{"record_id": "R001615", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R000360", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R002091", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 51, "end": 59, "label": "PERSON"}]}
+{"record_id": "R000079", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001641", "spans": []}
+{"record_id": "R002114", "spans": [{"start": 44, "end": 47, "label": "PERSON"}]}
+{"record_id": "R002351", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000642", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 54, "label": "PERSON"}]}
+{"record_id": "R002376", "spans": []}
+{"record_id": "R000404", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}, {"start": 60, "end": 67, "label": "PERSON"}]}
+{"record_id": "R001783", "spans": []}
+{"record_id": "R002567", "spans": []}
+{"record_id": "R002759", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R002797", "spans": []}
+{"record_id": "R002664", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 46, "label": "PERSON"}, {"start": 47, "end": 57, "label": "PERSON"}]}
+{"record_id": "R000913", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 41, "label": "PERSON"}, {"start": 42, "end": 47, "label": "PERSON"}]}
+{"record_id": "R000948", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R000735", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002718", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000591", "spans": []}
+{"record_id": "R000104", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 21, "label": "PERSON"}, {"start": 40, "end": 45, "label": "PERSON"}]}
+{"record_id": "R002382", "spans": []}
+{"record_id": "R001979", "spans": []}
+{"record_id": "R001146", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R002149", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000334", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 55, "end": 63, "label": "PERSON"}, {"start": 66, "end": 70, "label": "PERSON"}]}
+{"record_id": "R001667", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001332", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 55, "label": "PERSON"}]}
+{"record_id": "R000835", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 56, "label": "PERSON"}]}
+{"record_id": "R002798", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R000108", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001161", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002427", "spans": []}
+{"record_id": "R001882", "spans": [{"start": 32, "end": 36, "label": "PERSON"}]}
+{"record_id": "R001742", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001621", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 45, "label": "PERSON"}, {"start": 46, "end": 51, "label": "PERSON"}]}
+{"record_id": "R002378", "spans": []}
+{"record_id": "R001838", "spans": []}
+{"record_id": "R001865", "spans": []}
+{"record_id": "R002548", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001064", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 56, "end": 64, "label": "PERSON"}]}
+{"record_id": "R000841", "spans": []}
+{"record_id": "R000721", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001493", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002196", "spans": []}
+{"record_id": "R002411", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001718", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 22, "label": "PERSON"}]}
+{"record_id": "R001506", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 38, "label": "PERSON"}, {"start": 39, "end": 50, "label": "PERSON"}]}
+{"record_id": "R001811", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001988", "spans": []}
+{"record_id": "R001815", "spans": []}
+{"record_id": "R001765", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001460", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002400", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}, {"start": 52, "end": 58, "label": "PERSON"}]}
+{"record_id": "R002022", "spans": []}
+{"record_id": "R000359", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 16, "end": 35, "label": "HEALTH"}, {"start": 59, "end": 64, "label": "PERSON"}]}
+{"record_id": "R000795", "spans": []}
+{"record_id": "R000903", "spans": []}
+{"record_id": "R001030", "spans": []}
+{"record_id": "R000930", "spans": []}
+{"record_id": "R001539", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}, {"start": 56, "end": 60, "label": "PERSON"}]}
+{"record_id": "R002423", "spans": [{"start": 94, "end": 99, "label": "PERSON"}]}
+{"record_id": "R002128", "spans": []}
+{"record_id": "R002639", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 41, "end": 46, "label": "PERSON"}, {"start": 47, "end": 58, "label": "PERSON"}]}
+{"record_id": "R001152", "spans": [{"start": 44, "end": 48, "label": "PERSON"}]}
+{"record_id": "R002287", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001884", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R000459", "spans": []}
+{"record_id": "R000467", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001990", "spans": []}
+{"record_id": "R001981", "spans": []}
+{"record_id": "R001101", "spans": []}
+{"record_id": "R000454", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 48, "end": 53, "label": "PERSON"}, {"start": 56, "end": 62, "label": "PERSON"}]}
+{"record_id": "R001125", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001622", "spans": []}
+{"record_id": "R001985", "spans": []}
+{"record_id": "R002001", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001481", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001910", "spans": []}
+{"record_id": "R000908", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002644", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000757", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000729", "spans": []}
+{"record_id": "R000331", "spans": []}
+{"record_id": "R002018", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R002516", "spans": []}
+{"record_id": "R001361", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 57, "end": 61, "label": "PERSON"}]}
+{"record_id": "R000606", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 53, "end": 58, "label": "PERSON"}]}
+{"record_id": "R001484", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002146", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000319", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001738", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002395", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R001855", "spans": []}
+{"record_id": "R001210", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000881", "spans": [{"start": 0, "end": 9, "label": "HEALTH"}]}
+{"record_id": "R001342", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 17, "end": 36, "label": "HEALTH"}]}
+{"record_id": "R000348", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 56, "end": 61, "label": "PERSON"}, {"start": 64, "end": 68, "label": "PERSON"}]}
+{"record_id": "R001933", "spans": []}
+{"record_id": "R002471", "spans": []}
+{"record_id": "R002624", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 52, "end": 60, "label": "PERSON"}]}
+{"record_id": "R000217", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002222", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002110", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002522", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 40, "label": "PERSON"}, {"start": 41, "end": 52, "label": "PERSON"}]}
+{"record_id": "R000169", "spans": []}
+{"record_id": "R002111", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}]}
+{"record_id": "R001997", "spans": []}
+{"record_id": "R001698", "spans": []}
+{"record_id": "R001321", "spans": []}
+{"record_id": "R000241", "spans": []}
+{"record_id": "R000173", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 54, "end": 62, "label": "PERSON"}, {"start": 65, "end": 73, "label": "PERSON"}]}
+{"record_id": "R000965", "spans": []}
+{"record_id": "R001558", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001518", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 55, "label": "PERSON"}]}
+{"record_id": "R002527", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000961", "spans": []}
+{"record_id": "R001243", "spans": []}
+{"record_id": "R002472", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 22, "label": "PERSON"}]}
+{"record_id": "R002733", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 21, "label": "PERSON"}]}
+{"record_id": "R001612", "spans": [{"start": 44, "end": 50, "label": "PERSON"}]}
+{"record_id": "R002076", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R001068", "spans": []}
+{"record_id": "R001309", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000567", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R002677", "spans": []}
+{"record_id": "R002637", "spans": []}
+{"record_id": "R000484", "spans": []}
+{"record_id": "R000739", "spans": [{"start": 0, "end": 18, "label": "HEALTH"}]}
+{"record_id": "R000622", "spans": []}
+{"record_id": "R001323", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001429", "spans": []}
+{"record_id": "R002504", "spans": []}
+{"record_id": "R000786", "spans": []}
+{"record_id": "R002465", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000982", "spans": []}
+{"record_id": "R000238", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 38, "label": "PERSON"}, {"start": 39, "end": 47, "label": "PERSON"}]}
+{"record_id": "R002379", "spans": []}
+{"record_id": "R002442", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}]}
+{"record_id": "R000196", "spans": [{"start": 0, "end": 7, "label": "HEALTH"}, {"start": 20, "end": 25, "label": "PERSON"}, {"start": 26, "end": 36, "label": "PERSON"}]}
+{"record_id": "R000984", "spans": []}
+{"record_id": "R000018", "spans": [{"start": 0, "end": 22, "label": "HEALTH"}, {"start": 35, "end": 40, "label": "PERSON"}, {"start": 41, "end": 52, "label": "PERSON"}]}
+{"record_id": "R002754", "spans": []}
+{"record_id": "R000774", "spans": [{"start": 0, "end": 31, "label": "HEALTH"}]}
+{"record_id": "R000301", "spans": []}
+{"record_id": "R000601", "spans": []}
+{"record_id": "R002480", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}, {"start": 52, "end": 60, "label": "PERSON"}]}
+{"record_id": "R002622", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 63, "end": 67, "label": "PERSON"}]}
+{"record_id": "R000732", "spans": [{"start": 0, "end": 28, "label": "HEALTH"}, {"start": 50, "end": 56, "label": "PERSON"}]}
+{"record_id": "R002818", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}, {"start": 16, "end": 22, "label": "PERSON"}]}
+{"record_id": "R000136", "spans": [{"start": 0, "end": 14, "label": "HEALTH"}]}
+{"record_id": "R001830", "spans": [{"start": 91, "end": 95, "label": "PERSON"}]}
+{"record_id": "R002214", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}
+{"record_id": "R001471", "spans": []}
+{"record_id": "R002241", "spans": []}
+{"record_id": "R000754", "spans": [{"start": 0, "end": 8, "label": "HEALTH"}]}

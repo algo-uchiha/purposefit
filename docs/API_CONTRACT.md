@@ -8,9 +8,9 @@ For the front-end agent and for whoever builds `api/main.py` in Phase 9. The JSO
 | --- | --- |
 | Manifest, labels, findings, plan, transform stats, pets-eval scorecard, leaderboard rows | Real. Produced by the pipeline today. |
 | Scenario list with utility tasks | Real. Read from the public `scenarios.json` and the pets-eval task registry. |
-| `gate`, `residual_risks`, `k` summary | Shape fixed here. The pipeline does not produce them yet. Fixture values are computed by the exporter from the real scorecard with the rule in section 4.5. The gate limit (0.02) is a placeholder. |
-| `ablation` | Shape fixed here. Always `[]` until Phase 7. |
-| `spans`, `per_label`, `surrogate_text` in the redact stage | Shape fixed here. Empty until Phase 5. Text is released unredacted today. |
+| `gate`, `residual_risks`, `k` summary | Shape fixed here. The pipeline does not produce them yet. The gate is produced by `verify.build_gate` with the rule in section 4.5 (thresholds in `api/pipeline/config.py`). Fixtures are exported from the real scorecards. |
+| `ablation` | Real for the rule layers, train split only, from `tests/redact_eval.py`. Produced by the pipeline in Phase 7. `[]` for CS-S3. |
+| `spans`, `per_label` in the redact stage | Real since Phase 5 for CS-S1 (rule layers 1 to 4). `surrogate_text` stays `null`: typed placeholders only. |
 | `policy_card` in the report stage | Shape not fixed yet. `null` until Phase 8. |
 
 ## 1. Conventions
@@ -99,6 +99,7 @@ The pipeline runs in a background task. Poll `GET /api/runs/{id}`.
   "created_utc": "2026-11-07T23:40:04+00:00",
   "git_hash": "8c60fac",
   "key_id": "39ffd61450cc",
+  "derived_key_id": "d8a26adaa22f",
   "seed": 20261107,
   "llm": {"provider": "none", "model": "none"},
   "layers": {"llm": false, "ner": false, "gazetteer": false},
@@ -113,6 +114,7 @@ The pipeline runs in a background task. Poll `GET /api/runs/{id}`.
 }
 ```
 
+- `key_id` is the id of the master key; `derived_key_id` is the id of the key derived for this scenario (HMAC of the master key and the scenario id), which is the one that made this release's pseudonyms. Neither is a key.
 - `status`: `queued`, `running`, `done` or `failed`. `done` does not mean the gate passed.
 - `stages` lists all eight in order: `run`, `profile`, `detect`, `plan`, `transform`, `redact`, `verify`, `report`. Stage `status`: `pending`, `running`, `done`, `failed`, `skipped`. `duration_ms` is `null` when unknown or not yet run.
 - `layers` records which optional layers were switched on for the run (`--no-llm`, `--no-ner`, `--no-gazetteer`).
@@ -174,7 +176,7 @@ Returns `application/zip`, `Content-Disposition: attachment; filename="<run_id>_
 | `withhold_table` | Whole table not released: not needed for this purpose. | not released |
 | `hmac` | Keyed pseudonym (HMAC-SHA256). | keyed pseudonym (HMAC-SHA256); still personal data |
 | `generalise` | Coarsened to `params.level`. | coarsened to a fixed level; checked for k >= 5 |
-| `redact` | Free text kept for a task; identifiers removed by the text redactor (Phase 5). | free text; identifiers to be removed by the text redactor (not yet built) |
+| `redact` | Free text kept for a task; identifiers removed by the text redactor (Phase 5). | free text; identifiers replaced by typed placeholders (rule redactor); leakage measured by pets-eval |
 | `suppress_k` | Table-level entry with `column: "*"`: the k check. | k-anonymity on the kept quasi-identifiers |
 
 Every `params` except the one on `suppress_k` has `role` (a privacy role) and `subtype` (a taxonomy subtype). Optional keys:
@@ -314,51 +316,60 @@ Notes for the UI:
 - `utility` has one entry per task of the scenario. `required` is `true` for the scenario's own tasks. `score` is `null` with `metric: "not answerable"` when columns the task needs were removed.
 - `summary.privacy`, `utility` and `composite` are the headline numbers. They carry the `label` above.
 
-**Gate** (placeholder rule, see section 0):
+**Gate** (the release gate of `docs/ARCHITECTURE.md`; thresholds live in `api/pipeline/config.py`):
 
 ```json
-{"passed": false, "scenario_id": "CS-S1", "blocking": ["risk.turns_free_text_identifier_leakage"],
+{"passed": false, "scenario_id": "CS-S1", "blocking": ["risk_vs_baseline", "text_leakage"],
  "checks": [
-   {"id": "risk.turns_free_text_identifier_leakage", "name": "turns: free-text identifier leakage",
-    "kind": "risk", "status": "fail", "value": 1.0, "threshold": 0.02, "comparison": "at_most",
-    "source": "pets-eval risk component"},
-   {"id": "k.conversations", "name": "k-anonymity of conversations", "kind": "k", "status": "pass",
-    "value": 751, "threshold": 5, "comparison": "at_least", "source": "pyCANON"}
+   {"id": "direct_identifiers", "name": "Residual direct identifiers", "kind": "direct_identifiers",
+    "status": "pass", "value": 0.0, "threshold": 0.0, "comparison": "at_most",
+    "reason": "No direct identifier is retained in any released table.", "source": "pets-eval"},
+   {"id": "k_anonymity", "name": "k-anonymity", "kind": "k", "status": "pass", "value": 751,
+    "threshold": 5, "comparison": "at_least",
+    "reason": "pyCANON finds k = 751 on the released quasi-identifiers.", "source": "pyCANON"},
+   {"id": "risk_vs_baseline", "name": "Risk components against B2-k", "kind": "baseline",
+    "status": "fail", "value": 1, "threshold": 0, "comparison": "at_most",
+    "reason": "Not lower than B2-k: turns: free-text identifier leakage.", "source": "pets-eval",
+    "details": [{"name": "turns: free-text identifier leakage", "ours": 1.0, "baseline": 0.8012, "ok": false}]},
+   {"id": "text_leakage", "name": "Identifying leakage in free text", "kind": "text",
+    "status": "fail", "value": 1.0, "threshold": 0.1, "comparison": "at_most",
+    "reason": "Identifying leakage is 1.000 in turns.text, above the limit of 0.10.", "source": "pets-eval"}
  ]}
 ```
 
-`passed` is `true` when `blocking` is empty. `checks` has one `risk` check per key of `ours.risk_components` and one `k` check per released table that keeps quasi-identifiers. `status` is `pass` or `fail`. `comparison` is `at_most` or `at_least`. Show a failed gate as an error notification that names the checks in `blocking`.
+Always exactly four checks, in this order, ids fixed: `direct_identifiers` (every "direct identifiers retained" component is 0), `k_anonymity` (pyCANON k at least 5 for every released table with quasi-identifiers; passes with `value: null` when none is released), `risk_vs_baseline` (every risk component that ours and B2-k both measure is lower than B2-k's, or both are 0; `value` is the number of components that are not; `details` lists each compared component; fails when no B2-k scorecard exists) and `text_leakage` (identifying leakage of every released free-text column at most 0.10; `value` is the worst rate, `null` when no text column is released). `reason` is a plain sentence written by the server, shown as is. `passed` is `true` when `blocking` is empty. `status` is `pass` or `fail`. `comparison` is `at_most`, `at_least`. Show a failed gate as an error notification that names the checks in `blocking`. The gate is also written to `06_gate.json`.
 
 **KSummary**: `{"table": "conversations", "qis": ["language"], "pipeline_k": 751, "pycanon_k": 751, "method": "level search"}`. The list is empty when no quasi-identifier is kept. Show `pycanon_k` next to `pipeline_k`.
 
 **ResidualRisk**: `{"id": "k_scope", "text": "k-anonymity limits singling out on the stated quasi-identifiers only; it does not stop attribute inference inside a uniform group.", "source": "docs/FACTS.md"}`. Plain sentences for a list. The text is written by the server.
 
-**Ablation** (empty today): a row per redactor layer switched off.
+**Ablation**: a row per redactor layer switched off, measured on the customer_service train split (not the full release).
 
 ```json
-{"layer_off": "gazetteer", "leakage": 0.12, "utility": 0.97, "n_spans": 4210}
+{"layer_off": "health", "leakage": 0.0162, "precision": 0.9875, "health_leakage": 0.9557,
+ "utility": null, "n_spans": 50206, "scope": "customer_service train split"}
 ```
 
-`layer_off` is one of `patterns`, `normalise`, `gazetteer`, `cues`, `ner`, `health`. `leakage` is the free-text identifier leakage rate and `utility` the mean required utility, both between 0 and 1. Hide the section while the array is empty.
+`layer_off` is one of `patterns`, `normalise`, `controller`, `dvv`, `cues`, `health` (the gazetteer is two sources, reported separately; `ner` comes later). `health_leakage` is the leakage rate of the gold HEALTH values in the redacted text. `leakage` is the identifying leakage rate of the free text and `precision` the label-agnostic span precision, both between 0 and 1. `utility` is `null` until Phase 7. Hide the section while the array is empty. Switching `controller` off leaves the public DVV lists as the only name source, so that row is also the "DVV only" result. The `health` row is the run without the LLM health flags.
 
 ### 4.6 Redact stage (Text screen; fixtures `stage.redact.CS-S1.json`)
 
 ```json
 {
   "dataset": "customer_service", "table": "turns", "column": "text",
-  "redacted": false, "layers_run": [], "n_turns": 20,
+  "redacted": true, "layers_run": ["patterns", "normalise", "controller", "dvv", "cues", "health"], "n_turns": 20,
   "turns": [
     {"record_id": "T0000001", "conversation_id": "e814fabe647694efd49d",
      "original_text": "aallokko kundtjänst ...", "protected_text": "aallokko kundtjänst ...",
      "surrogate_text": null,
-     "spans": [{"start": 21, "end": 27, "label": "PERSON", "layer": "gazetteer", "score": 0.93}]}
+     "spans": [{"start": 21, "end": 27, "label": "PERSON", "layer": "gazetteer", "score": 0.9}]}
   ],
   "per_label": [{"label": "NATIONAL_ID", "n": 5120, "leaked": 80, "rate": 0.0156}],
-  "span_labels_note": "spans are empty until Phase 5"
+  "span_labels_note": "rule layers and LLM health flags; NER is not run yet"
 }
 ```
 
-- Today `redacted` is `false`, `layers_run` and `per_label` are `[]`, every `spans` is `[]` and `protected_text` equals `original_text`. The fixture turns are the first 20 of the synthetic `customer_service` turns. Treat the span shape above as fixed: it is the `Span` contract without `record_id`.
+- For CS-S1 `redacted` is `true`, `layers_run` lists the layers that ran (`patterns`, `normalise`, `controller`, `dvv`, `cues`, `health`; the gazetteer spans all carry `layer: "gazetteer"` or `"normalise"` and the span file also records which source found them), every `spans` holds the turn's spans and `per_label` is the pets-eval leakage per gold label over the whole release (`leaked` counts values still recoverable; `LOCATION`, `DATE` and `ORG` are not redacted by the rule layers, so their rates stay high; `HEALTH` is redacted by the health layer, spans with `layer: "health"`). The fixture turns are the first 20 of the synthetic `customer_service` turns. Treat the span shape above as fixed: it is the `Span` contract without `record_id`.
 - `start` and `end` are character offsets into `original_text` (0-based, end exclusive). `label` is one of `PERSON`, `NATIONAL_ID`, `EMAIL`, `PHONE`, `ADDRESS`, `LOCATION`, `DATE`, `AGE`, `IBAN`, `PAYMENT_CARD`, `ACCOUNT_NUMBER`, `IP_ADDRESS`, `LICENSE_PLATE`, `ORG`, `URL`, `USERNAME`, `SECRET`, `HEALTH`, `DEVICE_ID`, `PROPERTY_ID`. `layer` is one of `patterns`, `normalise`, `gazetteer`, `cues`, `ner`, `health`. `score` is between 0 and 1.
 - `protected_text` shows typed placeholders such as `[PERSON]`. `surrogate_text` is the consistent-surrogate version, or `null` when the run has none. Enable the Toggle only when `surrogate_text` is not `null`.
 - For a scenario that withholds the transcripts (CS-S3), `turns` is `[]` and `table` is `null`. Show a "withheld: not needed for this purpose" notice.
@@ -367,7 +378,21 @@ Notes for the UI:
 
 ### 4.7 Report stage
 
-`{"plan_table_md": "| Table | Column | Role | Action | Level | Reason |\n...", "policy_card": null}`. `plan_table_md` is the field-by-field plan as a Markdown table, followed by one k check line per table and, when a level search ran, one summary line of the search. `policy_card` is `null` until Phase 8. The Export screen should offer it only when it is not `null`.
+`{"plan_table_md": "| Table | Column | Role | Action | Level | Reason |\n...", "policy_card": PolicyCard | null}`. `plan_table_md` is the field-by-field plan as a Markdown table, followed by one k check line per table and, when a level search ran, one summary line of the search. `policy_card` is `null` until the verify stage has run, then:
+
+```json
+{"scenario_id": "CS-S1", "dataset": "customer_service",
+ "pseudonymisation": {
+   "secret": {"key_id": "d8a26adaa22f", "held_by": "controller", "note": "..."},
+   "domain": {"recipient": "Cloud AI vendor (processor, outside the EU possible)", "note": "..."},
+   "additional_information": {"held_by": "controller", "kept_in": "runs/private", "items": ["row maps", "gazetteer values"]}},
+ "released_tables": ["conversations", "turns"],
+ "fields": [{"table": "turns", "column": "text", "action": "redact", "reason": "...", "guarantee": "..."}],
+ "gate": Gate, "residual_risks": [ResidualRisk], "headline_label": "self-assessment, not the official judging score",
+ "note": "Pseudonymised data is still personal data (GDPR Recital 26)."}
+```
+
+The three `pseudonymisation` entries use the terms of EDPB Guidelines 01/2025: the secret is named by key id only, the domain is the named recipient, and the additional information (row maps, gazetteer values) is held by the controller. `residual_risks` also lists, by label name, every span label whose values are still recoverable in more than 5 % of cases. The export zip holds the same card as `policy_card.json` and `policy_card.md`.
 
 ### 4.8 Leaderboard rows (fixture `leaderboard.json`)
 

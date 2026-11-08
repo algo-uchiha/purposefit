@@ -82,17 +82,13 @@
       "identifying_leakage_rate": 0.0
      }
     },
-    "regex_residuals": {
-     "conversation_id": {
-      "PHONE": 2
-     }
-    },
+    "regex_residuals": {},
     "risks": {
      "direct identifiers retained": 0.0,
      "records with k<5": 0.0,
      "free-text identifier leakage": 0.0
     },
-    "seconds": 0.2
+    "seconds": 0.3
    },
    "customers": {
     "table": "customers",
@@ -608,44 +604,68 @@
   "scenario_id": "CS-S3",
   "checks": [
    {
-    "id": "risk.conversations_direct_identifiers_retained",
-    "name": "conversations: direct identifiers retained",
-    "kind": "risk",
+    "id": "direct_identifiers",
+    "name": "Residual direct identifiers",
+    "kind": "direct_identifiers",
     "status": "pass",
     "value": 0.0,
-    "threshold": 0.02,
+    "threshold": 0.0,
     "comparison": "at_most",
-    "source": "pets-eval risk component"
+    "reason": "No direct identifier is retained in any released table.",
+    "source": "pets-eval"
    },
    {
-    "id": "risk.conversations_records_with_k_5",
-    "name": "conversations: records with k<5",
-    "kind": "risk",
-    "status": "pass",
-    "value": 0.0,
-    "threshold": 0.02,
-    "comparison": "at_most",
-    "source": "pets-eval risk component"
-   },
-   {
-    "id": "risk.conversations_free_text_identifier_leakage",
-    "name": "conversations: free-text identifier leakage",
-    "kind": "risk",
-    "status": "pass",
-    "value": 0.0,
-    "threshold": 0.02,
-    "comparison": "at_most",
-    "source": "pets-eval risk component"
-   },
-   {
-    "id": "k.conversations",
-    "name": "k-anonymity of conversations",
+    "id": "k_anonymity",
+    "name": "k-anonymity",
     "kind": "k",
     "status": "pass",
     "value": 751,
     "threshold": 5,
     "comparison": "at_least",
+    "reason": "pyCANON finds k = 751 on the released quasi-identifiers.",
     "source": "pyCANON"
+   },
+   {
+    "id": "risk_vs_baseline",
+    "name": "Risk components against B2-k",
+    "kind": "baseline",
+    "status": "pass",
+    "value": 0,
+    "threshold": 0,
+    "comparison": "at_most",
+    "reason": "All 3 shared risk components are lower than B2-k's, or zero where B2-k is also zero.",
+    "source": "pets-eval",
+    "details": [
+     {
+      "name": "conversations: direct identifiers retained",
+      "ours": 0.0,
+      "baseline": 0.0,
+      "ok": true
+     },
+     {
+      "name": "conversations: free-text identifier leakage",
+      "ours": 0.0,
+      "baseline": 0.8286,
+      "ok": true
+     },
+     {
+      "name": "conversations: records with k<5",
+      "ours": 0.0,
+      "baseline": 0.0,
+      "ok": true
+     }
+    ]
+   },
+   {
+    "id": "text_leakage",
+    "name": "Identifying leakage in free text",
+    "kind": "text",
+    "status": "pass",
+    "value": null,
+    "threshold": 0.1,
+    "comparison": "at_most",
+    "reason": "No free-text column is released.",
+    "source": "pets-eval"
    }
   ],
   "blocking": []
