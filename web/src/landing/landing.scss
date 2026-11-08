@@ -1009,3 +1009,15 @@ body:has(.landing-v3) {
 .copy-fields li.copy-field-none { border-color: #e1eaec; background: #f4f7f8; color: var(--pf-muted); }
 .original-note { margin-top: 12px; color: var(--pf-muted); font-size: clamp(12px, 0.95vw, 14px); }
 .v3-footer a + a { margin-left: 18px; }
+
+.safe-copies { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; gap: 14px; align-items: start; }
+.example-table { margin-top: 8px; }
+.example-row { display: grid; grid-template-columns: minmax(96px, 0.85fr) 1.6fr; gap: 12px; padding: 7px 0; border-top: 1px solid #e1eaec; font-size: clamp(12px, 0.98vw, 14.5px); line-height: 1.4; }
+.example-row:first-child { border-top: 0; }
+.example-row span { color: var(--pf-muted); }
+.example-row b { color: var(--pf-ink); font-weight: 500; }
+.example-row .not-shared { color: #8a99a0; font-weight: 400; }
+.pii-mark { padding: 0 6px; border-radius: 4px; background: #fde7e4; color: #9c2a1e; }
+.stat-card strong { white-space: nowrap; }
+
+.stat-card strong.stat-card-big { font-size: clamp(40px, 22cqw, 56px); letter-spacing: -0.05em; margin-bottom: 9px; }

@@ -173,40 +173,43 @@ function ScorePanel({ data }: { data: LandingData }) {
   );
 }
 
-const columnNames: Record<string, string> = {
-  intent: "Reason for the call",
-  handle_time_s: "Call length",
-  sentiment: "Customer mood",
-  csat: "Satisfaction score",
-  channel: "Channel",
-  language: "Language",
-  resolved: "Solved on first contact",
+type ExampleRow = {
+  label: string;
+  value: string;
+  table: string;
+  column: string;
+  isPrivate?: boolean;
 };
-const copyTitles: Record<string, string> = {
-  "CS-S1": "Copy for an outside AI vendor",
-  "CS-S2": "Copy for the internal data science team",
-  "CS-S3": "Copy for a quality-audit partner",
-};
-function keptFor(plan?: Plan) {
-  const policies = plan?.policies ?? [];
-  const fields = policies
-    .filter(
-      (policy) =>
-        policy.table === "conversations" &&
-        policy.action !== "drop" &&
-        policy.action !== "withhold_table" &&
-        columnNames[policy.column],
-    )
-    .map((policy) => columnNames[policy.column]);
-  const hasText = policies.some(
-    (policy) => policy.table === "turns" && policy.column === "text" && policy.action === "redact",
-  );
-  return { fields, hasText };
+const exampleRows: ExampleRow[] = [
+  { label: "Name", value: "Maija Virtanen", table: "customers", column: "full_name", isPrivate: true },
+  { label: "Phone", value: "040 123 4567", table: "customers", column: "phone", isPrivate: true },
+  { label: "City", value: "Turku", table: "customers", column: "city", isPrivate: true },
+  { label: "Channel", value: "Phone", table: "conversations", column: "channel" },
+  { label: "Language", value: "Finnish", table: "conversations", column: "language" },
+  { label: "Reason for the call", value: "Billing error", table: "conversations", column: "intent" },
+  { label: "Call length", value: "6 min 52 s", table: "conversations", column: "handle_time_s" },
+  { label: "Solved on first contact", value: "Yes", table: "conversations", column: "resolved" },
+  {
+    label: "Call text",
+    value: "Hi, I'm Maija. Call me back on 040 123 4567.",
+    table: "turns",
+    column: "text",
+    isPrivate: true,
+  },
+];
+const exampleRedacted = "Hi, I'm [PERSON]. Call me back on [PHONE].";
+const exampleDestinations = [
+  { id: "CS-S1", title: "Outside AI vendor", code: "cv_3f9a1c07" },
+  { id: "CS-S3", title: "Quality-audit partner", code: "cv_b81e5d20" },
+];
+function exampleValue(plan: Plan | undefined, row: ExampleRow) {
+  const policy = plan?.policies.find((p) => p.table === row.table && p.column === row.column);
+  if (!policy || policy.action === "drop" || policy.action === "withhold_table") return null;
+  if (policy.action === "redact") return exampleRedacted;
+  return row.value;
 }
 
 function ChangesPanel({ data }: { data: LandingData }) {
-  const original = data.redact["CS-S1"].turns[0];
-  const copies = ["CS-S1", "CS-S2", "CS-S3"].filter((id) => data.plans[id]);
   return (
     <section id="changes" className="v3-panel v3-changes">
       <Blobs variant="two" />
@@ -214,8 +217,8 @@ function ChangesPanel({ data }: { data: LandingData }) {
         <p className="section-label">What changes</p>
         <h2>Everyone gets their own copy.</h2>
         <p>
-          The same call, three recipients. Each one receives different fields, because each one has
-          a different job.
+          One customer call, two destinations. Each one receives different fields, because each one
+          has a different job.
         </p>
       </div>
       <div className="copy-flow">
@@ -225,48 +228,57 @@ function ChangesPanel({ data }: { data: LandingData }) {
               <h3>The original record</h3>
             </div>
           </div>
-          <p>
-            <TextWithSpans text={original.original_text} spans={original.spans} />
-          </p>
-          <p className="original-note">
-            Behind it sits the customer record: name, personal ID, address, email and bank account.
-          </p>
-          <span className="legend-red" aria-hidden="true" />
+          <div className="example-table">
+            {exampleRows.map((row) => (
+              <div className="example-row" key={row.label}>
+                <span>{row.label}</span>
+                <b>{row.isPrivate && row.column !== "text" ? <mark className="pii-mark">{row.value}</mark> : row.value}</b>
+              </div>
+            ))}
+          </div>
         </article>
         <div className="flow-arrow" aria-hidden="true">
           <ArrowRight size={28} />
         </div>
         <div className="safe-copies">
-          {copies.map((id) => {
-            const { fields, hasText } = keptFor(data.plans[id]);
+          {exampleDestinations.map((dest) => {
+            const plan = data.plans[dest.id];
             return (
-              <article className="record-card safe-card" key={id}>
+              <article className="record-card safe-card" key={dest.id}>
                 <div className="card-heading">
                   <div>
-                    <h3>{copyTitles[id] ?? id}</h3>
+                    <h3>{dest.title}</h3>
                   </div>
                 </div>
-                <ul className="copy-fields">
-                  <li className="copy-field-code">A code instead of the customer</li>
-                  {fields.map((field) => (
-                    <li key={field}>{field}</li>
-                  ))}
-                  <li className={hasText ? "" : "copy-field-none"}>
-                    {hasText ? "Call text with private words blacked out" : "No call text"}
-                  </li>
-                </ul>
-                {hasText && id === "CS-S1" && (
-                  <p>
-                    <SafeText text={original.protected_text} />
-                  </p>
-                )}
-                <span className="legend-mint" aria-hidden="true" />
+                <div className="example-table">
+                  <div className="example-row">
+                    <span>Customer</span>
+                    <b>
+                      <mark className="safe-span">{dest.code}</mark>
+                    </b>
+                  </div>
+                  {exampleRows.map((row) => {
+                    const value = exampleValue(plan, row);
+                    return (
+                      <div className="example-row" key={row.label}>
+                        <span>{row.label}</span>
+                        {value === null ? (
+                          <b className="not-shared">Not shared</b>
+                        ) : (
+                          <b>{row.column === "text" ? <SafeText text={value} /> : value}</b>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </article>
             );
           })}
         </div>
       </div>
-      <p className="source-note">Real field choices from the three plans. Call text is a real example.</p>
+      <p className="source-note">
+        Made-up example. Which fields each destination gets comes from the real plans.
+      </p>
       <ScrollHint />
     </section>
   );
@@ -333,24 +345,29 @@ function SafetyPanel({ data }: { data: LandingData }) {
   const healthBefore = claims["health.train_before"];
   const healthAfter = claims["health.train_after"];
   const purposeFitLeakage = verify.ours.risk_components["turns: free-text identifier leakage"];
-  const crowd = data.verify["CS-S3"]?.gate.checks.find((check) => check.id === "k_anonymity");
+  const standardLeakage = verify.baseline.risk_components["turns: free-text identifier leakage"];
+  const withheldFields = data.plans["CS-S1"].policies.filter(
+    (policy) => policy.action === "withhold_table" && policy.table === "customers",
+  ).length;
   const stats = [
     {
       value: hasDirectData ? String(direct) : "Unavailable",
       label: "names or ID numbers left",
     },
     {
-      value: crowd?.value != null ? crowd.value.toLocaleString() : "",
-      label: `people in the smallest group of the quality-audit copy. The rule is ${crowd?.threshold ?? 5} or more`,
-    },
-    {
       value:
-        purposeFitLeakage == null ? "Unavailable" : `${(purposeFitLeakage * 100).toFixed(1)}%`,
-      label: "of identifying details left in call text",
+        standardLeakage == null || purposeFitLeakage == null
+          ? "Unavailable"
+          : `${(standardLeakage * 100).toFixed(1)}% \u2192 ${(purposeFitLeakage * 100).toFixed(1)}%`,
+      label: "identifying details left in call text, standard method then PurposeFit",
     },
     {
-      value: healthAfter ?? "Unavailable",
-      label: `health details left in call text, down from ${healthBefore ?? "Unavailable"}`,
+      value: healthBefore && healthAfter ? `${healthBefore} \u2192 ${healthAfter}` : "Unavailable",
+      label: "health details left in call text, before then after",
+    },
+    {
+      value: String(withheldFields),
+      label: "customer fields that are not shared at all",
     },
   ];
   return (
@@ -364,7 +381,7 @@ function SafetyPanel({ data }: { data: LandingData }) {
       <div className="safety-stats">
         {stats.map((item) => (
           <article className="stat-card" key={item.label}>
-            {item.value && <strong>{item.value}</strong>}
+            {item.value && <strong className={item.value.length <= 2 ? "stat-card-big" : undefined}>{item.value}</strong>}
             <span>{item.label}</span>
           </article>
         ))}
@@ -475,16 +492,17 @@ export default function Landing() {
       api.redact("CS-S1"),
       api.redact("CS-S2"),
       api.verify("CS-S1"),
+      api.verify("CS-S2"),
       api.verify("CS-S3"),
     ])
-      .then(([scenarios, leaderboard, plan1, plan2, plan3, redact1, redact2, verify1, verify3]) => {
+      .then(([scenarios, leaderboard, plan1, plan2, plan3, redact1, redact2, verify1, verify2, verify3]) => {
         if (!alive) return;
         setData({
           scenarios,
           leaderboard,
           plans: { "CS-S1": plan1, "CS-S2": plan2, "CS-S3": plan3 },
           redact: { "CS-S1": redact1, "CS-S2": redact2 },
-          verify: { "CS-S1": verify1, "CS-S3": verify3 },
+          verify: { "CS-S1": verify1, "CS-S2": verify2, "CS-S3": verify3 },
         });
       })
       .catch(() => alive && setError("Can't reach the server. Is the demo running?"));
