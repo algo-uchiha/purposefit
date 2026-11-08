@@ -261,5 +261,30 @@ def test_health_span_swallows_an_identifier_it_touches():
     s = "Vaimoni Maija sai syövän"
     ctl = Controller([("PERSON_NAME", "Maija Virtanen")])
     res = redact({"r": s}, layers=Layers(dvv=False, health=True), controller=ctl,
-                 client=_Health({s: "Maija sai syövän"}))  # fmt: skip
+                 client=_Health({"Vaimoni [PERSON] sai syövän": "[PERSON] sai syövän"}))  # fmt: skip
     assert res.redacted["r"] == "Vaimoni [HEALTH]" and res.spans["r"][0].layer == "health"
+
+
+def test_no_detected_identifier_ever_reaches_the_llm():
+    ctl = Controller([("PERSON_NAME", "Maija Virtanen"), ("PHONE", "044 123 4567")])
+    texts = {"a": "Maija Virtanen täällä, numero 044 123 4567, minulla on diabetes ja tunnus 131052-308T",
+             "b": "my name is Hodan Warsame and I take insulin, mail hodan.w@mail.example",
+             "c": "Vaimoni Maija sai syövän"}  # fmt: skip
+    secrets = ["Maija", "Virtanen", "044 123 4567", "131052-308T", "Hodan", "Warsame", "hodan.w@mail.example"]
+    client = _Health({})
+    res = redact(texts, layers=Layers(dvv=False, health=True), controller=ctl, client=client)
+    payloads = json.dumps(client.prompts, ensure_ascii=False)
+    assert client.prompts and "diabetes" in payloads and "[PERSON]" in payloads
+    for secret in secrets:
+        assert secret not in payloads
+    assert all(secret not in " ".join(res.redacted.values()) for secret in secrets)
+
+
+def test_health_span_found_on_masked_text_maps_back_to_the_original():
+    ctl = Controller([("PERSON_NAME", "Maija Virtanen")])
+    s = "Maija Virtanen kertoi: minulla on diabetes."
+    res = redact({"r": s}, layers=Layers(dvv=False, health=True), controller=ctl,
+                 client=_Health({"[PERSON] [PERSON] kertoi: minulla on diabetes.": "minulla on diabetes"}))  # fmt: skip
+    assert res.redacted["r"] == "[PERSON] [PERSON] kertoi: [HEALTH]."
+    sp = next(x for x in res.spans["r"] if x.label == "HEALTH")
+    assert s[sp.start : sp.end] == "minulla on diabetes"

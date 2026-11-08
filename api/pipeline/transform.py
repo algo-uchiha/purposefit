@@ -40,6 +40,13 @@ def prefix_for(column: str) -> str:
     return ("".join(letters[:2]) or "id").ljust(2, "x")
 
 
+def derive_key(master_key: str, scenario_id: str) -> str:
+    """Per-recipient key: HMAC(master, "purposefit-v1|" + scenario id). The same id gets
+    different pseudonyms in two scenarios, so two recipients cannot link their releases."""
+    return hmac.new(master_key.encode(), f"purposefit-v1|{scenario_id}".encode(),
+                    hashlib.sha256).hexdigest()  # fmt: skip
+
+
 def pseudonym(key: str, value: str, column: str = "id") -> str:
     """Keyed pseudonym of one value: a letter prefix per column, then lowercase hex.
     Equal inputs give equal outputs in every table that uses the same column name."""
@@ -58,13 +65,14 @@ def _apply_column(col: pd.Series, p: FieldPolicy, key: str) -> pd.Series:
     return col
 
 
-def apply_plan(plan: PolicyPlan, run_path: Path, private_dir: Path, key: str,
+def apply_plan(plan: PolicyPlan, run_path: Path, private_dir: Path, key: str,  # master key
                root: Path | None = None,
                utility: Callable[[dict[str, pd.DataFrame]], float | None] | None = None,
                ) -> tuple[PolicyPlan, dict]:  # fmt: skip
     """`utility` scores a candidate release (dict of tables) for the level search; without it
     the search keeps the qualifying combination with the fewest suppressed rows, then the finest."""
     t0 = time.monotonic()
+    key = derive_key(key, plan.scenario_id)  # callers pass the master key
     base = (root or io.data_root()) / plan.dataset
     release = run_path / "04_release"
     release.mkdir(parents=True, exist_ok=True)

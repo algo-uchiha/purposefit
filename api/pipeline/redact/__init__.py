@@ -93,6 +93,31 @@ def _candidates(text: str, layers: Layers, ctl: gazetteer.Controller | None,
     return cands
 
 
+class Masked:
+    """Text with rule spans replaced by [LABEL], and the map back to the original offsets."""
+
+    def __init__(self, text: str, origin: list[tuple[int, int]]):
+        self.text, self.origin = text, origin
+
+    def to_original(self, start: int, end: int) -> tuple[int, int]:
+        return self.origin[start][0], self.origin[end - 1][1]
+
+
+def mask(text: str, spans: list[Cand]) -> Masked:
+    out: list[str] = []
+    origin: list[tuple[int, int]] = []
+    pos = 0
+    for c in spans:
+        for i in range(pos, c.start):
+            out.append(text[i]); origin.append((i, i + 1))
+        ph = f"[{c.label}]"
+        out.append(ph); origin.extend([(c.start, c.end)] * len(ph))
+        pos = c.end
+    for i in range(pos, len(text)):
+        out.append(text[i]); origin.append((i, i + 1))
+    return Masked("".join(out), origin)
+
+
 def _apply_health(merged: list[Cand], flagged: list[Cand]) -> list[Cand]:
     """A health span replaces every span it overlaps and grows to cover them, so no identifier
     inside or at the edge of the health phrase is left in the text."""
@@ -125,17 +150,24 @@ def redact(texts: dict[str, str], plan: PolicyPlan | None = None, *,
     if layers.dvv:
         dvv = gazetteer.dvv_matcher([texts[i] for i in ids], frozenset(ctl.names) if ctl else frozenset())
     known = (frozenset(ctl.names) if ctl else frozenset()) | (dvv.safe if dvv else frozenset())
+    # Rule layers first. The health layer only ever sees the text with those spans replaced by
+    # typed placeholders, so no detected identifier is sent to the LLM.
+    base = {rid: merge(_candidates(texts[rid], layers, ctl, dvv, known)) for rid in ids}
     flagged: dict[str, list[Cand]] = {}
     health_stats: dict = {}
     if layers.health:
-        flagged, health_stats = health.find(texts, client, use_cache=use_cache)
+        masked = {rid: mask(texts[rid], base[rid]) for rid in ids}
+        found, health_stats = health.find({rid: m.text for rid, m in masked.items()}, client,
+                                          use_cache=use_cache)  # fmt: skip
+        flagged = {rid: [Cand(*masked[rid].to_original(c.start, c.end), c.label, c.layer, c.score)
+                         for c in cs] for rid, cs in found.items()}  # fmt: skip
     spans: dict[str, list[Span]] = {}
     out: dict[str, str] = {}
     sources: dict[str, list[str]] = {}
     counts: dict[str, int] = {}
     for rid in ids:
         text = texts[rid]
-        merged = merge(_candidates(text, layers, ctl, dvv, known))
+        merged = base[rid]
         if rid in flagged:
             merged = _apply_health(merged, flagged[rid])
         spans[rid] = [Span(rid, c.start, c.end, c.label, c.layer, min(1.0, c.score)) for c in merged]

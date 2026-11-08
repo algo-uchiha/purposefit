@@ -171,9 +171,12 @@ def cmd_plan(args: argparse.Namespace, key: str) -> int:
     labels = [FieldLabel(**d) for d in json.loads(
         (run_path / "02_labels_detail.json").read_text(encoding="utf-8"))]  # fmt: skip
     profiles = read_profiles(run_path / "01_profiles.json")
+    from api.pipeline.transform import derive_key
+
     scenario = pl.load_scenario(args.scenario)
+    # The plan records the id of the key derived for this scenario, never a key.
     plan = pl.build_plan(scenario, labels, profiles, pl.load_tasks(scenario["dataset"]),
-                         key_id(key))  # fmt: skip
+                         key_id(derive_key(key, scenario["id"])))  # fmt: skip
     pl.write_plan(plan, run_path / "03_plan.json")
     return 0
 
