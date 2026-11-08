@@ -8,7 +8,8 @@
   "normalise",
   "controller",
   "dvv",
-  "cues"
+  "cues",
+  "health"
  ],
  "n_turns": 20,
  "turns": [
@@ -276,8 +277,8 @@
   {
    "label": "HEALTH",
    "n": 700,
-   "leaked": 669,
-   "rate": 0.9557
+   "leaked": 2,
+   "rate": 0.0029
   },
   {
    "label": "IBAN",
@@ -324,8 +325,8 @@
   {
    "label": "PERSON",
    "n": 19843,
-   "leaked": 21,
-   "rate": 0.0011
+   "leaked": 20,
+   "rate": 0.001
   },
   {
    "label": "PHONE",
@@ -358,5 +359,5 @@
    "rate": 0.0323
   }
  ],
- "span_labels_note": "rule layers only; NER and health layers are not run yet"
+ "span_labels_note": "rule layers and LLM health flags; NER is not run yet"
 }

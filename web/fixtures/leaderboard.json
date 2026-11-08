@@ -131,7 +131,7 @@
  },
  {
   "created_utc": "2026-11-08T00:23:52+00:00",
-  "run_id": "p4-CS-S1",
+  "run_id": "p5-CS-S1",
   "git_hash": "a7318f5",
   "dataset": "customer_service",
   "scenario": "CS-S1",
@@ -171,5 +171,27 @@
    "CS-U7": 1.0
   },
   "note": "phase 4 re-run: prefixed pseudonyms, new gate"
+ },
+ {
+  "created_utc": "2026-11-08T00:47:22+00:00",
+  "run_id": "p6-CS-S1",
+  "git_hash": "dbf193d",
+  "dataset": "customer_service",
+  "scenario": "CS-S1",
+  "method": "purposefit",
+  "privacy": 0.9899,
+  "utility": 0.9721,
+  "composite": 0.9817,
+  "worst_risk": 0.0161,
+  "worst_risk_component": "turns: free-text identifier leakage",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": 0.9997,
+   "CS-U3": 1.0,
+   "CS-U4": 1.0,
+   "CS-U5": 0.8886
+  },
+  "note": "phase 6-lite: rule redactor + LLM health flags"
  }
 ]

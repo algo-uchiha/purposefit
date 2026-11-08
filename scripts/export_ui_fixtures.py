@@ -137,21 +137,27 @@ def turns_fixture(scenario: str, ours: dict) -> dict:
     return {"dataset": "customer_service", "table": "turns", "column": "text",
             "redacted": True, "layers_run": stats["layers"], "n_turns": len(turns), "turns": turns,
             "per_label": per_label,
-            "span_labels_note": "rule layers only; NER and health layers are not run yet"}  # fmt: skip
+            "span_labels_note": "rule layers and LLM health flags; NER is not run yet"}  # fmt: skip
 
 
 def ablation_rows() -> list[dict]:
-    """Per-layer ablation on the train split, from tests/redact_eval.py (runs/p5-redact-train-full.json)."""
-    f = RUNS / "p5-redact-train-full.json"
-    if not f.exists():
+    """Per-layer ablation on the train split, from tests/redact_eval.py: the rule layers from
+    runs/p5-redact-train-full.json, the health layer from runs/p6-health-train-full.json."""
+    f5, f6 = RUNS / "p5-redact-train-full.json", RUNS / "p6-health-train-full.json"
+    if not f5.exists():
         return []
-    res = load(f)
     rows = []
-    for name, m in res.items():
+
+    def row(layer: str, m: dict) -> dict:
+        return {"layer_off": layer, "leakage": m["identifying_leakage"], "precision": m["precision"],
+                "health_leakage": m["per_label"].get("HEALTH"), "utility": None,
+                "n_spans": m["n_spans"], "scope": "customer_service train split"}  # fmt: skip
+
+    for name, m in load(f5).items():
         if name.startswith("without "):
-            rows.append({"layer_off": name.removeprefix("without "), "leakage": m["identifying_leakage"],
-                         "precision": m["precision"], "utility": None, "n_spans": m["n_spans"],
-                         "scope": "customer_service train split"})  # fmt: skip
+            rows.append(row(name.removeprefix("without "), m))
+    if f6.exists():
+        rows.append(row("health", load(f6)["all layers"]))  # the run without the health layer
     return rows
 
 

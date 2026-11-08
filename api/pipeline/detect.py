@@ -401,9 +401,9 @@ def detect(profiles: list[ColumnProfile]) -> list[FieldLabel]:
 
 LLM_SYSTEM = (
     "You classify columns of tabular datasets for privacy review. You get a JSON object with a "
-    "list of columns, each with an id, table, column name and sample values. Answer with a JSON "
-    'list only, one item per column, in the same order: [{"id": ..., "privacy_role": ..., '
-    '"subtype": ...}]. privacy_role must be one of: '
+    "list of columns, each with a key, table, column name and sample values. Answer with one "
+    "JSON object only, keyed by the exact key of each column, with one entry for every key and "
+    'no other keys: {"<key>": {"privacy_role": ..., "subtype": ...}, ...}. privacy_role must be one of: '
     + ", ".join(sorted(PRIVACY_ROLES))
     + ". subtype must be one of: "
     + ", ".join(sorted(SUBTYPES))
@@ -423,28 +423,36 @@ LLM_TOKENS_PER_COLUMN = 40  # one JSON item is about 25 tokens
 LLM_VALUE_CHARS = 80
 
 
-def _parse_llm_batch(text: str, ids: list[int]) -> dict[int, tuple[str, str]]:
-    """Valid (role, subtype) per id. Items with unknown ids or non-taxonomy terms are dropped."""
-    start, end = text.find("["), text.rfind("]")
+def _batch_keys(labels: list[FieldLabel], batch: list[int]) -> dict[str, int]:
+    """Answer key per label index: the column name, or table.column when names repeat."""
+    names = [labels[i].column for i in batch]
+    return {(labels[i].column if names.count(labels[i].column) == 1
+             else f"{labels[i].table}.{labels[i].column}"): i for i in batch}  # fmt: skip
+
+
+def _parse_llm_batch(text: str, keys: list[str]) -> dict[str, tuple[str, str]]:
+    """Valid (role, subtype) per key. The reply must be one JSON object whose keys are exactly
+    the requested ones: a missing, unknown or duplicated name rejects the whole batch (an empty
+    result). An entry with a non-taxonomy term is dropped on its own."""
+    start, end = text.find("{"), text.rfind("}")
     if start < 0 or end <= start:
         return {}
     try:
-        items = json.loads(text[start : end + 1])
+        pairs = json.loads(text[start : end + 1], object_pairs_hook=list)
     except json.JSONDecodeError:
         return {}
-    out: dict[int, tuple[str, str]] = {}
-    wanted = set(ids)
-    for item in items if isinstance(items, list) else []:
-        if not isinstance(item, dict):
+    names = [k for k, _ in pairs]
+    if len(names) != len(set(names)) or set(names) != set(keys):
+        return {}
+    out: dict[str, tuple[str, str]] = {}
+    for key, item in pairs:
+        if not isinstance(item, list):
             continue
-        try:
-            cid = int(item.get("id"))
-        except (TypeError, ValueError):
-            continue
-        role = str(item.get("privacy_role", "")).strip()
-        sub = str(item.get("subtype", "")).strip()
-        if cid in wanted and cid not in out and role in PRIVACY_ROLES and sub in SUBTYPES:
-            out[cid] = (role, sub)
+        d = dict(item)
+        role = str(d.get("privacy_role", "")).strip()
+        sub = str(d.get("subtype", "")).strip()
+        if role in PRIVACY_ROLES and sub in SUBTYPES:
+            out[key] = (role, sub)
     return out
 
 
@@ -471,8 +479,8 @@ def sample_values(dataset: str, table: str, column: str, seed: int, root: Path |
     return _table_samples([lab], seed, root)[(dataset, table, column)]
 
 
-def llm_pass(labels: list[FieldLabel], client, seed: int, root: Path | None = None
-             ) -> tuple[list[FieldLabel], dict[str, int]]:  # fmt: skip
+def llm_pass(labels: list[FieldLabel], client, seed: int, root: Path | None = None,
+             use_cache: bool = True) -> tuple[list[FieldLabel], dict[str, int]]:  # fmt: skip
     """Relabel low-confidence columns with the LLM, in batches, in parallel.
 
     Invalid or missing answers keep the rule label.
@@ -497,7 +505,9 @@ def llm_pass(labels: list[FieldLabel], client, seed: int, root: Path | None = No
     readmes = {d: io.read_readme(d, root)[:README_CHARS] for d in by_ds}
 
     def ask(batch: list[int]):
-        cols = [{"id": i, "table": labels[i].table, "column": labels[i].column,
+        keys = _batch_keys(labels, batch)
+        by_idx = {i: k for k, i in keys.items()}
+        cols = [{"key": by_idx[i], "table": labels[i].table, "column": labels[i].column,
                  "sample_values": samples[(labels[i].dataset, labels[i].table,
                                            labels[i].column)]} for i in batch]  # fmt: skip
         payload: dict = {"columns": cols}
@@ -507,7 +517,8 @@ def llm_pass(labels: list[FieldLabel], client, seed: int, root: Path | None = No
         try:
             return batch, client.complete(
                 prompt, system=LLM_SYSTEM, max_tokens=LLM_TOKENS_PER_COLUMN * len(batch) + 64,
-                validate=lambda text: bool(_parse_llm_batch(text, batch)),
+                validate=lambda text: bool(_parse_llm_batch(text, list(keys))),
+                use_cache=use_cache,
             )
         except Exception as exc:  # noqa: BLE001 (never block a run on the LLM)
             if not isinstance(exc, LLMError):
@@ -527,7 +538,9 @@ def llm_pass(labels: list[FieldLabel], client, seed: int, root: Path | None = No
         stats["fallback_calls"] += int(getattr(resp, "fallback", False))
         for k in ("prompt_tokens", "output_tokens", "thought_tokens"):
             stats[k] += getattr(resp, k, 0)
-        parsed = _parse_llm_batch(resp.text, batch)
+        keys = _batch_keys(labels, batch)
+        parsed_by_key = _parse_llm_batch(resp.text, list(keys))
+        parsed = {keys[k]: v for k, v in parsed_by_key.items()}
         for i in batch:
             lab = labels[i]
             if i not in parsed:
@@ -706,8 +719,11 @@ def data_pass(labels: list[FieldLabel], profiles: list[ColumnProfile], seed: int
         sens = [j for j in idx if out[j].privacy_role == "sensitive_attribute"]
         for i in idx:
             p = profiles[i]
-            # Only otherwise non-sensitive columns: an identifier keeps its role.
-            if out[i].privacy_role != "non_sensitive" or not _numeric(p):
+            # Only otherwise non-sensitive columns: an identifier keeps its role. An LLM
+            # quasi-identifier guess is also open to this value evidence.
+            open_role = out[i].privacy_role == "non_sensitive" or (
+                out[i].source == "llm" and out[i].privacy_role == "quasi_identifier")
+            if not open_role or not _numeric(p):
                 continue
             zero = df[p.column].map(_is_zero_or_empty)
             if zero.all() or not zero.any():
@@ -737,13 +753,13 @@ def data_pass(labels: list[FieldLabel], profiles: list[ColumnProfile], seed: int
 
 
 def detect_pipeline(profiles: list[ColumnProfile], seed: int, client=None,
-                    root: Path | None = None) -> tuple[list[FieldLabel], dict, list[dict]]:
+                    root: Path | None = None, use_cache: bool = True) -> tuple[list[FieldLabel], dict, list[dict]]:
     """Rules, person codes, optional LLM, then two-column data rules. Never blocks on the LLM."""
     start = time.monotonic()
     labels = person_code_pass(detect(profiles), profiles, root)
     stats: dict = {"status": "off"}
     if client is not None and client.enabled:
-        labels, stats = llm_pass(labels, client, seed, root)
+        labels, stats = llm_pass(labels, client, seed, root, use_cache)
     labels, findings = data_pass(labels, profiles, seed, root)
     log.info(json.dumps({"stage": "detect", "columns": len(labels), "findings": len(findings),
                          "duration_ms": int((time.monotonic() - start) * 1000)}))  # fmt: skip

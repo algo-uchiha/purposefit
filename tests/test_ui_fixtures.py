@@ -61,7 +61,7 @@ def test_unanswerable_utility_is_null_not_zero():
 def test_turns_fixture_has_twenty_redacted_turns_with_spans():
     t = _load("stage.redact.CS-S1.json")
     assert t["n_turns"] == len(t["turns"]) == 20 and t["redacted"] is True
-    assert {"patterns", "normalise", "controller", "dvv", "cues"} == set(t["layers_run"])
+    assert {"patterns", "normalise", "controller", "dvv", "cues", "health"} == set(t["layers_run"])
     assert sum(len(x["spans"]) for x in t["turns"]) > 0 and t["per_label"]
     for x in t["turns"]:
         for sp in x["spans"]:

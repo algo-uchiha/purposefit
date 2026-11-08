@@ -16,6 +16,7 @@ import re
 import subprocess  # nosec B404 (fixed git command, no shell, no user input)
 import sys
 import time
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -138,7 +139,7 @@ def cmd_detect(args: argparse.Namespace, key: str) -> int:
             log.warning(json.dumps({"run_id": args.run, "stage": "detect",
                                     "event": "llm_unavailable"}))  # fmt: skip
             unavailable = True
-    labels, stats, findings = det.detect_pipeline(profiles, args.seed, client)
+    labels, stats, findings = det.detect_pipeline(profiles, args.seed, client, use_cache=not args.no_llm_cache)
     if unavailable:
         stats = {"status": "unavailable"}
     (run_path / "02_findings.json").write_text(json.dumps(findings, indent=2), encoding="utf-8")
@@ -215,10 +216,23 @@ def cmd_redact(args: argparse.Namespace, key: str) -> int:
     plan = pl.read_plan(run_path / "03_plan.json")
     layers = rd.Layers(patterns=not args.no_patterns, normalise=not args.no_normalise,
                        controller=not (args.no_controller or args.no_gazetteer),
-                       dvv=not (args.no_dvv or args.no_gazetteer), cues=not args.no_cues)  # fmt: skip
+                       dvv=not (args.no_dvv or args.no_gazetteer), cues=not args.no_cues,
+                       health=not (args.no_health or args.no_llm))  # fmt: skip
+    client = None
+    if layers.health:
+        from api.pipeline import llm as llm_mod
+
+        try:
+            client = llm_mod.get_client()
+            if not client.enabled:
+                layers = replace(layers, health=False)
+        except llm_mod.LLMError:
+            log.warning(json.dumps({"run_id": args.run, "stage": "redact", "event": "llm_unavailable"}))
+            layers = replace(layers, health=False)
     private = runs_dir() / "private" / args.run
     t0 = time.monotonic()
     total: dict[str, int] = {}
+    health_stats: dict = {}
     rows = 0
     with (run_path / "05_spans.jsonl").open("w", encoding="utf-8") as out:
         for pol in plan.policies:
@@ -230,7 +244,7 @@ def cmd_redact(args: argparse.Namespace, key: str) -> int:
             df = io.read_csv(f)
             keys = [c for c in df.columns if c.endswith("_id") and df[c].is_unique]
             texts = {(df[keys[0]][i] if keys else str(i)): df[pol.column][i] for i in range(len(df))}
-            res = rd.redact(texts, plan, private_dir=private, layers=layers)
+            res = rd.redact(texts, plan, private_dir=private, layers=layers, client=client)
             mapped = df[keys[0]] if keys else pd.Series([str(i) for i in range(len(df))])
             df[pol.column] = [res.redacted[k] for k in mapped]
             df.to_csv(f, index=False)
@@ -241,7 +255,9 @@ def cmd_redact(args: argparse.Namespace, key: str) -> int:
             rows += len(df)
             for k, v in res.stats["by_layer"].items():
                 total[k] = total.get(k, 0) + v
-    stats = {"records": rows, "layers": layers.names(), "spans_by_layer": total,
+            if res.stats.get("health"):
+                health_stats = res.stats["health"]
+    stats = {"records": rows, "layers": layers.names(), "spans_by_layer": total, "health": health_stats,
              "duration_ms": int((time.monotonic() - t0) * 1000)}  # fmt: skip
     (run_path / "05_redact_stats.json").write_text(json.dumps(stats, indent=2), encoding="utf-8")
     return 0
@@ -301,8 +317,12 @@ def parser() -> argparse.ArgumentParser:
         if stage == "detect":
             s.add_argument("--llm", action="store_true",
                            help="send low-confidence columns to the LLM (off by default)")
+            s.add_argument("--no-llm-cache", action="store_true",
+                           help="ask the LLM again instead of reading cached answers")
             s.add_argument("--unseen-out", help="also write column,privacy_role,subtype here")
         if stage == "redact":
+            s.add_argument("--no-health", action="store_true",
+                           help="switch off the LLM health layer (also off with --no-llm)")
             for flag in ("patterns", "normalise", "controller", "dvv", "cues"):
                 s.add_argument(f"--no-{flag}", action="store_true", help=f"switch off the {flag} layer")
         if stage == "plan":

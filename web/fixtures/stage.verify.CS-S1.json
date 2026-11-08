@@ -92,9 +92,9 @@
     "free_text": {
      "text": {
       "evaluated": true,
-      "leakage_rate": 0.1291,
-      "leakage_rate_chars": 0.1056,
-      "identifying_leakage_rate": 0.0162,
+      "leakage_rate": 0.1152,
+      "leakage_rate_chars": 0.0684,
+      "identifying_leakage_rate": 0.0161,
       "per_label": {
        "ACCOUNT_NUMBER": {
         "n": 3967,
@@ -123,8 +123,8 @@
        },
        "HEALTH": {
         "n": 700,
-        "leaked": 669,
-        "rate": 0.9557
+        "leaked": 2,
+        "rate": 0.0029
        },
        "IBAN": {
         "n": 1473,
@@ -163,8 +163,8 @@
        },
        "PERSON": {
         "n": 19843,
-        "leaked": 21,
-        "rate": 0.0011
+        "leaked": 20,
+        "rate": 0.001
        },
        "PHONE": {
         "n": 4217,
@@ -198,7 +198,7 @@
     "regex_residuals": {},
     "risks": {
      "direct identifiers retained": 0.0,
-     "free-text identifier leakage": 0.0162
+     "free-text identifier leakage": 0.0161
     },
     "seconds": 0.9
    }
@@ -211,11 +211,11 @@
     "kind": "model",
     "description": "Intent classifier (TF-IDF + logistic regression) trained on protected train text, tested on original eval text.",
     "required": true,
-    "score": 1.0,
+    "score": 0.9997014437165505,
     "metric": "macro-F1 ratio (protected-trained / original-trained) on original eval",
     "detail": {
      "f1_original": 0.9452,
-     "f1_protected": 0.9452
+     "f1_protected": 0.945
     }
    },
    {
@@ -248,17 +248,17 @@
     "kind": "text",
     "description": "Ordinary vocabulary retained in text (redaction should remove identifiers, not meaning).",
     "required": true,
-    "score": 0.8912587163796784,
+    "score": 0.8885726483563399,
     "metric": "share of common (non-identifying) word tokens retained, matched by turn_id",
     "detail": {
-     "retained": 0.8913
+     "retained": 0.8886
     }
    }
   ],
   "summary": {
    "privacy": 0.9899,
-   "utility": 0.9728,
-   "composite": 0.982,
+   "utility": 0.9721,
+   "composite": 0.9817,
    "label": "self-assessment, not the official judging score",
    "method": "privacy = 1 - (0.5*worst + 0.5*mean risk); utility = mean task score (required unanswerable = 0); composite = weighted harmonic mean (privacy 30, utility 25)"
   },
@@ -266,7 +266,7 @@
    "conversations: direct identifiers retained": 0.0,
    "conversations: free-text identifier leakage": 0.0,
    "turns: direct identifiers retained": 0.0,
-   "turns: free-text identifier leakage": 0.0162
+   "turns: free-text identifier leakage": 0.0161
   }
  },
  "baseline": {
@@ -787,7 +787,7 @@
      },
      {
       "name": "turns: free-text identifier leakage",
-      "ours": 0.0162,
+      "ours": 0.0161,
       "baseline": 0.8012,
       "ok": true
      }
@@ -798,7 +798,7 @@
     "name": "Identifying leakage in free text",
     "kind": "text",
     "status": "pass",
-    "value": 0.0162,
+    "value": 0.0161,
     "threshold": 0.1,
     "comparison": "at_most",
     "reason": "Identifying leakage is 0.016 in turns.text, within the limit of 0.10.",
@@ -820,6 +820,7 @@
    "layer_off": "patterns",
    "leakage": 0.1545,
    "precision": 0.9855,
+   "health_leakage": 0.9557,
    "utility": null,
    "n_spans": 44555,
    "scope": "customer_service train split"
@@ -828,6 +829,7 @@
    "layer_off": "normalise",
    "leakage": 0.12,
    "precision": 0.9861,
+   "health_leakage": 0.9557,
    "utility": null,
    "n_spans": 46281,
    "scope": "customer_service train split"
@@ -836,6 +838,7 @@
    "layer_off": "controller",
    "leakage": 0.1263,
    "precision": 0.9547,
+   "health_leakage": 0.8171,
    "utility": null,
    "n_spans": 42831,
    "scope": "customer_service train split"
@@ -844,6 +847,7 @@
    "layer_off": "dvv",
    "leakage": 0.0167,
    "precision": 0.9998,
+   "health_leakage": 1.0,
    "utility": null,
    "n_spans": 48965,
    "scope": "customer_service train split"
@@ -852,8 +856,18 @@
    "layer_off": "cues",
    "leakage": 0.0295,
    "precision": 0.9873,
+   "health_leakage": 0.9557,
    "utility": null,
    "n_spans": 49647,
+   "scope": "customer_service train split"
+  },
+  {
+   "layer_off": "health",
+   "leakage": 0.0162,
+   "precision": 0.9875,
+   "health_leakage": 0.9557,
+   "utility": null,
+   "n_spans": 50206,
    "scope": "customer_service train split"
   }
  ]

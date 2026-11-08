@@ -16,7 +16,7 @@ from pathlib import Path
 from stdnum import luhn
 
 from api.pipeline.contracts import PolicyPlan, Span
-from api.pipeline.redact import cues, gazetteer, normalise, patterns
+from api.pipeline.redact import cues, gazetteer, health, normalise, patterns
 from api.pipeline.redact.merge import Cand, merge
 
 log = logging.getLogger("purposefit.redact")
@@ -31,6 +31,7 @@ class Layers:
     controller: bool = True
     dvv: bool = True
     cues: bool = True
+    health: bool = True  # LLM health flags; does nothing without an enabled client
 
     def names(self) -> list[str]:
         return [k for k, v in self.__dict__.items() if v]
@@ -92,9 +93,24 @@ def _candidates(text: str, layers: Layers, ctl: gazetteer.Controller | None,
     return cands
 
 
+def _apply_health(merged: list[Cand], flagged: list[Cand]) -> list[Cand]:
+    """A health span replaces every span it overlaps and grows to cover them, so no identifier
+    inside or at the edge of the health phrase is left in the text."""
+    out = list(merged)
+    for h in sorted(flagged, key=lambda c: c.start):
+        start, end = h.start, h.end
+        hit = [c for c in out if c.start < end and start < c.end]
+        for c in hit:
+            start, end = min(start, c.start), max(end, c.end)
+            out.remove(c)
+        out.append(Cand(start, end, "HEALTH", "health", h.score))
+    return sorted(out, key=lambda c: c.start)
+
+
 def redact(texts: dict[str, str], plan: PolicyPlan | None = None, *,
            private_dir: Path | None = None, layers: Layers | None = None,
-           controller: gazetteer.Controller | None = None) -> Result:  # fmt: skip
+           controller: gazetteer.Controller | None = None, client=None,
+           use_cache: bool = True) -> Result:  # fmt: skip
     """Redact each text. `plan` identifies the release; controller values come from
     `private_dir/gazetteer_values.csv` (or `controller`). Logs hold counts and timings only."""
     t0 = time.monotonic()
@@ -109,6 +125,10 @@ def redact(texts: dict[str, str], plan: PolicyPlan | None = None, *,
     if layers.dvv:
         dvv = gazetteer.dvv_matcher([texts[i] for i in ids], frozenset(ctl.names) if ctl else frozenset())
     known = (frozenset(ctl.names) if ctl else frozenset()) | (dvv.safe if dvv else frozenset())
+    flagged: dict[str, list[Cand]] = {}
+    health_stats: dict = {}
+    if layers.health:
+        flagged, health_stats = health.find(texts, client, use_cache=use_cache)
     spans: dict[str, list[Span]] = {}
     out: dict[str, str] = {}
     sources: dict[str, list[str]] = {}
@@ -116,6 +136,8 @@ def redact(texts: dict[str, str], plan: PolicyPlan | None = None, *,
     for rid in ids:
         text = texts[rid]
         merged = merge(_candidates(text, layers, ctl, dvv, known))
+        if rid in flagged:
+            merged = _apply_health(merged, flagged[rid])
         spans[rid] = [Span(rid, c.start, c.end, c.label, c.layer, min(1.0, c.score)) for c in merged]
         sources[rid] = [c.source for c in merged]
         pieces, pos = [], 0
@@ -127,7 +149,7 @@ def redact(texts: dict[str, str], plan: PolicyPlan | None = None, *,
             key = c.layer + (f":{c.source}" if c.source else "")
             counts[key] = counts.get(key, 0) + 1
     stats = {"records": len(ids), "layers": layers.names(), "spans": sum(counts.values()),
-             "by_layer": counts, "duration_ms": int((time.monotonic() - t0) * 1000)}  # fmt: skip
+             "by_layer": counts, "health": health_stats, "duration_ms": int((time.monotonic() - t0) * 1000)}  # fmt: skip
     log.info(json.dumps({"stage": "redact", **{k: v for k, v in stats.items()}}))
     return Result(spans, out, sources, stats)
 

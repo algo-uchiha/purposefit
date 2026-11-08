@@ -44,13 +44,30 @@ def load_train(limit: int | None):
     return texts, gold
 
 
-def measure(texts, gold, private_dir, layers: Layers) -> dict:
-    res = redact(texts, None, private_dir=private_dir, layers=layers)
+def health_precision(gold, res) -> dict:
+    """Of the HEALTH spans we made, the share overlapping a gold HEALTH span; and of the gold
+    HEALTH spans, the share overlapped by any span of ours (label-agnostic)."""
+    pred = tp = gold_n = hit = 0
+    for rid, sp in res.spans.items():
+        g = [x for x in gold.get(rid, []) if x["label"] == "HEALTH"]
+        gold_n += len(g)
+        for s in sp:
+            if s.label == "HEALTH":
+                pred += 1
+                tp += any(s.start < x["end"] and x["start"] < s.end for x in g)
+        hit += sum(any(s.start < x["end"] and x["start"] < s.end for s in sp) for x in g)
+    return {"health_precision": round(tp / pred, 4) if pred else None,
+            "health_spans": pred, "health_recall": round(hit / gold_n, 4) if gold_n else None}
+
+
+def measure(texts, gold, private_dir, layers: Layers, client=None) -> dict:
+    res = redact(texts, None, private_dir=private_dir, layers=layers, client=client)
     pred = {rid: [{"start": s.start, "end": s.end, "label": s.label} for s in sp]
             for rid, sp in res.spans.items()}  # fmt: skip
     sc = T.span_scores(gold, pred, mode="overlap", label_agnostic=True)["micro"]
     lk = T.redaction_leakage(gold, res.redacted)
-    return {"layers": layers.names(), "identifying_leakage": lk["identifying_leakage_rate"],
+    hp = health_precision(gold, res)
+    return {"layers": layers.names(), "health": res.stats.get("health", {}), **hp, "identifying_leakage": lk["identifying_leakage_rate"],
             "leakage": lk["leakage_rate"], "precision": sc["precision"], "recall": sc["recall"],
             "per_label": {k: v["rate"] for k, v in lk["per_label"].items()},
             "n_spans": res.stats["spans"], "by_layer": res.stats["by_layer"],
@@ -88,20 +105,30 @@ def main() -> None:
     ap.add_argument("--ablation", action="store_true")
     ap.add_argument("--limit", type=int)
     ap.add_argument("--fp", action="store_true")
+    ap.add_argument("--health", action="store_true", help="also run the LLM health layer")
+    ap.add_argument("--health-only", action="store_true", help="only the base and the health run")
     a = ap.parse_args()
     texts, gold = load_train(a.limit)
     priv = ROOT / "runs" / "private" / a.run
     runs = {"all layers": Layers(), "DVV gazetteer only (no controller)": Layers(controller=False)}
+    client = None
+    if a.health:
+        from api.pipeline import llm
+
+        client = llm.get_client()
+        runs = {"all layers": Layers(), "all layers + health": Layers(health=True)}
     if a.ablation:
         for name in ("patterns", "normalise", "controller", "dvv", "cues"):
             runs[f"without {name}"] = replace(Layers(), **{name: False})
         runs["patterns only"] = Layers(normalise=False, controller=False, dvv=False, cues=False)
     out = {}
     for name, ly in runs.items():
-        m = measure(texts, gold, priv, ly)
+        m = measure(texts, gold, priv, ly, client)
         out[name] = m
         print(f"{name:40s} identifying_leakage={m['identifying_leakage']:.4f} "
-              f"precision={m['precision']:.4f} recall={m['recall']:.4f} spans={m['n_spans']}")
+              f"precision={m['precision']:.4f} recall={m['recall']:.4f} spans={m['n_spans']} "
+              f"HEALTH_leak={m['per_label'].get('HEALTH')} health_prec={m['health_precision']} "
+              f"health_recall={m['health_recall']} {m['health'] or ''}")
     if a.fp:
         false_positives(texts, gold, priv, Layers())
         misses(texts, gold, priv, Layers())

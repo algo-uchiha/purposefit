@@ -40,7 +40,7 @@
   {
    "stage": "transform",
    "status": "done",
-   "duration_ms": 1100
+   "duration_ms": 924
   },
   {
    "stage": "redact",
@@ -64,8 +64,8 @@
  },
  "headline": {
   "privacy": 0.9899,
-  "utility": 0.9728,
-  "composite": 0.982
+  "utility": 0.9721,
+  "composite": 0.9817
  },
  "error": null
 }

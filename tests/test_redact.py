@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 
 from api.pipeline.redact import Layers, cues, normalise, patterns, redact
@@ -175,3 +177,89 @@ def test_redact_stage_rewrites_the_release_and_writes_spans_without_text(tmp_pat
     assert "044" not in spans and json.loads(spans.splitlines()[0])["layer"] == "patterns"
     stats = json.loads((run / "05_redact_stats.json").read_text(encoding="utf-8"))
     assert stats["layers"] == ["patterns", "normalise", "controller", "cues"]
+
+
+# ---- health layer (LLM flags behind a cue prefilter) -----------------------------------------
+
+
+class _Resp:
+    def __init__(self, text):
+        self.text, self.cached = text, False
+        self.prompt_tokens, self.output_tokens, self.thought_tokens = 10, 5, 0
+
+
+class _Health:
+    """Fake client: answers per sentence from a dict; records every prompt."""
+
+    enabled = True
+
+    def __init__(self, spans, reword=None):
+        self.spans, self.prompts, self.reword = spans, [], reword or {}
+
+    def complete(self, prompt, **kw):
+        d = json.loads(prompt)
+        self.prompts.append(d)
+        out = {}
+        for item in d["sentences"]:
+            span = self.spans.get(item["text"], "")
+            if "note" not in d:
+                span = self.reword.get(item["text"], span)
+            out[item["id"]] = span
+        return _Resp(json.dumps(out))
+
+
+import json
+
+from api.pipeline.redact import health
+
+
+def test_health_prefilter_keeps_only_cue_sentences_in_three_languages():
+    texts = {"a": "Hei. Olen ollut sairauslomalla masennuksen takia.", "b": "Jag har diabetes sedan länge",
+             "c": "I need heart surgery next week", "d": "Mikä on laskuni summa?",
+             "e": "My employer Aurora Regional Hospital pays half"}  # fmt: skip
+    got = health.candidates(texts)
+    assert set(got) == {"a", "b", "c", "e"} and got["a"][0][1].startswith("Olen ollut")
+
+
+def test_health_span_must_be_verbatim_and_names_must_match():
+    ids = {"s0": "I have diabetes", "s1": "no cue here"}
+    assert health.parse('{"s0": "have diabetes", "s1": ""}', ["s0", "s1"], ids) == {"s0": "have diabetes"}
+    assert health.parse('{"s0": "has diabetes", "s1": ""}', ["s0", "s1"], ids) == {}  # not verbatim
+    assert health.parse('{"s0": "diabetes"}', ["s0", "s1"], ids) == {}  # missing id
+    assert health.parse('{"s0": "diabetes", "s1": "", "s2": "x"}', ["s0", "s1"], ids) == {}  # unknown id
+    assert health.parse("sorry", ["s0"], ids) == {}
+
+
+def test_health_find_places_spans_and_sends_each_distinct_sentence_once():
+    t = {"r1": "Hei. Minulla on diabetes.", "r2": "Minulla on diabetes.", "r3": "Kiitos paljon"}
+    client = _Health({"Minulla on diabetes.": "diabetes"})
+    got, stats = health.find(t, client)
+    assert [(c.start, c.end, c.label, c.layer) for c in got["r1"]] == [(16, 24, "HEALTH", "health")]
+    assert "r3" not in got and stats["sentences"] == 1 and stats["calls"] == 1
+    assert len(client.prompts) == 1
+
+
+def test_health_retries_a_reworded_span_once():
+    s = "olin sairaalassa sydänleikkauksen takia"
+    client = _Health({s: "sairaalassa sydänleikkauksen takia"}, reword={s: "sairaalaan sydänleikkauksen takia"})
+    got, stats = health.find({"r": s}, client)
+    assert stats["spans_not_verbatim"] == 1 and stats["retried"] == 1 and got["r"]
+    assert len(client.prompts) == 2 and "note" in client.prompts[1]
+
+
+def test_health_layer_needs_an_enabled_client():
+    t = {"r": "Minulla on diabetes."}
+    assert redact(t, layers=NONE).redacted["r"] == t["r"]  # no client: nothing is flagged
+    assert redact(t, layers=replace(NONE, health=True), client=_Health({})).redacted["r"] == t["r"]
+    assert redact(t, layers=Layers(controller=False, dvv=False, health=True), client=None).redacted["r"] == t["r"]
+    out = redact(t, layers=Layers(controller=False, dvv=False, health=True),
+                 client=_Health({"Minulla on diabetes.": "diabetes"})).redacted["r"]
+    assert out == "Minulla on [HEALTH]."
+
+
+def test_health_span_swallows_an_identifier_it_touches():
+    s = "Vaimoni Maija sai syövän"
+    ctl = Controller([("PERSON_NAME", "Maija Virtanen")])
+    res = redact({"r": s}, layers=Layers(dvv=False, health=True), controller=ctl,
+                 client=_Health({s: "Maija sai syövän"}))  # fmt: skip
+    assert res.redacted["r"] == "Vaimoni [HEALTH]" and res.spans["r"][0].layer == "health"
