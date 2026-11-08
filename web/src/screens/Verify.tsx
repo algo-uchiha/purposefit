@@ -28,6 +28,30 @@ function gateLimit(id: string, threshold: number) {
   return `at most ${pct(threshold)}`;
 }
 
+function ScorePair({ label, purposeFit, standard, lowerIsBetter = false }: {
+  label: string;
+  purposeFit: number;
+  standard: number;
+  lowerIsBetter?: boolean;
+}) {
+  return (
+    <article className="utility-result-row">
+      <p>{label}</p>
+      <div className="utility-result-bar">
+        <span>PurposeFit</span>
+        <div className="utility-bar-track"><i style={{ width: `${purposeFit * 100}%` }} /></div>
+        <b>{pct(purposeFit)}</b>
+      </div>
+      <div className="utility-result-bar standard">
+        <span>Standard method</span>
+        <div className="utility-bar-track"><i style={{ width: `${standard * 100}%` }} /></div>
+        <b>{pct(standard)}</b>
+      </div>
+      {lowerIsBetter && <small className="muted">Lower is better.</small>}
+    </article>
+  );
+}
+
 function riskSentence(text: string) {
   return text
     .replace("DATE values", "Dates")
@@ -88,6 +112,29 @@ export function VerifyScreen({ data }: { data: Verify }) {
             </article>
           ))}
         </div>
+      </section>
+
+      <section className="protection-results">
+        <h3>How well are people protected?</h3>
+        <ScorePair label="Privacy score" purposeFit={ours.summary.privacy} standard={baseline.summary.privacy} />
+        <ScorePair label="Utility score" purposeFit={ours.summary.utility} standard={baseline.summary.utility} />
+        <ScorePair label="Overall score" purposeFit={ours.summary.composite} standard={baseline.summary.composite} />
+        {(() => {
+          const riskKey = "turns: free-text identifier leakage";
+          const fallbackKey = "conversations: free-text identifier leakage";
+          const oursRisk = ours.risk_components[riskKey] ?? ours.risk_components[fallbackKey];
+          const baselineRisk = baseline.risk_components[riskKey] ?? baseline.risk_components[fallbackKey];
+          return oursRisk != null && baselineRisk != null ? (
+            <div className="highlighted-pair">
+              <ScorePair
+                label="Identifying details left in call text"
+                purposeFit={oursRisk}
+                standard={baselineRisk}
+                lowerIsBetter
+              />
+            </div>
+          ) : null;
+        })()}
       </section>
 
       <section aria-label="Privacy, utility and combined scores">
