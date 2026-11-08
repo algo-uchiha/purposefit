@@ -85,19 +85,19 @@ function ScorePanel({ data }: { data: LandingData }) {
     {
       label: "Shared as it is",
       caption: baseline0?.run_id ?? "Not set",
-      value: baseline0?.composite ?? 0,
+      value: baseline0?.composite,
       color: "standard",
     },
     {
       label: "Best standard approach",
       caption: baselineK?.run_id ?? "Not set",
-      value: baselineK?.composite ?? 0,
+      value: baselineK?.composite,
       color: "standard",
     },
     {
       label: "PurposeFit",
       caption: purposefit?.run_id ?? "Not set",
-      value: purposefit?.composite ?? 0,
+      value: purposefit?.composite,
       color: "purposefit",
     },
   ];
@@ -130,10 +130,13 @@ function ScorePanel({ data }: { data: LandingData }) {
         </div>
         <div className="score-bars">
           {bars.map((bar) => (
-            <div className={`score-bar-column ${bar.color}`} key={bar.caption}>
-              <strong>{bar.value.toFixed(4)}</strong>
+            <div className={`score-bar-column ${bar.color}`} key={bar.label}>
+              <strong>{bar.value === undefined ? "Not set" : bar.value.toFixed(4)}</strong>
               <div className="score-bar-track">
-                <div className="score-bar" style={{ height: `${Math.max(bar.value * 100, 1)}%` }} />
+                <div
+                  className="score-bar"
+                  style={{ height: `${Math.max((bar.value ?? 0) * 100, 1)}%` }}
+                />
               </div>
               <b>{bar.label}</b>
               <small>{bar.caption}</small>
@@ -167,7 +170,7 @@ function ChangesPanel({ data }: { data: LandingData }) {
       <div className="copy-flow">
         <article className="record-card original-card">
           <div className="card-heading">
-            <span className="step-number">01</span>
+            <span className="step-number" aria-hidden="true" />
             <div>
               <small>Original call text</small>
               <h3>Before protection</h3>
@@ -249,12 +252,11 @@ function ProcessPanel() {
         <h2>Four steps. You see every one.</h2>
       </div>
       <div className="process-cards">
-        {steps.map(({ icon: Icon, title, detail }, index) => (
+        {steps.map(({ icon: Icon, title, detail }) => (
           <article className="process-card" key={title}>
             <div className="process-icon">
               <Icon size={24} />
             </div>
-            <span className="process-index">{String(index + 1).padStart(2, "0")}</span>
             <h3>{title}</h3>
             <p>{detail}</p>
           </article>
@@ -269,6 +271,9 @@ function SafetyPanel({ data }: { data: LandingData }) {
   const verify = data.verify["CS-S1"];
   const verify3 = data.verify["CS-S3"];
   const tables = (verify.ours as typeof verify.ours & { tables?: DataTables }).tables ?? {};
+  const hasDirectData = Object.values(tables).some(
+    (table) => table.direct_identifiers_retained !== undefined,
+  );
   const direct = Object.values(tables)
     .flatMap((table) => Object.values(table.direct_identifiers_retained ?? {}))
     .reduce((sum, value) => sum + value, 0);
@@ -280,7 +285,11 @@ function SafetyPanel({ data }: { data: LandingData }) {
   const healthBefore = claims["health.train_before"];
   const healthAfter = claims["health.train_after"];
   const stats = [
-    { value: String(direct), label: "Direct identifiers left", note: "CS-S1 verification" },
+    {
+      value: hasDirectData ? String(direct) : "Not set",
+      label: "Direct identifiers left",
+      note: "CS-S1 verification",
+    },
     {
       value: smallest === undefined ? "Not set" : smallest.toLocaleString(),
       label: "Smallest group in the audit copy",
@@ -350,9 +359,8 @@ function DemoPanel({ scenarios }: { scenarios: Scenario[] }) {
         <p>This demo uses prepared example data. Uploading your own file is not built yet.</p>
       </div>
       <div className="demo-cards">
-        {cards.map((card, index) => (
+        {cards.map((card) => (
           <a className="demo-card" href={card.href} key={card.title}>
-            <span className="process-index">{String(index + 1).padStart(2, "0")}</span>
             <h3>{card.title}</h3>
             <p>{card.text}</p>
             <ArrowRight size={18} />
