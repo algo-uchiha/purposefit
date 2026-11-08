@@ -11,7 +11,6 @@ import {
   Button,
   Tile,
   Tag,
-  Search,
   Table,
   TableHead,
   TableRow,
@@ -73,7 +72,6 @@ export default function App() {
   const [scenarioId, setScenarioId] = useState(initialScenario ?? "CS-S1");
   const [screen, setScreen] = useState(0);
   const [compare, setCompare] = useState(false);
-  const [search, setSearch] = useState("");
   const [turn, setTurn] = useState(0);
   const [plans, setPlans] = useState<Record<string, Plan>>({});
   const [redact, setRedact] = useState<Redact>();
@@ -133,18 +131,13 @@ export default function App() {
   }, [data, scenarioId, compare]);
   const current = data?.scenarios.find((x) => x.id === scenarioId);
   const policies = plans[scenarioId]?.policies ?? [];
-  const filtered = policies.filter((p) =>
-    `${p.table} ${p.column} ${p.params.role ?? ""} ${p.action} ${p.reason}`
-      .toLowerCase()
-      .includes(search.toLowerCase()),
-  );
   const withheldCount = policies.filter(
     (policy) => policy.action === "withhold_table" && policy.table === "customers",
   ).length;
   const planRows: CompareRow[] = compare
     ? mergePlans(plans["CS-S1"], plans["CS-S3"])
     : [
-        ...(filtered.filter((policy) => policy.action !== "withhold_table") as CompareRow[]),
+        ...(policies.filter((policy) => policy.action !== "withhold_table") as CompareRow[]),
         ...(withheldCount
           ? [
               {
@@ -325,13 +318,6 @@ export default function App() {
                 </Button>
               </div>
             )}
-            <Search
-              labelText="Search plan"
-              placeholder="Search table, field, action or reason"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              size="lg"
-            />
             <div className="plan-layout">
               <div className="table-wrap">
                 <Table size="lg" aria-label="Field policy plan">
