@@ -40,11 +40,11 @@
   {
    "stage": "transform",
    "status": "done",
-   "duration_ms": 909
+   "duration_ms": 1100
   },
   {
    "stage": "redact",
-   "status": "pending",
+   "status": "done",
    "duration_ms": null
   },
   {
@@ -59,16 +59,13 @@
   }
  ],
  "gate": {
-  "passed": false,
-  "blocking": [
-   "risk_vs_baseline",
-   "text_leakage"
-  ]
+  "passed": true,
+  "blocking": []
  },
  "headline": {
-  "privacy": 0.375,
-  "utility": 1.0,
-  "composite": 0.5238
+  "privacy": 0.9899,
+  "utility": 0.9728,
+  "composite": 0.982
  },
  "error": null
 }

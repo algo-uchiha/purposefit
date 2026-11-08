@@ -480,7 +480,7 @@
     ]
    },
    "reason": "used by CS-U1, CS-U5; text kept for the task",
-   "guarantee": "free text; identifiers to be removed by the text redactor (not yet built)"
+   "guarantee": "free text; identifiers replaced by typed placeholders (rule redactor); leakage measured by pets-eval"
   }
  ],
  "k": 1,

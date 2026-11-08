@@ -108,27 +108,6 @@
   "note": "proving ground baseline; catalog labels; regex text"
  },
  {
-  "created_utc": "2026-11-07T23:50:39+00:00",
-  "run_id": "p4-CS-S3",
-  "git_hash": "1269ca0",
-  "dataset": "customer_service",
-  "scenario": "CS-S3",
-  "method": "purposefit",
-  "privacy": 1.0,
-  "utility": 1.0,
-  "composite": 1.0,
-  "worst_risk": 0.0,
-  "worst_risk_component": null,
-  "k": 751,
-  "k_pycanon": 751,
-  "utility_tasks": {
-   "CS-U4": 1.0,
-   "CS-U6": 1.0,
-   "CS-U7": 1.0
-  },
-  "note": "phase 4 re-run: prefixed pseudonyms, new gate"
- },
- {
   "created_utc": "2026-11-07T23:51:14+00:00",
   "run_id": "p4-CS-S1",
   "git_hash": "1269ca0",
@@ -151,9 +130,31 @@
   "note": "phase 4 re-run: prefixed pseudonyms, new gate"
  },
  {
-  "created_utc": "2026-11-07T23:51:16+00:00",
+  "created_utc": "2026-11-08T00:23:52+00:00",
+  "run_id": "p4-CS-S1",
+  "git_hash": "a7318f5",
+  "dataset": "customer_service",
+  "scenario": "CS-S1",
+  "method": "purposefit",
+  "privacy": 0.9899,
+  "utility": 0.9728,
+  "composite": 0.982,
+  "worst_risk": 0.0162,
+  "worst_risk_component": "turns: free-text identifier leakage",
+  "k": null,
+  "k_pycanon": null,
+  "utility_tasks": {
+   "CS-U1": 1.0,
+   "CS-U3": 1.0,
+   "CS-U4": 1.0,
+   "CS-U5": 0.8913
+  },
+  "note": "phase 5: rule redactor layers 1-4 (patterns, normalise, gazetteer, cues), no NER"
+ },
+ {
+  "created_utc": "2026-11-08T00:23:58+00:00",
   "run_id": "p4-CS-S3",
-  "git_hash": "1269ca0",
+  "git_hash": "a7318f5",
   "dataset": "customer_service",
   "scenario": "CS-S3",
   "method": "purposefit",

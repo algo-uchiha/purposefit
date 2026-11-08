@@ -113,19 +113,46 @@ def leaderboard_fixture() -> list[dict]:
     return rows
 
 
-def turns_fixture(scenario: str) -> dict:
-    """First N_TURNS turns: original text, the released text (equal until Phase 5), no spans."""
+def turns_fixture(scenario: str, ours: dict) -> dict:
+    """First N_TURNS turns: original text, the redacted release text and their spans."""
     run = RUNS / f"p4-{scenario}"
     orig = io.read_csv(io.data_root() / "customer_service" / "turns.csv").head(N_TURNS)
     rel = io.read_csv(run / "04_release" / "turns.csv").set_index("turn_id")
+    want = set(orig.turn_id)
+    spans: dict[str, list[dict]] = {t: [] for t in want}
+    with (run / "05_spans.jsonl").open(encoding="utf-8") as f:
+        for line in f:
+            r = json.loads(line)
+            if r["record_id"] in want:
+                spans[r["record_id"]].append({k: r[k] for k in ("start", "end", "label", "layer", "score")})
     turns = []
     for tid, text in zip(orig.turn_id, orig.text, strict=True):
         turns.append({"record_id": tid, "conversation_id": rel.loc[tid, "conversation_id"],
                       "original_text": text, "protected_text": rel.loc[tid, "text"],
-                      "surrogate_text": None, "spans": []})  # fmt: skip
+                      "surrogate_text": None, "spans": spans[tid]})  # fmt: skip
+    pl_ = ours["tables"]["turns"]["free_text"]["text"]["per_label"]
+    per_label = [{"label": k, "n": v["n"], "leaked": v["leaked"], "rate": v["rate"]}
+                 for k, v in sorted(pl_.items())]  # fmt: skip
+    stats = load(run / "05_redact_stats.json")
     return {"dataset": "customer_service", "table": "turns", "column": "text",
-            "redacted": False, "layers_run": [], "n_turns": len(turns), "turns": turns,
-            "per_label": [], "span_labels_note": "spans are empty until Phase 5"}  # fmt: skip
+            "redacted": True, "layers_run": stats["layers"], "n_turns": len(turns), "turns": turns,
+            "per_label": per_label,
+            "span_labels_note": "rule layers only; NER and health layers are not run yet"}  # fmt: skip
+
+
+def ablation_rows() -> list[dict]:
+    """Per-layer ablation on the train split, from tests/redact_eval.py (runs/p5-redact-train-full.json)."""
+    f = RUNS / "p5-redact-train-full.json"
+    if not f.exists():
+        return []
+    res = load(f)
+    rows = []
+    for name, m in res.items():
+        if name.startswith("without "):
+            rows.append({"layer_off": name.removeprefix("without "), "leakage": m["identifying_leakage"],
+                         "precision": m["precision"], "utility": None, "n_spans": m["n_spans"],
+                         "scope": "customer_service train split"})  # fmt: skip
+    return rows
 
 
 def export() -> list[str]:
@@ -163,15 +190,15 @@ def export() -> list[str]:
         write(f"stage.verify.{sid}.json", {
             "scenario_id": sid, "ours": ours, "baseline": b2k, "baseline_name": "B2-k",
             "gate": gate, "k": k_summary(plan), "residual_risks": residual_risks(ours, plan, gate),
-            "ablation": []})  # fmt: skip
+            "ablation": ablation_rows() if sid == "CS-S1" else []})  # fmt: skip
         write(f"stage.report.{sid}.json", {"plan_table_md": (run / "07_plan_table.md").read_text(
             encoding="utf-8"), "policy_card": None})  # fmt: skip
-        write(f"stage.redact.{sid}.json", turns_fixture(sid) if sid == "CS-S1" else {
+        write(f"stage.redact.{sid}.json", turns_fixture(sid, ours) if sid == "CS-S1" else {
             "dataset": "customer_service", "table": None, "redacted": False, "layers_run": [],
             "n_turns": 0, "turns": [], "per_label": [],
             "span_labels_note": "transcripts are withheld in this scenario"})  # fmt: skip
         status = {"profile": "done", "detect": "done", "plan": "done", "transform": "done",
-                  "redact": "pending", "verify": "done", "report": "done", "run": "done"}
+                  "redact": "done" if sid == "CS-S1" else "pending", "verify": "done", "report": "done", "run": "done"}
         dur = {"transform": stats["duration_ms"]}
         write(f"run.{sid}.json", {
             "run_id": man["run_id"], "dataset": "customer_service", "scenario_id": sid,

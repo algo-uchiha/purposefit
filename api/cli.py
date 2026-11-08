@@ -199,6 +199,54 @@ def cmd_transform(args: argparse.Namespace, key: str) -> int:
     return 0
 
 
+def cmd_redact(args: argparse.Namespace, key: str) -> int:
+    """Stage 5: redact the text columns the plan marks `redact`, in the release files."""
+    import time
+
+    import pandas as pd
+
+    from api.pipeline import io
+    from api.pipeline import plan as pl
+    from api.pipeline import redact as rd
+
+    run_path = runs_dir() / args.run
+    _need(run_path / "03_plan.json", "plan")
+    _need(run_path / "04_release", "transform")
+    plan = pl.read_plan(run_path / "03_plan.json")
+    layers = rd.Layers(patterns=not args.no_patterns, normalise=not args.no_normalise,
+                       controller=not (args.no_controller or args.no_gazetteer),
+                       dvv=not (args.no_dvv or args.no_gazetteer), cues=not args.no_cues)  # fmt: skip
+    private = runs_dir() / "private" / args.run
+    t0 = time.monotonic()
+    total: dict[str, int] = {}
+    rows = 0
+    with (run_path / "05_spans.jsonl").open("w", encoding="utf-8") as out:
+        for pol in plan.policies:
+            if pol.action != "redact":
+                continue
+            f = run_path / "04_release" / f"{pol.table}.csv"
+            if not f.exists():
+                continue
+            df = io.read_csv(f)
+            keys = [c for c in df.columns if c.endswith("_id") and df[c].is_unique]
+            texts = {(df[keys[0]][i] if keys else str(i)): df[pol.column][i] for i in range(len(df))}
+            res = rd.redact(texts, plan, private_dir=private, layers=layers)
+            mapped = df[keys[0]] if keys else pd.Series([str(i) for i in range(len(df))])
+            df[pol.column] = [res.redacted[k] for k in mapped]
+            df.to_csv(f, index=False)
+            for rid, spans in res.spans.items():
+                for sp, src in zip(spans, res.sources[rid], strict=True):
+                    out.write(json.dumps({"table": pol.table, "column": pol.column, **sp.to_dict(),
+                                          "source": src}) + "\n")  # fmt: skip
+            rows += len(df)
+            for k, v in res.stats["by_layer"].items():
+                total[k] = total.get(k, 0) + v
+    stats = {"records": rows, "layers": layers.names(), "spans_by_layer": total,
+             "duration_ms": int((time.monotonic() - t0) * 1000)}  # fmt: skip
+    (run_path / "05_redact_stats.json").write_text(json.dumps(stats, indent=2), encoding="utf-8")
+    return 0
+
+
 def cmd_verify(args: argparse.Namespace, key: str) -> int:
     from api.pipeline import plan as pl
     from api.pipeline import verify as vf
@@ -235,7 +283,7 @@ def cmd_report(args: argparse.Namespace, key: str) -> int:
 
 
 HANDLERS = {"run": cmd_run, "profile": cmd_profile, "detect": cmd_detect, "plan": cmd_plan,
-            "transform": cmd_transform, "verify": cmd_verify, "report": cmd_report}
+            "transform": cmd_transform, "redact": cmd_redact, "verify": cmd_verify, "report": cmd_report}
 
 
 def parser() -> argparse.ArgumentParser:
@@ -254,6 +302,9 @@ def parser() -> argparse.ArgumentParser:
             s.add_argument("--llm", action="store_true",
                            help="send low-confidence columns to the LLM (off by default)")
             s.add_argument("--unseen-out", help="also write column,privacy_role,subtype here")
+        if stage == "redact":
+            for flag in ("patterns", "normalise", "controller", "dvv", "cues"):
+                s.add_argument(f"--no-{flag}", action="store_true", help=f"switch off the {flag} layer")
         if stage == "plan":
             s.add_argument("--scenario", required=True, help="scenario id, e.g. CS-S1")
         if stage == "verify":

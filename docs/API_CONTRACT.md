@@ -9,8 +9,8 @@ For the front-end agent and for whoever builds `api/main.py` in Phase 9. The JSO
 | Manifest, labels, findings, plan, transform stats, pets-eval scorecard, leaderboard rows | Real. Produced by the pipeline today. |
 | Scenario list with utility tasks | Real. Read from the public `scenarios.json` and the pets-eval task registry. |
 | `gate`, `residual_risks`, `k` summary | Shape fixed here. The pipeline does not produce them yet. The gate is produced by `verify.build_gate` with the rule in section 4.5 (thresholds in `api/pipeline/config.py`). Fixtures are exported from the real scorecards. |
-| `ablation` | Shape fixed here. Always `[]` until Phase 7. |
-| `spans`, `per_label`, `surrogate_text` in the redact stage | Shape fixed here. Empty until Phase 5. Text is released unredacted today. |
+| `ablation` | Real for the rule layers, train split only, from `tests/redact_eval.py`. Produced by the pipeline in Phase 7. `[]` for CS-S3. |
+| `spans`, `per_label` in the redact stage | Real since Phase 5 for CS-S1 (rule layers 1 to 4). `surrogate_text` stays `null`: typed placeholders only. |
 | `policy_card` in the report stage | Shape not fixed yet. `null` until Phase 8. |
 
 ## 1. Conventions
@@ -174,7 +174,7 @@ Returns `application/zip`, `Content-Disposition: attachment; filename="<run_id>_
 | `withhold_table` | Whole table not released: not needed for this purpose. | not released |
 | `hmac` | Keyed pseudonym (HMAC-SHA256). | keyed pseudonym (HMAC-SHA256); still personal data |
 | `generalise` | Coarsened to `params.level`. | coarsened to a fixed level; checked for k >= 5 |
-| `redact` | Free text kept for a task; identifiers removed by the text redactor (Phase 5). | free text; identifiers to be removed by the text redactor (not yet built) |
+| `redact` | Free text kept for a task; identifiers removed by the text redactor (Phase 5). | free text; identifiers replaced by typed placeholders (rule redactor); leakage measured by pets-eval |
 | `suppress_k` | Table-level entry with `column: "*"`: the k check. | k-anonymity on the kept quasi-identifiers |
 
 Every `params` except the one on `suppress_k` has `role` (a privacy role) and `subtype` (a taxonomy subtype). Optional keys:
@@ -341,32 +341,33 @@ Always exactly four checks, in this order, ids fixed: `direct_identifiers` (ever
 
 **ResidualRisk**: `{"id": "k_scope", "text": "k-anonymity limits singling out on the stated quasi-identifiers only; it does not stop attribute inference inside a uniform group.", "source": "docs/FACTS.md"}`. Plain sentences for a list. The text is written by the server.
 
-**Ablation** (empty today): a row per redactor layer switched off.
+**Ablation**: a row per redactor layer switched off, measured on the customer_service train split (not the full release).
 
 ```json
-{"layer_off": "gazetteer", "leakage": 0.12, "utility": 0.97, "n_spans": 4210}
+{"layer_off": "controller", "leakage": 0.2578, "precision": 0.98, "utility": null, "n_spans": 34064,
+ "scope": "customer_service train split"}
 ```
 
-`layer_off` is one of `patterns`, `normalise`, `gazetteer`, `cues`, `ner`, `health`. `leakage` is the free-text identifier leakage rate and `utility` the mean required utility, both between 0 and 1. Hide the section while the array is empty.
+`layer_off` is one of `patterns`, `normalise`, `controller`, `dvv`, `cues` (the gazetteer is two sources, reported separately; `ner` and `health` come in Phase 6). `leakage` is the identifying leakage rate of the free text and `precision` the label-agnostic span precision, both between 0 and 1. `utility` is `null` until Phase 7. Hide the section while the array is empty. Switching `controller` off leaves the public DVV lists as the only name source, so that row is also the "DVV only" result.
 
 ### 4.6 Redact stage (Text screen; fixtures `stage.redact.CS-S1.json`)
 
 ```json
 {
   "dataset": "customer_service", "table": "turns", "column": "text",
-  "redacted": false, "layers_run": [], "n_turns": 20,
+  "redacted": true, "layers_run": ["patterns", "normalise", "controller", "dvv", "cues"], "n_turns": 20,
   "turns": [
     {"record_id": "T0000001", "conversation_id": "e814fabe647694efd49d",
      "original_text": "aallokko kundtjänst ...", "protected_text": "aallokko kundtjänst ...",
      "surrogate_text": null,
-     "spans": [{"start": 21, "end": 27, "label": "PERSON", "layer": "gazetteer", "score": 0.93}]}
+     "spans": [{"start": 21, "end": 27, "label": "PERSON", "layer": "gazetteer", "score": 0.9}]}
   ],
   "per_label": [{"label": "NATIONAL_ID", "n": 5120, "leaked": 80, "rate": 0.0156}],
-  "span_labels_note": "spans are empty until Phase 5"
+  "span_labels_note": "rule layers only; NER and health layers are not run yet"
 }
 ```
 
-- Today `redacted` is `false`, `layers_run` and `per_label` are `[]`, every `spans` is `[]` and `protected_text` equals `original_text`. The fixture turns are the first 20 of the synthetic `customer_service` turns. Treat the span shape above as fixed: it is the `Span` contract without `record_id`.
+- For CS-S1 `redacted` is `true`, `layers_run` lists the layers that ran (`patterns`, `normalise`, `controller`, `dvv`, `cues`; the gazetteer spans all carry `layer: "gazetteer"` or `"normalise"` and the span file also records which source found them), every `spans` holds the turn's spans and `per_label` is the pets-eval leakage per gold label over the whole release (`leaked` counts values still recoverable; `LOCATION`, `DATE`, `ORG` and `HEALTH` are not redacted by the rule layers, so their rates stay high). The fixture turns are the first 20 of the synthetic `customer_service` turns. Treat the span shape above as fixed: it is the `Span` contract without `record_id`.
 - `start` and `end` are character offsets into `original_text` (0-based, end exclusive). `label` is one of `PERSON`, `NATIONAL_ID`, `EMAIL`, `PHONE`, `ADDRESS`, `LOCATION`, `DATE`, `AGE`, `IBAN`, `PAYMENT_CARD`, `ACCOUNT_NUMBER`, `IP_ADDRESS`, `LICENSE_PLATE`, `ORG`, `URL`, `USERNAME`, `SECRET`, `HEALTH`, `DEVICE_ID`, `PROPERTY_ID`. `layer` is one of `patterns`, `normalise`, `gazetteer`, `cues`, `ner`, `health`. `score` is between 0 and 1.
 - `protected_text` shows typed placeholders such as `[PERSON]`. `surrogate_text` is the consistent-surrogate version, or `null` when the run has none. Enable the Toggle only when `surrogate_text` is not `null`.
 - For a scenario that withholds the transcripts (CS-S3), `turns` is `[]` and `table` is `null`. Show a "withheld: not needed for this purpose" notice.

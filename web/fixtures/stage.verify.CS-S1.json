@@ -92,124 +92,113 @@
     "free_text": {
      "text": {
       "evaluated": true,
-      "leakage_rate": 1.0,
-      "leakage_rate_chars": 1.0,
-      "identifying_leakage_rate": 1.0,
+      "leakage_rate": 0.1291,
+      "leakage_rate_chars": 0.1056,
+      "identifying_leakage_rate": 0.0162,
       "per_label": {
        "ACCOUNT_NUMBER": {
         "n": 3967,
-        "leaked": 3967,
-        "rate": 1.0
+        "leaked": 0,
+        "rate": 0.0
        },
        "ADDRESS": {
         "n": 2388,
-        "leaked": 2388,
-        "rate": 1.0
+        "leaked": 0,
+        "rate": 0.0
        },
        "DATE": {
         "n": 2837,
-        "leaked": 2837,
-        "rate": 1.0
+        "leaked": 2574,
+        "rate": 0.9073
        },
        "DEVICE_ID": {
         "n": 572,
-        "leaked": 572,
-        "rate": 1.0
+        "leaked": 0,
+        "rate": 0.0
        },
        "EMAIL": {
         "n": 1999,
-        "leaked": 1999,
-        "rate": 1.0
+        "leaked": 0,
+        "rate": 0.0
        },
        "HEALTH": {
         "n": 700,
-        "leaked": 700,
-        "rate": 1.0
+        "leaked": 669,
+        "rate": 0.9557
        },
        "IBAN": {
         "n": 1473,
-        "leaked": 1473,
-        "rate": 1.0
+        "leaked": 0,
+        "rate": 0.0
        },
        "IP_ADDRESS": {
         "n": 356,
-        "leaked": 356,
-        "rate": 1.0
+        "leaked": 0,
+        "rate": 0.0
        },
        "LICENSE_PLATE": {
         "n": 27,
-        "leaked": 27,
-        "rate": 1.0
+        "leaked": 0,
+        "rate": 0.0
        },
        "LOCATION": {
         "n": 1281,
-        "leaked": 1281,
-        "rate": 1.0
+        "leaked": 1113,
+        "rate": 0.8689
        },
        "NATIONAL_ID": {
         "n": 5120,
-        "leaked": 5120,
-        "rate": 1.0
+        "leaked": 587,
+        "rate": 0.1146
        },
        "ORG": {
         "n": 1351,
-        "leaked": 1351,
-        "rate": 1.0
+        "leaked": 1172,
+        "rate": 0.8675
        },
        "PAYMENT_CARD": {
         "n": 856,
-        "leaked": 856,
-        "rate": 1.0
+        "leaked": 2,
+        "rate": 0.0023
        },
        "PERSON": {
         "n": 19843,
-        "leaked": 19843,
-        "rate": 1.0
+        "leaked": 21,
+        "rate": 0.0011
        },
        "PHONE": {
         "n": 4217,
-        "leaked": 4217,
-        "rate": 1.0
+        "leaked": 31,
+        "rate": 0.0074
        },
        "PROPERTY_ID": {
         "n": 103,
-        "leaked": 103,
-        "rate": 1.0
+        "leaked": 0,
+        "rate": 0.0
        },
        "SECRET": {
         "n": 466,
-        "leaked": 466,
-        "rate": 1.0
+        "leaked": 34,
+        "rate": 0.073
        },
        "URL": {
         "n": 440,
-        "leaked": 440,
-        "rate": 1.0
+        "leaked": 0,
+        "rate": 0.0
        },
        "USERNAME": {
         "n": 62,
-        "leaked": 62,
-        "rate": 1.0
+        "leaked": 2,
+        "rate": 0.0323
        }
       },
       "n_values": 48058
      }
     },
-    "regex_residuals": {
-     "text": {
-      "NATIONAL_ID": 379,
-      "IBAN": 145,
-      "PAYMENT_CARD": 77,
-      "IMEI": 52,
-      "EMAIL": 186,
-      "PHONE": 547,
-      "IP_ADDRESS": 54,
-      "LICENSE_PLATE": 1
-     }
-    },
+    "regex_residuals": {},
     "risks": {
      "direct identifiers retained": 0.0,
-     "free-text identifier leakage": 1.0
+     "free-text identifier leakage": 0.0162
     },
     "seconds": 0.9
    }
@@ -259,17 +248,17 @@
     "kind": "text",
     "description": "Ordinary vocabulary retained in text (redaction should remove identifiers, not meaning).",
     "required": true,
-    "score": 1.0,
+    "score": 0.8912587163796784,
     "metric": "share of common (non-identifying) word tokens retained, matched by turn_id",
     "detail": {
-     "retained": 1.0
+     "retained": 0.8913
     }
    }
   ],
   "summary": {
-   "privacy": 0.375,
-   "utility": 1.0,
-   "composite": 0.5238,
+   "privacy": 0.9899,
+   "utility": 0.9728,
+   "composite": 0.982,
    "label": "self-assessment, not the official judging score",
    "method": "privacy = 1 - (0.5*worst + 0.5*mean risk); utility = mean task score (required unanswerable = 0); composite = weighted harmonic mean (privacy 30, utility 25)"
   },
@@ -277,7 +266,7 @@
    "conversations: direct identifiers retained": 0.0,
    "conversations: free-text identifier leakage": 0.0,
    "turns: direct identifiers retained": 0.0,
-   "turns: free-text identifier leakage": 1.0
+   "turns: free-text identifier leakage": 0.0162
   }
  },
  "baseline": {
@@ -742,7 +731,7 @@
  },
  "baseline_name": "B2-k",
  "gate": {
-  "passed": false,
+  "passed": true,
   "scenario_id": "CS-S1",
   "checks": [
    {
@@ -771,11 +760,11 @@
     "id": "risk_vs_baseline",
     "name": "Risk components against B2-k",
     "kind": "baseline",
-    "status": "fail",
-    "value": 1,
+    "status": "pass",
+    "value": 0,
     "threshold": 0,
     "comparison": "at_most",
-    "reason": "Not lower than B2-k: turns: free-text identifier leakage.",
+    "reason": "All 4 shared risk components are lower than B2-k's, or zero where B2-k is also zero.",
     "source": "pets-eval",
     "details": [
      {
@@ -798,9 +787,9 @@
      },
      {
       "name": "turns: free-text identifier leakage",
-      "ours": 1.0,
+      "ours": 0.0162,
       "baseline": 0.8012,
-      "ok": false
+      "ok": true
      }
     ]
    },
@@ -808,36 +797,64 @@
     "id": "text_leakage",
     "name": "Identifying leakage in free text",
     "kind": "text",
-    "status": "fail",
-    "value": 1.0,
+    "status": "pass",
+    "value": 0.0162,
     "threshold": 0.1,
     "comparison": "at_most",
-    "reason": "Identifying leakage is 1.000 in turns.text, above the limit of 0.10.",
+    "reason": "Identifying leakage is 0.016 in turns.text, within the limit of 0.10.",
     "source": "pets-eval"
    }
   ],
-  "blocking": [
-   "risk_vs_baseline",
-   "text_leakage"
-  ]
+  "blocking": []
  },
  "k": [],
  "residual_risks": [
-  {
-   "id": "risk_vs_baseline",
-   "text": "Not lower than B2-k: turns: free-text identifier leakage.",
-   "source": "pets-eval"
-  },
-  {
-   "id": "text_leakage",
-   "text": "Identifying leakage is 1.000 in turns.text, above the limit of 0.10.",
-   "source": "pets-eval"
-  },
   {
    "id": "pseudonymised_is_personal_data",
    "text": "Pseudonymised data is still personal data (GDPR Recital 26).",
    "source": "docs/FACTS.md"
   }
  ],
- "ablation": []
+ "ablation": [
+  {
+   "layer_off": "patterns",
+   "leakage": 0.1545,
+   "precision": 0.9855,
+   "utility": null,
+   "n_spans": 44555,
+   "scope": "customer_service train split"
+  },
+  {
+   "layer_off": "normalise",
+   "leakage": 0.12,
+   "precision": 0.9861,
+   "utility": null,
+   "n_spans": 46281,
+   "scope": "customer_service train split"
+  },
+  {
+   "layer_off": "controller",
+   "leakage": 0.1263,
+   "precision": 0.9547,
+   "utility": null,
+   "n_spans": 42831,
+   "scope": "customer_service train split"
+  },
+  {
+   "layer_off": "dvv",
+   "leakage": 0.0167,
+   "precision": 0.9998,
+   "utility": null,
+   "n_spans": 48965,
+   "scope": "customer_service train split"
+  },
+  {
+   "layer_off": "cues",
+   "leakage": 0.0295,
+   "precision": 0.9873,
+   "utility": null,
+   "n_spans": 49647,
+   "scope": "customer_service train split"
+  }
+ ]
 }
