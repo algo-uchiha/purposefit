@@ -292,12 +292,18 @@ function SafetyPanel({ data }: { data: LandingData }) {
       value:
         standardLeakage == null || purposeFitLeakage == null
           ? "Unavailable"
-          : `${(standardLeakage * 100).toFixed(1)}% → ${(purposeFitLeakage * 100).toFixed(1)}%`,
+          : {
+              before: `${(standardLeakage * 100).toFixed(1)}%`,
+              after: `${(purposeFitLeakage * 100).toFixed(1)}%`,
+            },
       label: "Identifying details left in call text",
       note: "Standard method → PurposeFit",
     },
     {
-      value: healthBefore && healthAfter ? `${healthBefore} → ${healthAfter}` : "Unavailable",
+      value:
+        healthBefore && healthAfter
+          ? { before: healthBefore, after: healthAfter }
+          : "Unavailable",
       label: "Health details left in call text",
       note: "Before → after",
     },
@@ -317,7 +323,17 @@ function SafetyPanel({ data }: { data: LandingData }) {
       <div className="safety-stats">
         {stats.map((item) => (
           <article className="stat-card" key={item.label}>
-            <strong>{item.value}</strong>
+            <strong className={typeof item.value === "object" ? "stat-card-pair" : undefined}>
+              {typeof item.value === "object" ? (
+                <>
+                  <span>{item.value.before}</span>
+                  <span className="stat-card-arrow" aria-hidden="true">→</span>
+                  <span>{item.value.after}</span>
+                </>
+              ) : (
+                item.value
+              )}
+            </strong>
             <span>{item.label}</span>
             {item.note && <small>{item.note}</small>}
           </article>

@@ -543,6 +543,18 @@ body:has(.landing-v3) {
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
+.stat-card strong.stat-card-pair {
+  display: flex;
+  align-items: center;
+  gap: 0.22em;
+  white-space: nowrap;
+  font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+}
+.stat-card .stat-card-arrow {
+  color: var(--pf-muted);
+  font-size: 0.7em;
+  line-height: 1;
+}
 .stat-card span {
   color: var(--pf-ink);
   font-size: 14px;
