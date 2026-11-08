@@ -14,11 +14,11 @@ async function get<T>(path: string, file: string): Promise<T> {
 }
 export const api = {
   scenarios: () => get<ScenariosResponse>("/scenarios", "scenarios.json"),
-  run: (id: string) => get<Run>(`/runs/p4-${id}`, `run.${id}.json`),
-  plan: (id: string) => get<Plan>(`/runs/p4-${id}/stages/plan`, `plan.${id}.json`),
-  redact: (id: string) => get<Redact>(`/runs/p4-${id}/stages/redact`, `stage.redact.${id}.json`),
-  verify: (id: string) => get<Verify>(`/runs/p4-${id}/stages/verify`, `stage.verify.${id}.json`),
-  report: (id: string) => get<Report>(`/runs/p4-${id}/stages/report`, `stage.report.${id}.json`),
+  run: (id: string) => get<Run>(`/runs/final-${id}`, `run.${id}.json`),
+  plan: (id: string) => get<Plan>(`/runs/final-${id}/stages/plan`, `plan.${id}.json`),
+  redact: (id: string) => get<Redact>(`/runs/final-${id}/stages/redact`, `stage.redact.${id}.json`),
+  verify: (id: string) => get<Verify>(`/runs/final-${id}/stages/verify`, `stage.verify.${id}.json`),
+  report: (id: string) => get<Report>(`/runs/final-${id}/stages/report`, `stage.report.${id}.json`),
   findings: () => get<Finding[]>("/findings", "findings.json"),
   leaderboard: () => get<LeaderboardRow[]>("/leaderboard", "leaderboard.json"),
 };
