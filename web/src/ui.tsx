@@ -32,6 +32,26 @@ import { VerifyScreen } from "./screens/Verify";
 import { taskQuestion } from "./components/taskCopy";
 const steps = ["Scenario", "Plan", "Text", "Verify", "Export"];
 const label = (s: string) => s.replaceAll("_", " ");
+const actionCopy: Record<string, string> = {
+  hmac: "Replace with a code",
+  drop: "Remove",
+  redact: "Black out private words",
+  keep: "Keep",
+  suppress_k: "Hide rare groups",
+  withhold_table: "Not shared",
+};
+const roleCopy: Record<string, string> = {
+  direct_identifier: "Points at a person",
+  quasi_identifier: "Could point at someone when combined",
+  free_text: "Free text",
+};
+const reasonCopy = (reason: string) =>
+  reason
+    .replaceAll("no task of this scenario uses this table", "Not needed for this job")
+    .replaceAll("no task of this scenario uses it", "Not needed for this job")
+    .replaceAll("no task needs", "Not needed for this job")
+    .replaceAll("no task uses", "Not needed for this job")
+    .replaceAll("technical identifier", "Technical field");
 const pct = (n: number | null) => (n === null ? "Not answerable" : `${(n * 100).toFixed(1)} %`);
 type CompareRow = {
   table: string;
@@ -120,6 +140,24 @@ export default function App() {
       .toLowerCase()
       .includes(search.toLowerCase()),
   );
+  const withheldCount = policies.filter(
+    (policy) => policy.action === "withhold_table" && policy.table === "customers",
+  ).length;
+  const planRows: CompareRow[] = compare
+    ? mergePlans(plans["CS-S1"], plans["CS-S3"])
+    : [
+        ...(filtered.filter((policy) => policy.action !== "withhold_table") as CompareRow[]),
+        ...(withheldCount
+          ? [
+              {
+                table: "Customers",
+                column: `${withheldCount} fields`,
+                action: "withhold_table",
+                reason: "Not needed for this job",
+              },
+            ]
+          : []),
+      ];
   function scenarioSwitch(id: string) {
     setScenarioId(id);
     setCompare(false);
@@ -266,8 +304,8 @@ export default function App() {
               <div>
                 <h2>{compare ? "Compare release plans" : "Field-by-field policy"}</h2>
                 <p>
-                  Each action comes from the plan for {scenarioId}. Role and reasons are based on
-                  detected data.
+                  This table shows what is kept, changed or removed for this job. Each choice
+                  follows the data needs of the selected purpose.
                 </p>
               </div>
             </div>
@@ -301,24 +339,13 @@ export default function App() {
                 <Table size="lg" aria-label="Field policy plan">
                   <TableHead>
                     <TableRow>
-                      {[
-                        "Table",
-                        "Column",
-                        "Detected role",
-                        "Subtype",
-                        "Action",
-                        "Level",
-                        "Reason",
-                      ].map((x) => (
+                      {["Table", "Column", "Role", "Action", "Reason", "Details"].map((x) => (
                         <TableHeader key={x}>{x}</TableHeader>
                       ))}
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {(compare
-                      ? mergePlans(plans["CS-S1"], plans["CS-S3"])
-                      : (filtered as CompareRow[])
-                    ).map((p, i) => (
+                    {planRows.map((p, i) => (
                       <TableRow
                         key={`${p.table}.${p.column}.${i}`}
                         className={p.diff ? "diff-row" : ""}
@@ -336,13 +363,12 @@ export default function App() {
                                     : "cool-gray"
                               }
                             >
-                              {label(p.role)}
+                              {roleCopy[p.role] ?? "Safe on its own or Technical"}
                             </Tag>
                           ) : (
-                            "Not set"
+                            "Safe on its own or Technical"
                           )}
                         </TableCell>
-                        <TableCell>{p.subtype ?? "Not set"}</TableCell>
                         <TableCell>
                           <Tag
                             type={
@@ -355,10 +381,9 @@ export default function App() {
                                     : "teal"
                             }
                           >
-                            {label(p.action)}
+                            {actionCopy[p.action] ?? "Keep"}
                           </Tag>
                         </TableCell>
-                        <TableCell>{p.level ?? "Not set"}</TableCell>
                         <TableCell>
                           {compare ? (
                             <>
@@ -367,19 +392,26 @@ export default function App() {
                                   {data?.scenarios.find((x) => x.id === "CS-S1")?.title ??
                                     "Not set"}
                                 </b>{" "}
-                                {p.reasonA || "Not set"}
+                                {reasonCopy(p.reasonA || "Not needed for this job")}
                               </span>
                               <span className="reason-side">
                                 <b>
                                   {data?.scenarios.find((x) => x.id === "CS-S3")?.title ??
                                     "Not set"}
                                 </b>{" "}
-                                {p.reasonB || "Not set"}
+                                {reasonCopy(p.reasonB || "Not needed for this job")}
                               </span>
                             </>
                           ) : (
-                            p.reason
+                            {reasonCopy(p.reason)}
                           )}
+                        </TableCell>
+                        <TableCell>
+                          <details>
+                            <summary>Details</summary>
+                            <p>Subtype: {p.subtype ?? "Unavailable"}</p>
+                            <p>Level: {p.level ?? "Unavailable"}</p>
+                          </details>
                         </TableCell>
                       </TableRow>
                     ))}
