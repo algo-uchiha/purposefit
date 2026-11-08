@@ -39,7 +39,7 @@ submission:
 	$(RUN) python -m scripts.make_submission --run final-CS-S1
 
 verify-claims:
-	uv run python -m scripts.verify_claims
+	$(RUN) python -m scripts.verify_claims
 
 eval-detect:
 	LLM_PROVIDER=none uv run --with ./vendor/proving_ground/toolkit pytest -q -rs tests/test_detect_scores.py

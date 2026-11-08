@@ -24,6 +24,7 @@ jobs:
       - run: uv run ruff check .
       - run: uv run bandit -q -r api scripts -c pyproject.toml
       - run: uv run pytest -q -rs
+      - run: uv run python -m scripts.verify_claims   # README against docs/claims.json; run files are not in CI
       - run: uv run pip-audit --skip-editable
 
   web:
