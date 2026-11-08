@@ -156,6 +156,7 @@ body:has(.landing-v3) {
   padding: 100px clamp(28px, 8.5vw, 138px) 70px;
 }
 .v3-score,
+.v3-hero,
 .v3-process,
 .v3-demo {
   background: #f4fafc;
@@ -169,6 +170,40 @@ body:has(.landing-v3) {
   grid-template-columns: minmax(0, 0.92fr) minmax(450px, 1.08fr);
   align-items: center;
   column-gap: clamp(56px, 9vw, 146px);
+}
+.v3-hero {
+  align-items: center;
+  background: #f4fafc;
+  text-align: center;
+}
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  width: min(880px, 100%);
+  margin: auto;
+}
+.hero-copy h1 {
+  margin: 0;
+  color: var(--pf-ink);
+  font-size: clamp(56px, 7vw, 96px);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 1;
+}
+.hero-line {
+  max-width: 66ch;
+  margin: 24px auto 26px;
+  color: var(--pf-text);
+  font-size: clamp(17px, 1.45vw, 20px);
+  line-height: 1.55;
+}
+.v3-hero .button-row {
+  justify-content: center;
+}
+.hero-note {
+  margin: 18px 0 0;
+  color: var(--pf-muted);
+  font-size: 13px;
 }
 .score-copy,
 .score-visual,

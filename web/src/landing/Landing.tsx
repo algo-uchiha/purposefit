@@ -77,6 +77,34 @@ function SafeText({ text }: { text: string }) {
   );
 }
 
+function HeroPanel() {
+  return (
+    <section className="v3-panel v3-hero">
+      <Blobs variant="one" />
+      <div className="hero-copy">
+        <p className="challenge-pill">Built for the TrustED PETs challenge, Since AI Hackathon 2026</p>
+        <h1>Send the data. Keep the details.</h1>
+        <p className="hero-line">
+          Whenever you share data, the other side only needs part of it. PurposeFit makes a copy
+          with just that part and checks it before it leaves.
+        </p>
+        <div className="button-row">
+          <a className="button-primary" href="#/workbench">
+            Try the demo <ArrowRight size={18} />
+          </a>
+          <a className="button-secondary" href="#changes">
+            See what changes
+          </a>
+        </div>
+        <p className="hero-note">
+          Version 1 runs on prepared example data. Uploading your own files is next.
+        </p>
+      </div>
+      <ScrollHint />
+    </section>
+  );
+}
+
 function ScorePanel({ data }: { data: LandingData }) {
   const baseline0 = latest(data.leaderboard, "CS-S1", "B0 (rerun)");
   const baselineK = latest(data.leaderboard, "CS-S1", "B2-k (rerun)");
