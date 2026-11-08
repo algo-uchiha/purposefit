@@ -9,7 +9,6 @@ import {
   SideNavLink,
   Content,
   Button,
-  Dropdown,
   Tile,
   Tag,
   Search,
@@ -30,6 +29,7 @@ import { api } from "./api";
 import type { Finding, Plan, Redact, Report, Run, ScenariosResponse, Verify } from "./types";
 import { TextScreen } from "./screens/Text";
 import { VerifyScreen } from "./screens/Verify";
+import { taskQuestion } from "./components/taskCopy";
 const steps = ["Scenario", "Plan", "Text", "Verify", "Export"];
 const label = (s: string) => s.replaceAll("_", " ");
 const pct = (n: number | null) => (n === null ? "Not answerable" : `${(n * 100).toFixed(1)} %`);
@@ -201,18 +201,10 @@ export default function App() {
                   The same dataset gets a different plan for each recipient and purpose.
                 </p>
               </div>
-              <Dropdown
-                id="dataset"
-                titleText="Dataset"
-                label="Select dataset"
-                items={data!.datasets.map((d) => ({
-                  id: d.id,
-                  text: d.available ? d.id : `${d.id} · not in this demo`,
-                  disabled: !d.available,
-                }))}
-                selectedItem={{ id: "customer_service", text: "customer_service", disabled: false }}
-                onChange={() => {}}
-              />
+              <div className="dataset-label">
+                <strong>Dataset: Customer service</strong>
+                <p className="muted">This version covers one dataset.</p>
+              </div>
             </div>
             <div className="scenario-grid">
               {data!.scenarios
@@ -244,8 +236,7 @@ export default function App() {
                       <strong>Utility tasks</strong>
                       {s.utility_tasks.map((t) => (
                         <p key={t.id}>
-                          <Tag type="outline">{t.id}</Tag>
-                          {t.description}
+                          {taskQuestion(t.id, t.description)}
                         </p>
                       ))}
                     </div>
