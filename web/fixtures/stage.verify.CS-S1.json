@@ -93,7 +93,7 @@
      "text": {
       "evaluated": true,
       "leakage_rate": 0.1152,
-      "leakage_rate_chars": 0.0684,
+      "leakage_rate_chars": 0.0683,
       "identifying_leakage_rate": 0.0161,
       "per_label": {
        "ACCOUNT_NUMBER": {
@@ -123,8 +123,8 @@
        },
        "HEALTH": {
         "n": 700,
-        "leaked": 2,
-        "rate": 0.0029
+        "leaked": 0,
+        "rate": 0.0
        },
        "IBAN": {
         "n": 1473,
@@ -211,11 +211,11 @@
     "kind": "model",
     "description": "Intent classifier (TF-IDF + logistic regression) trained on protected train text, tested on original eval text.",
     "required": true,
-    "score": 0.9997014437165505,
+    "score": 0.9994016942136873,
     "metric": "macro-F1 ratio (protected-trained / original-trained) on original eval",
     "detail": {
      "f1_original": 0.9452,
-     "f1_protected": 0.945
+     "f1_protected": 0.9447
     }
    },
    {
@@ -248,16 +248,16 @@
     "kind": "text",
     "description": "Ordinary vocabulary retained in text (redaction should remove identifiers, not meaning).",
     "required": true,
-    "score": 0.8885726483563399,
+    "score": 0.8884392343816707,
     "metric": "share of common (non-identifying) word tokens retained, matched by turn_id",
     "detail": {
-     "retained": 0.8886
+     "retained": 0.8884
     }
    }
   ],
   "summary": {
    "privacy": 0.9899,
-   "utility": 0.9721,
+   "utility": 0.972,
    "composite": 0.9817,
    "label": "self-assessment, not the official judging score",
    "method": "privacy = 1 - (0.5*worst + 0.5*mean risk); utility = mean task score (required unanswerable = 0); composite = weighted harmonic mean (privacy 30, utility 25)"
@@ -813,6 +813,31 @@
    "id": "pseudonymised_is_personal_data",
    "text": "Pseudonymised data is still personal data (GDPR Recital 26).",
    "source": "docs/FACTS.md"
+  },
+  {
+   "id": "leak.date",
+   "text": "DATE values still recoverable in the released text: 90.7% of 2837 (pets-eval).",
+   "source": "pets-eval"
+  },
+  {
+   "id": "leak.location",
+   "text": "LOCATION values still recoverable in the released text: 86.9% of 1281 (pets-eval).",
+   "source": "pets-eval"
+  },
+  {
+   "id": "leak.org",
+   "text": "ORG values still recoverable in the released text: 86.8% of 1351 (pets-eval).",
+   "source": "pets-eval"
+  },
+  {
+   "id": "leak.national_id",
+   "text": "NATIONAL_ID values still recoverable in the released text: 11.5% of 5120 (pets-eval).",
+   "source": "pets-eval"
+  },
+  {
+   "id": "leak.secret",
+   "text": "SECRET values still recoverable in the released text: 7.3% of 466 (pets-eval).",
+   "source": "pets-eval"
   }
  ],
  "ablation": [

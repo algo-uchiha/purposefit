@@ -1,11 +1,11 @@
 {
  "status": "ok",
- "git_hash": "1269ca0",
+ "git_hash": "400b96d",
  "key_id": "39ffd61450cc",
  "llm": {
-  "provider": "none",
-  "model": "none",
-  "enabled": false
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "enabled": true
  },
  "proving_ground": true
 }

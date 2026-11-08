@@ -1,18 +1,19 @@
 {
- "run_id": "p4-CS-S1",
+ "run_id": "final-CS-S1",
  "dataset": "customer_service",
  "scenario_id": "CS-S1",
  "status": "done",
- "created_utc": "2026-11-07T23:50:20+00:00",
- "git_hash": "1269ca0",
+ "created_utc": "2026-11-08T01:18:34+00:00",
+ "git_hash": "400b96d",
  "key_id": "39ffd61450cc",
+ "derived_key_id": "d8a26adaa22f",
  "seed": 20261107,
  "llm": {
-  "provider": "none",
-  "model": "none"
+  "provider": "gemini",
+  "model": "gemini-3.6-flash"
  },
  "layers": {
-  "llm": false,
+  "llm": true,
   "ner": true,
   "gazetteer": true
  },
@@ -40,12 +41,12 @@
   {
    "stage": "transform",
    "status": "done",
-   "duration_ms": 924
+   "duration_ms": 886
   },
   {
    "stage": "redact",
    "status": "done",
-   "duration_ms": null
+   "duration_ms": 115933
   },
   {
    "stage": "verify",
@@ -64,7 +65,7 @@
  },
  "headline": {
   "privacy": 0.9899,
-  "utility": 0.9721,
+  "utility": 0.972,
   "composite": 0.9817
  },
  "error": null

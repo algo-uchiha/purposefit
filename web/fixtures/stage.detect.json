@@ -47,9 +47,9 @@
    "column": "channel",
    "privacy_role": "non_sensitive",
    "subtype": "CATEGORY",
-   "confidence": 0.4,
-   "reason": "no name or value rule matched [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: no name or value rule matched [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -77,9 +77,9 @@
    "column": "intent",
    "privacy_role": "non_sensitive",
    "subtype": "CATEGORY",
-   "confidence": 0.4,
-   "reason": "no name or value rule matched [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: no name or value rule matched [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -87,9 +87,9 @@
    "column": "sentiment",
    "privacy_role": "non_sensitive",
    "subtype": "CATEGORY",
-   "confidence": 0.4,
-   "reason": "no name or value rule matched [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: no name or value rule matched [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -97,9 +97,9 @@
    "column": "csat",
    "privacy_role": "non_sensitive",
    "subtype": "MEASUREMENT",
-   "confidence": 0.4,
-   "reason": "numeric values, no name match [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: numeric values, no name match [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -107,9 +107,9 @@
    "column": "resolved",
    "privacy_role": "non_sensitive",
    "subtype": "CATEGORY",
-   "confidence": 0.4,
-   "reason": "no name or value rule matched [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: no name or value rule matched [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -127,9 +127,9 @@
    "column": "n_turns",
    "privacy_role": "non_sensitive",
    "subtype": "MEASUREMENT",
-   "confidence": 0.4,
-   "reason": "numeric values, no name match [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: numeric values, no name match [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -137,9 +137,9 @@
    "column": "split",
    "privacy_role": "non_sensitive",
    "subtype": "CATEGORY",
-   "confidence": 0.4,
-   "reason": "no name or value rule matched [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: no name or value rule matched [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -265,11 +265,11 @@
    "dataset": "customer_service",
    "table": "customers",
    "column": "products",
-   "privacy_role": "non_sensitive",
+   "privacy_role": "quasi_identifier",
    "subtype": "CATEGORY",
-   "confidence": 0.4,
-   "reason": "no name or value rule matched [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: no name or value rule matched [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -287,9 +287,9 @@
    "column": "payment_method",
    "privacy_role": "non_sensitive",
    "subtype": "CATEGORY",
-   "confidence": 0.4,
-   "reason": "no name or value rule matched [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: no name or value rule matched [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -307,9 +307,9 @@
    "column": "marketing_consent",
    "privacy_role": "non_sensitive",
    "subtype": "CATEGORY",
-   "confidence": 0.4,
-   "reason": "no name or value rule matched [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: no name or value rule matched [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -357,9 +357,9 @@
    "column": "seq",
    "privacy_role": "non_sensitive",
    "subtype": "MEASUREMENT",
-   "confidence": 0.4,
-   "reason": "numeric values, no name match [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: numeric values, no name match [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -367,9 +367,9 @@
    "column": "speaker",
    "privacy_role": "non_sensitive",
    "subtype": "CATEGORY",
-   "confidence": 0.4,
-   "reason": "no name or value rule matched [default]",
-   "source": "rule"
+   "confidence": 0.7,
+   "reason": "LLM label (gemini-3.6-flash), call 68686399d5208ef8; rule said: no name or value rule matched [default]",
+   "source": "llm"
   },
   {
    "dataset": "customer_service",
@@ -396,7 +396,18 @@
  "stats": {
   "columns": 39,
   "llm": {
-   "status": "off"
+   "sent": 12,
+   "calls": 1,
+   "accepted": 12,
+   "rejected": 0,
+   "errors": 0,
+   "changed": 1,
+   "fallback_calls": 0,
+   "prompt_tokens": 0,
+   "output_tokens": 0,
+   "thought_tokens": 0,
+   "duration_ms": 208,
+   "status": "ok"
   },
   "llm_threshold": 0.6
  }

@@ -339,7 +339,7 @@
    "column": "products",
    "action": "withhold_table",
    "params": {
-    "role": "non_sensitive",
+    "role": "quasi_identifier",
     "subtype": "CATEGORY",
     "gazetteer": false
    },
@@ -526,5 +526,5 @@
   }
  ],
  "k": 751,
- "key_id": "39ffd61450cc"
+ "key_id": "8ffa44629c5e"
 }

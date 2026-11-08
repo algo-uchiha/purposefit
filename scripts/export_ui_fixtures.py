@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RUNS = ROOT / "runs"
 OUT = ROOT / "web" / "fixtures"
 SCENARIOS = ("CS-S1", "CS-S3")
-RUN_FOR = {"CS-S1": "p4-CS-S1", "CS-S3": "p4-CS-S3"}  # run folders of the final runs
+RUN_FOR = {"CS-S1": "final-CS-S1", "CS-S3": "final-CS-S3"}  # run folders of the final runs
 
 
 def load(path: Path):

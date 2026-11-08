@@ -91,7 +91,7 @@
     "text": {
      "evaluated": true,
      "leakage_rate": 0.1152,
-     "leakage_rate_chars": 0.0684,
+     "leakage_rate_chars": 0.0683,
      "identifying_leakage_rate": 0.0161,
      "per_label": {
       "ACCOUNT_NUMBER": {
@@ -121,8 +121,8 @@
       },
       "HEALTH": {
        "n": 700,
-       "leaked": 2,
-       "rate": 0.0029
+       "leaked": 0,
+       "rate": 0.0
       },
       "IBAN": {
        "n": 1473,
@@ -209,11 +209,11 @@
    "kind": "model",
    "description": "Intent classifier (TF-IDF + logistic regression) trained on protected train text, tested on original eval text.",
    "required": true,
-   "score": 0.9997014437165505,
+   "score": 0.9994016942136873,
    "metric": "macro-F1 ratio (protected-trained / original-trained) on original eval",
    "detail": {
     "f1_original": 0.9452,
-    "f1_protected": 0.945
+    "f1_protected": 0.9447
    }
   },
   {
@@ -246,16 +246,16 @@
    "kind": "text",
    "description": "Ordinary vocabulary retained in text (redaction should remove identifiers, not meaning).",
    "required": true,
-   "score": 0.8885726483563399,
+   "score": 0.8884392343816707,
    "metric": "share of common (non-identifying) word tokens retained, matched by turn_id",
    "detail": {
-    "retained": 0.8886
+    "retained": 0.8884
    }
   }
  ],
  "summary": {
   "privacy": 0.9899,
-  "utility": 0.9721,
+  "utility": 0.972,
   "composite": 0.9817,
   "label": "self-assessment, not the official judging score",
   "method": "privacy = 1 - (0.5*worst + 0.5*mean risk); utility = mean task score (required unanswerable = 0); composite = weighted harmonic mean (privacy 30, utility 25)"

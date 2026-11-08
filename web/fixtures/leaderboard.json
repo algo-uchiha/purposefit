@@ -66,27 +66,6 @@
   "note": "phase 4 search; structured only; text raw; rules-only labels"
  },
  {
-  "created_utc": "2026-11-07T23:31:43+00:00",
-  "run_id": "p4-CS-S3",
-  "git_hash": "9a5f9c6",
-  "dataset": "customer_service",
-  "scenario": "CS-S3",
-  "method": "purposefit",
-  "privacy": 1.0,
-  "utility": 1.0,
-  "composite": 1.0,
-  "worst_risk": 0.0,
-  "worst_risk_component": null,
-  "k": 751,
-  "k_pycanon": 751,
-  "utility_tasks": {
-   "CS-U4": 1.0,
-   "CS-U6": 1.0,
-   "CS-U7": 1.0
-  },
-  "note": "phase 4 search; structured only; text raw; rules-only labels"
- },
- {
   "created_utc": "2026-11-07T23:31:44+00:00",
   "run_id": "b2k_CS-S3",
   "git_hash": "vendor",
@@ -130,31 +109,9 @@
   "note": "phase 4 re-run: prefixed pseudonyms, new gate"
  },
  {
-  "created_utc": "2026-11-08T00:23:52+00:00",
-  "run_id": "p5-CS-S1",
-  "git_hash": "a7318f5",
-  "dataset": "customer_service",
-  "scenario": "CS-S1",
-  "method": "purposefit",
-  "privacy": 0.9899,
-  "utility": 0.9728,
-  "composite": 0.982,
-  "worst_risk": 0.0162,
-  "worst_risk_component": "turns: free-text identifier leakage",
-  "k": null,
-  "k_pycanon": null,
-  "utility_tasks": {
-   "CS-U1": 1.0,
-   "CS-U3": 1.0,
-   "CS-U4": 1.0,
-   "CS-U5": 0.8913
-  },
-  "note": "phase 5: rule redactor layers 1-4 (patterns, normalise, gazetteer, cues), no NER"
- },
- {
-  "created_utc": "2026-11-08T00:23:58+00:00",
-  "run_id": "p4-CS-S3",
-  "git_hash": "a7318f5",
+  "created_utc": "2026-11-08T01:18:46+00:00",
+  "run_id": "final-CS-S3",
+  "git_hash": "400b96d",
   "dataset": "customer_service",
   "scenario": "CS-S3",
   "method": "purposefit",
@@ -170,28 +127,28 @@
    "CS-U6": 1.0,
    "CS-U7": 1.0
   },
-  "note": "phase 4 re-run: prefixed pseudonyms, new gate"
+  "note": "final run: CS-S3, rule redactor + LLM health flags on masked text, per-recipient key"
  },
  {
-  "created_utc": "2026-11-08T00:47:22+00:00",
-  "run_id": "p6-CS-S1",
-  "git_hash": "dbf193d",
+  "created_utc": "2026-11-08T01:20:58+00:00",
+  "run_id": "final-CS-S1",
+  "git_hash": "400b96d",
   "dataset": "customer_service",
   "scenario": "CS-S1",
   "method": "purposefit",
   "privacy": 0.9899,
-  "utility": 0.9721,
+  "utility": 0.972,
   "composite": 0.9817,
   "worst_risk": 0.0161,
   "worst_risk_component": "turns: free-text identifier leakage",
   "k": null,
   "k_pycanon": null,
   "utility_tasks": {
-   "CS-U1": 0.9997,
+   "CS-U1": 0.9994,
    "CS-U3": 1.0,
    "CS-U4": 1.0,
-   "CS-U5": 0.8886
+   "CS-U5": 0.8884
   },
-  "note": "phase 6-lite: rule redactor + LLM health flags"
+  "note": "final run: CS-S1, rule redactor + LLM health flags on masked text, per-recipient key"
  }
 ]
