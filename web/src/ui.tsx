@@ -75,7 +75,6 @@ export default function App() {
   const [compare, setCompare] = useState(false);
   const [search, setSearch] = useState("");
   const [turn, setTurn] = useState(0);
-  const [surrogate, setSurrogate] = useState(false);
   const [plans, setPlans] = useState<Record<string, Plan>>({});
   const [redact, setRedact] = useState<Redact>();
   const [verify, setVerify] = useState<Verify>();
@@ -121,7 +120,6 @@ export default function App() {
         setReport(rep);
         setRun(ru);
         setTurn(0);
-        setSurrogate(false);
       }
     };
     fetchScenario(scenarioId).catch((e) => live && setError(String(e)));
@@ -463,8 +461,6 @@ export default function App() {
             data={redact}
             turn={turn}
             setTurn={setTurn}
-            surrogate={surrogate}
-            setSurrogate={setSurrogate}
           />
         )}
         {screen === 3 && verify && <VerifyScreen data={verify} />}

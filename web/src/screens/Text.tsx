@@ -11,7 +11,6 @@ import {
   TableRow,
   Tag,
   Tile,
-  Toggle,
 } from "@carbon/react";
 import { ChevronLeft, ChevronRight } from "@carbon/icons-react";
 import type { Redact, Span } from "../types";
@@ -52,19 +51,14 @@ export function TextScreen({
   data,
   turn,
   setTurn,
-  surrogate,
-  setSurrogate,
 }: {
   data?: Redact;
   turn: number;
   setTurn: (x: number) => void;
-  surrogate: boolean;
-  setSurrogate: (x: boolean) => void;
 }) {
   const current = data?.turns[turn];
   const total = data?.turns.length ?? 0;
-  const protectedText =
-    surrogate && current?.surrogate_text ? current.surrogate_text : (current?.protected_text ?? "");
+  const protectedText = current?.protected_text ?? "";
   if (!data) return <Loading description="Loading transcript" />;
   if (!data.table)
     return (
@@ -128,13 +122,6 @@ export function TextScreen({
         <Tile className="text-tile">
           <div className="panel-heading">
             <h3>Protected turn</h3>
-            <Toggle
-              id="surrogate-toggle"
-              labelText="Consistent surrogates"
-              toggled={surrogate}
-              disabled={!current?.surrogate_text}
-              onToggle={setSurrogate}
-            />
           </div>
           <p className="transcript">
             {protectedText ? protectedWithMarkers(protectedText) : "No protected text available."}
@@ -142,13 +129,12 @@ export function TextScreen({
           <p className="small muted">
             {current?.spans.length
               ? `${current.spans.length} removed span(s)`
-              : (data.span_labels_note ?? "No removed spans in this turn.")}
+              : data.span_labels_note?.toLowerCase().includes("ner")
+                ? "No private words found in this turn"
+                : (data.span_labels_note ?? "No removed spans in this turn.")}
           </p>
         </Tile>
       </div>
-      {!current?.surrogate_text && (
-        <p className="small muted">Consistent surrogates available after Phase 5.</p>
-      )}
       <div className="leakage-panel">
         <h3>Leakage by label</h3>
         {data.per_label.length ? (
