@@ -471,7 +471,8 @@ export default function App() {
                 <Download size={24} />
               </div>
               <h2>Download release</h2>
-              <p>Export the released tables as a zip file.</p>
+              <p>The zip contains the released tables as CSV, a policy card, and the plan report.</p>
+              <p className="small muted">Uploading your own file is not built yet.</p>
               <p className="muted small">
                 The release is available only when the data-driven gate passes.
               </p>
@@ -489,7 +490,7 @@ export default function App() {
               </div>
               <h2>Download policy card</h2>
               <p>A record of the field decisions for this purpose.</p>
-              <p className="muted small">JSON or Markdown policy card.</p>
+              <p className="muted small">The policy card downloads as JSON.</p>
               <Button
                 kind="secondary"
                 disabled={!report?.policy_card}
@@ -498,7 +499,6 @@ export default function App() {
               >
                 Download policy card
               </Button>
-              {!report?.policy_card && <p className="small muted">Available after Phase 8.</p>}
             </Tile>
             <InlineNotification
               kind="info"
