@@ -89,7 +89,7 @@ export function HowItWorks({
                 ))}
               </div>
             )}
-            {active === 1 && <PlanPreview plan={plan} runId={runId} limit={8} />}
+            {active === 1 && <PlanPreview plan={plan} runId={runId} limit={8} embedded />}
             {active === 2 && (
               <div className="transform-preview">
                 <h3>Original and protected turn</h3>

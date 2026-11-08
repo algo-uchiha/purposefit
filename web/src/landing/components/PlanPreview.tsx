@@ -6,19 +6,33 @@ export function PlanPreview({
   runId,
   limit = 7,
   comparePlan,
+  embedded = false,
 }: {
   plan: Plan;
   runId?: string;
   limit?: number;
   comparePlan?: Plan;
+  embedded?: boolean;
 }) {
-  const rows = plan.policies.filter((p) => p.action !== "suppress_k").slice(0, limit);
+  const policies = plan.policies.filter((policy) => policy.action !== "suppress_k");
+  const rows = policies
+    .filter(
+      (policy, index) =>
+        policies.findIndex((candidate) => candidate.action === policy.action) === index,
+    )
+    .slice(0, limit);
+  for (const policy of policies) {
+    if (rows.length >= limit) break;
+    if (!rows.includes(policy)) rows.push(policy);
+  }
   return (
-    <div className="product-frame">
-      <div className="product-frame-bar">
-        <span>PurposeFit</span>
-        <code>{runId ?? plan.scenario_id}</code>
-      </div>
+    <div className={embedded ? "plan-preview" : "product-frame"}>
+      {!embedded && (
+        <div className="product-frame-bar">
+          <span>PurposeFit</span>
+          <code>{runId ?? plan.scenario_id}</code>
+        </div>
+      )}
       <div className="table-scroll">
         <Table size="sm" aria-label="PurposeFit plan preview">
           <TableHead>
@@ -40,7 +54,9 @@ export function PlanPreview({
                   className={differs ? "plan-diff" : undefined}
                 >
                   <TableCell>
-                    <code>{row.column}</code>
+                    <code>
+                      {row.table}.{row.column}
+                    </code>
                   </TableCell>
                   <TableCell>
                     <Tag type={row.params.role === "direct_identifier" ? "red" : "cool-gray"}>

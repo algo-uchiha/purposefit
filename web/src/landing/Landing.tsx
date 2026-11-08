@@ -1,173 +1,450 @@
 import { useEffect, useState } from "react";
-import Lenis from "lenis";
+import { ArrowRight, DocumentTasks, Locked, Search, TaskComplete } from "@carbon/icons-react";
 import claimsData from "../../../docs/claims.json";
 import { api, type LeaderboardRow } from "../api";
-import type { Finding, Plan, Redact, Run, ScenariosResponse, Verify } from "../types";
-import { Hero } from "./sections/Hero";
-import { Problem } from "./sections/Problem";
-import { HowItWorks } from "./sections/HowItWorks";
-import { Recipients } from "./sections/Recipients";
-import { Results } from "./sections/Results";
-import { Trust } from "./sections/Trust";
-import { FinalCTA } from "./sections/FinalCTA";
+import type { Plan, Redact, Scenario, ScenariosResponse, Verify } from "../types";
 import "./landing.scss";
-type Detection = {
-  labels: {
-    dataset: string;
-    table: string;
-    column: string;
-    privacy_role: string;
-    subtype: string;
-    reason: string;
-  }[];
+
+type LandingData = {
+  scenarios: ScenariosResponse;
+  leaderboard: LeaderboardRow[];
+  plans: Record<string, Plan>;
+  redact: Record<string, Redact>;
+  verify: Record<string, Verify>;
 };
-async function loadDetection(): Promise<Detection> {
-  const fixtures =
-    (import.meta as ImportMeta & { env: { VITE_USE_FIXTURES?: string } }).env.VITE_USE_FIXTURES ===
-    "true";
-  const response = await fetch(
-    fixtures ? "/fixtures/stage.detect.json" : "/api/runs/final-CS-S1/stages/detect",
+type DataTables = Record<
+  string,
+  {
+    direct_identifiers_retained?: Record<string, number>;
+    k_anonymity?: { min_k?: number };
+    free_text?: Record<string, { identifying_leakage_rate?: number }>;
+  }
+>;
+const claims = claimsData as Record<string, string>;
+const latest = (rows: LeaderboardRow[], scenario: string, method: string) =>
+  rows
+    .filter((row) => row.scenario === scenario && row.method === method)
+    .sort((a, b) => b.created_utc.localeCompare(a.created_utc))[0];
+
+function Logo() {
+  return (
+    <a className="pf-logo" href="#/" aria-label="PurposeFit home">
+      <span className="pf-logo-mark" aria-hidden="true">
+        <i />
+        <i />
+      </span>
+      <span>PurposeFit</span>
+    </a>
   );
-  if (!response.ok) throw new Error("Detection stage is not available");
-  return response.json();
 }
+
+function TextWithSpans({ text, spans }: { text: string; spans: Redact["turns"][number]["spans"] }) {
+  if (!spans.length) return <>{text}</>;
+  const parts: React.ReactNode[] = [];
+  let cursor = 0;
+  spans
+    .slice()
+    .sort((a, b) => a.start - b.start)
+    .forEach((span, index) => {
+      if (span.start < cursor || span.end > text.length) return;
+      if (span.start > cursor) parts.push(text.slice(cursor, span.start));
+      parts.push(
+        <mark className="sensitive-span" key={`${span.start}-${index}`}>
+          {text.slice(span.start, span.end)}
+        </mark>,
+      );
+      cursor = span.end;
+    });
+  if (cursor < text.length) parts.push(text.slice(cursor));
+  return <>{parts}</>;
+}
+
+function SafeText({ text }: { text: string }) {
+  const pieces = text.split(/(\[[A-Z_ ]+\])/g);
+  return (
+    <>
+      {pieces.map((piece, index) =>
+        piece.startsWith("[") && piece.endsWith("]") ? (
+          <mark className="safe-span" key={index}>
+            {piece}
+          </mark>
+        ) : (
+          piece
+        ),
+      )}
+    </>
+  );
+}
+
+function ScorePanel({ data }: { data: LandingData }) {
+  const baseline0 = latest(data.leaderboard, "CS-S1", "B0 (rerun)");
+  const baselineK = latest(data.leaderboard, "CS-S1", "B2-k (rerun)");
+  const purposefit = latest(data.leaderboard, "CS-S1", "purposefit");
+  const bars = [
+    {
+      label: "Shared as it is",
+      caption: baseline0?.run_id ?? "Not set",
+      value: baseline0?.composite ?? 0,
+      color: "standard",
+    },
+    {
+      label: "Best standard approach",
+      caption: baselineK?.run_id ?? "Not set",
+      value: baselineK?.composite ?? 0,
+      color: "standard",
+    },
+    {
+      label: "PurposeFit",
+      caption: purposefit?.run_id ?? "Not set",
+      value: purposefit?.composite ?? 0,
+      color: "purposefit",
+    },
+  ];
+  return (
+    <section id="score" className="v3-panel v3-score">
+      <Blobs variant="one" />
+      <div className="score-copy">
+        <p className="challenge-pill">PurposeFit, built for the TrustED PETs challenge</p>
+        <h1>
+          Same data.
+          <br />
+          Far safer.
+          <br />
+          Still useful.
+        </h1>
+        <p>Give each recipient the parts they need. Check what remains before anything leaves.</p>
+        <div className="button-row">
+          <a className="button-primary" href="#/workbench">
+            Try the demo <ArrowRight size={18} />
+          </a>
+          <a className="button-secondary" href="#changes">
+            See what changes
+          </a>
+        </div>
+      </div>
+      <div className="score-visual" aria-label="CS-S1 combined score comparison">
+        <div className="score-visual-head">
+          <span>One release, compared</span>
+          <span>CS-S1 · combined score</span>
+        </div>
+        <div className="score-bars">
+          {bars.map((bar) => (
+            <div className={`score-bar-column ${bar.color}`} key={bar.caption}>
+              <strong>{bar.value.toFixed(4)}</strong>
+              <div className="score-bar-track">
+                <div className="score-bar" style={{ height: `${Math.max(bar.value * 100, 1)}%` }} />
+              </div>
+              <b>{bar.label}</b>
+              <small>{bar.caption}</small>
+            </div>
+          ))}
+        </div>
+        <p className="source-note">
+          Composite scores · pets-eval leaderboard · CS-S1 runs shown above.
+        </p>
+      </div>
+      <ScrollHint />
+    </section>
+  );
+}
+
+function ChangesPanel({ data }: { data: LandingData }) {
+  const original = data.redact["CS-S1"].turns[0];
+  const scenarioA = data.scenarios.scenarios.find((scenario) => scenario.id === "CS-S1");
+  const scenarioB = data.scenarios.scenarios.find((scenario) => scenario.id === "CS-S2");
+  const safeA = original;
+  const safeB =
+    data.redact["CS-S2"].turns.find((turn) => turn.record_id === original.record_id) ??
+    data.redact["CS-S2"].turns[0];
+  return (
+    <section id="changes" className="v3-panel v3-changes">
+      <Blobs variant="two" />
+      <div className="panel-heading-v3">
+        <p className="section-label">What changes</p>
+        <h2>One record in. A safe copy for each person out.</h2>
+      </div>
+      <div className="copy-flow">
+        <article className="record-card original-card">
+          <div className="card-heading">
+            <span className="step-number">01</span>
+            <div>
+              <small>Original call text</small>
+              <h3>Before protection</h3>
+            </div>
+          </div>
+          <p>
+            <TextWithSpans text={original.original_text} spans={original.spans} />
+          </p>
+          <div className="span-legend">
+            <span className="legend-red" /> Sensitive detail found in the text
+          </div>
+        </article>
+        <div className="flow-arrow" aria-hidden="true">
+          <ArrowRight size={28} />
+        </div>
+        <div className="safe-copies">
+          {[
+            { scenario: scenarioA, turn: safeA },
+            { scenario: scenarioB, turn: safeB },
+          ].map(
+            ({ scenario, turn }) =>
+              scenario &&
+              turn && (
+                <article className="record-card safe-card" key={scenario.id}>
+                  <div className="card-heading">
+                    <span className="step-number">{scenario.id}</span>
+                    <div>
+                      <small>{scenario.recipient}</small>
+                      <h3>{scenario.title}</h3>
+                    </div>
+                  </div>
+                  <p>
+                    <SafeText text={turn.protected_text} />
+                  </p>
+                  <div className="span-legend">
+                    <span className="legend-mint" /> Changed text shown in the copy
+                  </div>
+                </article>
+              ),
+          )}
+        </div>
+      </div>
+      <p className="source-note">
+        Prepared example row from the customer service fixtures. The full dataset has more records.
+      </p>
+      <ScrollHint />
+    </section>
+  );
+}
+
+const steps = [
+  {
+    icon: Search,
+    title: "Find what is sensitive",
+    detail: "Mark fields and words that can identify a person.",
+  },
+  {
+    icon: DocumentTasks,
+    title: "Decide by purpose",
+    detail: "Choose what each recipient needs for their tasks.",
+  },
+  {
+    icon: Locked,
+    title: "Protect it",
+    detail: "Keep useful content and change or remove the rest.",
+  },
+  {
+    icon: TaskComplete,
+    title: "Prove it is safe",
+    detail: "Run privacy checks again before the copy is released.",
+  },
+];
+function ProcessPanel() {
+  return (
+    <section id="process" className="v3-panel v3-process">
+      <Blobs variant="three" />
+      <div className="panel-heading-v3">
+        <p className="section-label">How it works</p>
+        <h2>Four steps. You see every one.</h2>
+      </div>
+      <div className="process-cards">
+        {steps.map(({ icon: Icon, title, detail }, index) => (
+          <article className="process-card" key={title}>
+            <div className="process-icon">
+              <Icon size={24} />
+            </div>
+            <span className="process-index">{String(index + 1).padStart(2, "0")}</span>
+            <h3>{title}</h3>
+            <p>{detail}</p>
+          </article>
+        ))}
+      </div>
+      <ScrollHint />
+    </section>
+  );
+}
+
+function SafetyPanel({ data }: { data: LandingData }) {
+  const verify = data.verify["CS-S1"];
+  const verify3 = data.verify["CS-S3"];
+  const tables = (verify.ours as typeof verify.ours & { tables?: DataTables }).tables ?? {};
+  const direct = Object.values(tables)
+    .flatMap((table) => Object.values(table.direct_identifiers_retained ?? {}))
+    .reduce((sum, value) => sum + value, 0);
+  const smallest = verify3.k
+    .map((entry) => entry.pycanon_k)
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b)[0];
+  const trainLeakage = claims["redact.train_leakage"];
+  const healthBefore = claims["health.train_before"];
+  const healthAfter = claims["health.train_after"];
+  const stats = [
+    { value: String(direct), label: "Direct identifiers left", note: "CS-S1 verification" },
+    {
+      value: smallest === undefined ? "Not set" : smallest.toLocaleString(),
+      label: "Smallest group in the audit copy",
+      note: "CS-S3 verification",
+    },
+    {
+      value: trainLeakage ? `${(Number(trainLeakage) * 100).toFixed(1)}%` : "Not set",
+      label: "Identifying details left in call text",
+      note: "Customer service train split",
+    },
+    {
+      value: healthAfter ?? "Not set",
+      label: "Health details left",
+      note: healthBefore
+        ? `Down from ${healthBefore} in the train split`
+        : "Customer service train split",
+    },
+  ];
+  return (
+    <section id="safety" className="v3-panel v3-safety">
+      <Blobs variant="four" />
+      <div className="panel-heading-v3">
+        <p className="section-label">Safety</p>
+        <h2>Nothing leaves until the checks pass.</h2>
+      </div>
+      <div className="safety-stats">
+        {stats.map((item) => (
+          <article className="stat-card" key={item.label}>
+            <strong>{item.value}</strong>
+            <span>{item.label}</span>
+            <small>{item.note}</small>
+          </article>
+        ))}
+      </div>
+      <p className="honesty-note">
+        <span /> Works on prepared files. Live database connections and user accounts are not built.
+      </p>
+      <ScrollHint />
+    </section>
+  );
+}
+
+function DemoPanel({ scenarios }: { scenarios: Scenario[] }) {
+  const cards = [
+    {
+      title: "Your data",
+      text: "Start with the prepared customer service example.",
+      href: "#/workbench",
+    },
+    {
+      title: "Choose protection",
+      text: scenarios.find((scenario) => scenario.id === "CS-S1")?.recipient ?? "Not set",
+      href: "#/workbench",
+    },
+    {
+      title: "Check the proof",
+      text: scenarios.find((scenario) => scenario.id === "CS-S2")?.recipient ?? "Not set",
+      href: "#/workbench",
+    },
+  ];
+  return (
+    <section id="demo" className="v3-panel v3-demo">
+      <Blobs variant="five" />
+      <div className="panel-heading-v3">
+        <p className="section-label">Try PurposeFit</p>
+        <h2>Try it on a real example.</h2>
+        <p>This demo uses prepared example data. Uploading your own file is not built yet.</p>
+      </div>
+      <div className="demo-cards">
+        {cards.map((card, index) => (
+          <a className="demo-card" href={card.href} key={card.title}>
+            <span className="process-index">{String(index + 1).padStart(2, "0")}</span>
+            <h3>{card.title}</h3>
+            <p>{card.text}</p>
+            <ArrowRight size={18} />
+          </a>
+        ))}
+      </div>
+      <a className="button-primary demo-cta" href="#/workbench">
+        Try the demo <ArrowRight size={18} />
+      </a>
+      <footer className="v3-footer">
+        <Logo />
+        <span>Built for the TrustED PETs Transformer challenge, Since AI Hackathon 2026</span>
+        <a href="https://github.com/algo-uchiha/purposefit">GitHub</a>
+      </footer>
+    </section>
+  );
+}
+
+function Blobs({ variant }: { variant: string }) {
+  return (
+    <div className={`ambient-blobs blobs-${variant}`} aria-hidden="true">
+      <i />
+      <i />
+      <i />
+      <i />
+    </div>
+  );
+}
+function ScrollHint() {
+  return (
+    <span className="scroll-hint" aria-hidden="true">
+      Scroll to explore <span>↓</span>
+    </span>
+  );
+}
+
 export default function Landing() {
-  const [scenarios, setScenarios] = useState<ScenariosResponse>();
-  const [rows, setRows] = useState<LeaderboardRow[]>([]);
-  const [finding, setFinding] = useState<Finding>();
-  const [plans, setPlans] = useState<Record<string, Plan>>({});
-  const [verifications, setVerifications] = useState<Record<string, Verify>>({});
-  const [redact, setRedact] = useState<Redact>();
-  const [run, setRun] = useState<Run>();
-  const [detection, setDetection] = useState<Detection>();
+  const [data, setData] = useState<LandingData>();
+  const [error, setError] = useState("");
   useEffect(() => {
-    let active = true;
+    let alive = true;
     Promise.all([
       api.scenarios(),
       api.leaderboard(),
-      api.findings(),
       api.plan("CS-S1"),
-      api.plan("CS-S3"),
+      api.plan("CS-S2"),
+      api.redact("CS-S1"),
+      api.redact("CS-S2"),
       api.verify("CS-S1"),
       api.verify("CS-S3"),
-      api.redact("CS-S1"),
-      api.run("CS-S1"),
-      loadDetection(),
     ])
-      .then(
-        ([
-          scenarioData,
+      .then(([scenarios, leaderboard, plan1, plan2, redact1, redact2, verify1, verify3]) => {
+        if (!alive) return;
+        setData({
+          scenarios,
           leaderboard,
-          findings,
-          s1Plan,
-          s3Plan,
-          s1Verify,
-          s3Verify,
-          redaction,
-          runInfo,
-          detect,
-        ]) => {
-          if (!active) return;
-          setScenarios(scenarioData);
-          setRows(leaderboard);
-          setFinding(findings.find((item) => item.dataset === "unseen" && item.column === "c20"));
-          setPlans({ "CS-S1": s1Plan, "CS-S3": s3Plan });
-          setVerifications({ "CS-S1": s1Verify, "CS-S3": s3Verify });
-          setRedact(redaction);
-          setRun(runInfo);
-          setDetection(detect);
-        },
-      )
-      .catch(() => {});
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const narrow = window.matchMedia("(max-width: 767px)").matches;
-    if (reduced || narrow)
-      return () => {
-        active = false;
-      };
-    const duration =
-      Number.parseFloat(
-        getComputedStyle(document.documentElement).getPropertyValue("--pf-lenis-duration"),
-      ) || 1.05;
-    const lenis = new Lenis({ duration, smoothWheel: true });
-    const panels = Array.from(document.querySelectorAll<HTMLElement>(".landing-panel"));
-    let scroll = window.scrollY;
-    let frame = 0;
-    lenis.on("scroll", (event) => {
-      scroll = event.scroll;
-    });
-    const render = (time: number) => {
-      lenis.raf(time);
-      document.documentElement.style.setProperty(
-        "--landing-progress",
-        `${Math.min(1, scroll / (document.documentElement.scrollHeight - innerHeight)) * 100}%`,
+          plans: { "CS-S1": plan1, "CS-S2": plan2 },
+          redact: { "CS-S1": redact1, "CS-S2": redact2 },
+          verify: { "CS-S1": verify1, "CS-S3": verify3 },
+        });
+      })
+      .catch(
+        (reason: unknown) =>
+          alive &&
+          setError(reason instanceof Error ? reason.message : "Could not load the example data."),
       );
-      panels.forEach((panel) => {
-        const p = Math.max(0, Math.min(1, (scroll - panel.offsetTop) / innerHeight));
-        panel.style.setProperty("--p", String(p));
-      });
-      frame = requestAnimationFrame(render);
-    };
-    frame = requestAnimationFrame(render);
-    const observer = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
-        }),
-      { threshold: 0.12 },
-    );
-    document.querySelectorAll(".landing-content.reveal").forEach((node) => observer.observe(node));
     return () => {
-      active = false;
-      cancelAnimationFrame(frame);
-      observer.disconnect();
-      lenis.destroy();
-      document.documentElement.style.removeProperty("--landing-progress");
+      alive = false;
     };
   }, []);
-  const latest = (scenario: string, method: (value: string) => boolean) =>
-    rows
-      .filter((row) => row.scenario === scenario && method(row.method))
-      .sort((a, b) => b.created_utc.localeCompare(a.created_utc))[0];
-  const cs =
-    scenarios?.scenarios.filter(
-      (item) => item.dataset === "customer_service" && ["CS-S1", "CS-S3"].includes(item.id),
-    ) ?? [];
-  const open = (scenario = "CS-S1") => {
-    window.location.hash = `#/workbench?scenario=${encodeURIComponent(scenario)}`;
-  };
-  const s1 = verifications["CS-S1"];
-  const baseline = latest("CS-S1", (method) => method.startsWith("B2-k"));
   return (
-    <main className="landing-page">
-      {plans["CS-S1"] && s1 && (
-        <Hero
-          plan={plans["CS-S1"]}
-          run={run}
-          verify={s1}
-          ours={latest("CS-S1", (m) => m === "purposefit")}
-          baseline={baseline}
-        />
+    <main className="landing-v3">
+      <header className="v3-nav">
+        <Logo />
+        <nav aria-label="Main navigation">
+          <a href="#changes">What changes</a>
+          <a href="#process">How it works</a>
+          <a href="#safety">Safety</a>
+        </nav>
+        <a className="nav-cta" href="#/workbench">
+          Try the demo <ArrowRight size={16} />
+        </a>
+      </header>
+      {!data && <div className="landing-loading">{error || "Loading the real example data"}</div>}
+      {data && (
+        <>
+          <ScorePanel data={data} />
+          <ChangesPanel data={data} />
+          <ProcessPanel />
+          <SafetyPanel data={data} />
+          <DemoPanel scenarios={data.scenarios.scenarios} />
+        </>
       )}
-      {plans["CS-S1"] && s1 && (
-        <Problem finding={finding} plan={plans["CS-S1"]} verify={s1} baseline={baseline} />
-      )}
-      {plans["CS-S1"] && s1 && (
-        <HowItWorks
-          plan={plans["CS-S1"]}
-          detect={detection}
-          redact={redact}
-          verify={s1}
-          runId={run?.run_id}
-        />
-      )}
-      {cs.length > 0 && <Recipients scenarios={cs} plans={plans} rows={rows} open={open} />}
-      {s1 && <Results rows={rows} verify={s1} claims={claimsData} />}
-      {plans["CS-S1"] && s1 && <Trust plan={plans["CS-S1"]} verify={s1} />}
-      <FinalCTA />
     </main>
   );
 }
