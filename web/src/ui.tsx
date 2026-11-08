@@ -166,6 +166,8 @@ export default function App() {
           .map((policy) => ({
             ...policy,
             role: typeof policy.params.role === "string" ? policy.params.role : undefined,
+            subtype: typeof policy.params.subtype === "string" ? policy.params.subtype : undefined,
+            level: typeof policy.params.level === "string" ? policy.params.level : undefined,
           }) as CompareRow),
         ...(withheldCount
           ? [
@@ -425,11 +427,13 @@ export default function App() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <details>
-                            <summary>Details</summary>
-                            <p>Subtype: {p.subtype ?? "Unavailable"}</p>
-                            <p>Level: {p.level ?? "Unavailable"}</p>
-                          </details>
+                          {p.subtype || p.level ? (
+                            <details>
+                              <summary>Details</summary>
+                              {p.subtype && <p>Type: {plainName(p.subtype)}</p>}
+                              {p.level && <p>Grouping level: {plainName(p.level)}</p>}
+                            </details>
+                          ) : null}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -502,17 +506,27 @@ export default function App() {
               <div className="export-icon">
                 <Document size={24} />
               </div>
-              <h2>Read the report</h2>
+              <h2>Download the report</h2>
               <p>This report says what was removed, what was changed and what was kept in this copy, and why.</p>
-              <p className="muted small">The policy card downloads as JSON.</p>
-              <Button
-                kind="secondary"
-                disabled={!report?.policy_card}
-                renderIcon={Download}
-                onClick={() => downloadPolicy(report?.policy_card)}
-              >
-                Read the report
-              </Button>
+              <p className="muted small">The safe copy zip also contains both files.</p>
+              <div className="download-buttons">
+                <Button
+                  kind="secondary"
+                  disabled={!report?.policy_card}
+                  renderIcon={Download}
+                  onClick={() => downloadText(`purposefit-report-${scenarioId}.json`, report?.policy_card)}
+                >
+                  Download report
+                </Button>
+                <Button
+                  kind="tertiary"
+                  disabled={!report?.plan_table_md}
+                  renderIcon={Download}
+                  onClick={() => downloadText(`purposefit-plan-${scenarioId}.md`, report?.plan_table_md, "text/markdown")}
+                >
+                  Download plan table
+                </Button>
+              </div>
             </Tile>
             <InlineNotification
               kind="info"
@@ -584,14 +598,16 @@ function findingText(f: Finding) {
     ? `Column ${f.column} is an unkeyed ${f.algorithm} of ${f.source_column} (${f.variant}). Reversible by enumeration.`
     : `Column ${f.column} agrees with ${f.source_column} in ${(100 * (f.agreement ?? 0)).toFixed(0)} % of rows.`;
 }
-function downloadPolicy(value: unknown) {
+function plainName(value: string) {
+  const text = value.replaceAll("_", " ").toLowerCase();
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+function downloadText(name: string, value: unknown, type = "application/json") {
   if (!value) return;
-  const blob = new Blob([typeof value === "string" ? value : JSON.stringify(value, null, 2)], {
-    type: "application/json",
-  });
+  const blob = new Blob([typeof value === "string" ? value : JSON.stringify(value, null, 2)], { type });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "purposefit-policy-card.json";
+  a.download = name;
   a.click();
   URL.revokeObjectURL(a.href);
 }
