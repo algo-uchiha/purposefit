@@ -1,6 +1,6 @@
 {
  "status": "ok",
- "git_hash": "400b96d",
+ "git_hash": "1b6fb60",
  "key_id": "39ffd61450cc",
  "llm": {
   "provider": "gemini",

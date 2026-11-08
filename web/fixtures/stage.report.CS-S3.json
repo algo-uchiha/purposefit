@@ -3,7 +3,25 @@
  "policy_card": {
   "scenario_id": "CS-S3",
   "dataset": "customer_service",
-  "key_id": "8ffa44629c5e",
+  "pseudonymisation": {
+   "secret": {
+    "key_id": "8ffa44629c5e",
+    "held_by": "controller",
+    "note": "Derived per scenario; the key itself is never in a release."
+   },
+   "domain": {
+    "recipient": "Quality assurance partner",
+    "note": "Pseudonyms are not valid outside this recipient's release."
+   },
+   "additional_information": {
+    "held_by": "controller",
+    "kept_in": "runs/private",
+    "items": [
+     "row maps",
+     "gazetteer values"
+    ]
+   }
+  },
   "released_tables": [
    "conversations"
   ],
@@ -360,6 +378,18 @@
    ],
    "blocking": []
   },
+  "residual_risks": [
+   {
+    "id": "pseudonymised_is_personal_data",
+    "text": "Pseudonymised data is still personal data (GDPR Recital 26).",
+    "source": "docs/FACTS.md"
+   },
+   {
+    "id": "k_scope",
+    "text": "k-anonymity limits singling out on the stated quasi-identifiers only; it does not stop attribute inference inside a uniform group.",
+    "source": "docs/FACTS.md"
+   }
+  ],
   "headline_label": "self-assessment, not the official judging score",
   "note": "Pseudonymised data is still personal data (GDPR Recital 26)."
  }

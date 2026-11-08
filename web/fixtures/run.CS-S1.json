@@ -3,8 +3,8 @@
  "dataset": "customer_service",
  "scenario_id": "CS-S1",
  "status": "done",
- "created_utc": "2026-11-08T01:18:34+00:00",
- "git_hash": "400b96d",
+ "created_utc": "2026-11-08T01:46:17+00:00",
+ "git_hash": "1b6fb60",
  "key_id": "39ffd61450cc",
  "derived_key_id": "d8a26adaa22f",
  "seed": 20261107,
@@ -41,12 +41,12 @@
   {
    "stage": "transform",
    "status": "done",
-   "duration_ms": 886
+   "duration_ms": 1255
   },
   {
    "stage": "redact",
    "status": "done",
-   "duration_ms": 115933
+   "duration_ms": 142123
   },
   {
    "stage": "verify",

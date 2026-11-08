@@ -25,7 +25,7 @@ def main() -> None:
     move = [r for r in rows if not r["run_id"].startswith("final-") and not r["run_id"].startswith(("b0_", "b2_", "b2k_"))]
     base = []
     for level in ("b0", "b2", "b2k"):
-        for scen in ("CS-S1", "CS-S3"):
+        for scen in ("CS-S1", "CS-S2", "CS-S3"):
             f = RUNS / "private" / "baselines" / f"{level}_{scen}" / "scorecard.json"
             if not f.exists():
                 continue

@@ -1,0 +1,256 @@
+{
+ "tool": "pets-eval 1.0.0",
+ "dataset": "customer_service",
+ "scenario": {
+  "id": "CS-S2",
+  "dataset": "customer_service",
+  "title": "Train an internal intent model / chatbot",
+  "recipient": "Aallokko data science team (internal)",
+  "purpose": "Train an intent classifier and response suggestions.",
+  "trust_level": "internal",
+  "threat_model": "Model memorisation: verbatim identifiers in training text can be regurgitated by a generative model.",
+  "legal_context": "Compatible further processing (Art. 6(4)); data minimisation (Art. 5(1)(c)).",
+  "utility_requirements": [
+   "CS-U1",
+   "CS-U2",
+   "CS-U5"
+  ],
+  "suggested_privacy_targets": "Replace identifiers with typed placeholders or realistic surrogates; no secrets or card numbers anywhere; free text k-anonymised for rare phrases optional.",
+  "notes": "Surrogates (fake names) preserve fluency better than [REDACTED]."
+ },
+ "original": "data/customer_service",
+ "protected": "runs/<run_id>/04_release",
+ "tables": {
+  "conversations": {
+   "table": "conversations",
+   "status": "released",
+   "rows_original": 11943,
+   "rows_protected": 11943,
+   "columns_dropped": [
+    "customer_id",
+    "agent_id",
+    "agent_name",
+    "channel",
+    "language",
+    "started_ts",
+    "resolved",
+    "handle_time_s",
+    "n_turns",
+    "agent_note"
+   ],
+   "columns_added": [],
+   "direct_identifiers_retained": {},
+   "k_anonymity": {
+    "note": "no catalogued quasi-identifier kept"
+   },
+   "row_alignment": "row map",
+   "linkage": {
+    "note": "no attack spec targets this table (metadata/attack_specs.json)"
+   },
+   "free_text": {
+    "agent_note": {
+     "evaluated": true,
+     "status": "withheld",
+     "identifying_leakage_rate": 0.0
+    }
+   },
+   "regex_residuals": {},
+   "risks": {
+    "direct identifiers retained": 0.0,
+    "free-text identifier leakage": 0.0
+   },
+   "seconds": 0.2
+  },
+  "customers": {
+   "table": "customers",
+   "status": "withheld",
+   "rows_original": 9591
+  },
+  "turns": {
+   "table": "turns",
+   "status": "released",
+   "rows_original": 140345,
+   "rows_protected": 140345,
+   "columns_dropped": [
+    "seq",
+    "speaker",
+    "ts"
+   ],
+   "columns_added": [],
+   "direct_identifiers_retained": {},
+   "k_anonymity": {
+    "note": "no catalogued quasi-identifier kept"
+   },
+   "row_alignment": "row map",
+   "linkage": {
+    "note": "no attack spec targets this table (metadata/attack_specs.json)"
+   },
+   "free_text": {
+    "text": {
+     "evaluated": true,
+     "leakage_rate": 0.1152,
+     "leakage_rate_chars": 0.0683,
+     "identifying_leakage_rate": 0.0161,
+     "per_label": {
+      "ACCOUNT_NUMBER": {
+       "n": 3967,
+       "leaked": 0,
+       "rate": 0.0
+      },
+      "ADDRESS": {
+       "n": 2388,
+       "leaked": 0,
+       "rate": 0.0
+      },
+      "DATE": {
+       "n": 2837,
+       "leaked": 2574,
+       "rate": 0.9073
+      },
+      "DEVICE_ID": {
+       "n": 572,
+       "leaked": 0,
+       "rate": 0.0
+      },
+      "EMAIL": {
+       "n": 1999,
+       "leaked": 0,
+       "rate": 0.0
+      },
+      "HEALTH": {
+       "n": 700,
+       "leaked": 0,
+       "rate": 0.0
+      },
+      "IBAN": {
+       "n": 1473,
+       "leaked": 0,
+       "rate": 0.0
+      },
+      "IP_ADDRESS": {
+       "n": 356,
+       "leaked": 0,
+       "rate": 0.0
+      },
+      "LICENSE_PLATE": {
+       "n": 27,
+       "leaked": 0,
+       "rate": 0.0
+      },
+      "LOCATION": {
+       "n": 1281,
+       "leaked": 1113,
+       "rate": 0.8689
+      },
+      "NATIONAL_ID": {
+       "n": 5120,
+       "leaked": 587,
+       "rate": 0.1146
+      },
+      "ORG": {
+       "n": 1351,
+       "leaked": 1172,
+       "rate": 0.8675
+      },
+      "PAYMENT_CARD": {
+       "n": 856,
+       "leaked": 2,
+       "rate": 0.0023
+      },
+      "PERSON": {
+       "n": 19843,
+       "leaked": 20,
+       "rate": 0.001
+      },
+      "PHONE": {
+       "n": 4217,
+       "leaked": 31,
+       "rate": 0.0074
+      },
+      "PROPERTY_ID": {
+       "n": 103,
+       "leaked": 0,
+       "rate": 0.0
+      },
+      "SECRET": {
+       "n": 466,
+       "leaked": 34,
+       "rate": 0.073
+      },
+      "URL": {
+       "n": 440,
+       "leaked": 0,
+       "rate": 0.0
+      },
+      "USERNAME": {
+       "n": 62,
+       "leaked": 2,
+       "rate": 0.0323
+      }
+     },
+     "n_values": 48058
+    }
+   },
+   "regex_residuals": {},
+   "risks": {
+    "direct identifiers retained": 0.0,
+    "free-text identifier leakage": 0.0161
+   },
+   "seconds": 0.9
+  }
+ },
+ "extra_protected_files": [],
+ "utility": [
+  {
+   "id": "CS-U1",
+   "table": "turns",
+   "kind": "model",
+   "description": "Intent classifier (TF-IDF + logistic regression) trained on protected train text, tested on original eval text.",
+   "required": true,
+   "score": 0.9994016942136873,
+   "metric": "macro-F1 ratio (protected-trained / original-trained) on original eval",
+   "detail": {
+    "f1_original": 0.9452,
+    "f1_protected": 0.9447
+   }
+  },
+  {
+   "id": "CS-U2",
+   "table": "conversations",
+   "kind": "relationship",
+   "description": "Relationship between sentiment and CSAT preserved.",
+   "required": true,
+   "score": 1.0,
+   "metric": "1 - |Δ Spearman(sentiment, CSAT)| / 0.5",
+   "detail": {
+    "rho_original": 0.7312,
+    "rho_protected": 0.7312
+   }
+  },
+  {
+   "id": "CS-U5",
+   "table": "turns",
+   "kind": "text",
+   "description": "Ordinary vocabulary retained in text (redaction should remove identifiers, not meaning).",
+   "required": true,
+   "score": 0.8884392343816707,
+   "metric": "share of common (non-identifying) word tokens retained, matched by turn_id",
+   "detail": {
+    "retained": 0.8884
+   }
+  }
+ ],
+ "summary": {
+  "privacy": 0.9899,
+  "utility": 0.9626,
+  "composite": 0.9773,
+  "label": "self-assessment, not the official judging score",
+  "method": "privacy = 1 - (0.5*worst + 0.5*mean risk); utility = mean task score (required unanswerable = 0); composite = weighted harmonic mean (privacy 30, utility 25)"
+ },
+ "risk_components": {
+  "conversations: direct identifiers retained": 0.0,
+  "conversations: free-text identifier leakage": 0.0,
+  "turns: direct identifiers retained": 0.0,
+  "turns: free-text identifier leakage": 0.0161
+ }
+}

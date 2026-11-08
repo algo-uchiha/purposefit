@@ -88,7 +88,7 @@
      "records with k<5": 0.0,
      "free-text identifier leakage": 0.0
     },
-    "seconds": 0.2
+    "seconds": 0.3
    },
    "customers": {
     "table": "customers",

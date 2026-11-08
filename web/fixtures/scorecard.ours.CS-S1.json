@@ -198,7 +198,7 @@
     "direct identifiers retained": 0.0,
     "free-text identifier leakage": 0.0161
    },
-   "seconds": 0.9
+   "seconds": 1.0
   }
  },
  "extra_protected_files": [],
