@@ -1,11 +1,9 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Tag } from "@carbon/react";
 import type { Verify } from "../types";
-import { ScoreTile } from "../components/ScoreTile";
 import { taskQuestion } from "../components/taskCopy";
 
 const pct = (value: number | null) =>
   value === null ? "Not answerable" : `${(value * 100).toFixed(1)}%`;
-const score = (value: number) => value.toFixed(3);
 
 function gateValue(id: string, value: number | null, passed: boolean) {
   if (id === "direct_identifiers") {
@@ -50,6 +48,23 @@ function ScorePair({ label, purposeFit, standard, lowerIsBetter = false }: {
       {lowerIsBetter && <small className="muted">Lower is better.</small>}
     </article>
   );
+}
+
+function limitsFrom(risks: { id: string; text: string }[]) {
+  const out: string[] = [];
+  const share = (id: string, noun: string) => {
+    const hit = risks.find((risk) => risk.id === id)?.text.match(/:\s*([\d.]+)%/);
+    return hit ? `About ${hit[1]}% of ${noun} in the call text could still be found.` : null;
+  };
+  if (risks.some((risk) => risk.id === "pseudonymised_is_personal_data"))
+    out.push("A copy with codes instead of names is still personal data under GDPR (Recital 26).");
+  for (const [id, noun] of [["leak.national_id", "national ID numbers"], ["leak.secret", "passwords and secret codes"]] as const) {
+    const line = share(id, noun);
+    if (line) out.push(line);
+  }
+  if (risks.some((risk) => ["leak.date", "leak.location", "leak.org"].includes(risk.id)))
+    out.push("Dates, places and organisation names are not hidden in this version. Combined with other facts they can still help find a person.");
+  return out.length ? out : risks.map((risk) => riskSentence(risk.text));
 }
 
 function riskSentence(text: string) {
@@ -123,9 +138,12 @@ export function VerifyScreen({ data }: { data: Verify }) {
 
       <section className="protection-results">
         <h3>How well are people protected?</h3>
+        <p className="section-note">PurposeFit against the standard method, scored the same way. Higher is better.</p>
+        <div className="pair-grid">
         <ScorePair label="Privacy score" purposeFit={ours.summary.privacy} standard={baseline.summary.privacy} />
         <ScorePair label="Utility score" purposeFit={ours.summary.utility} standard={baseline.summary.utility} />
         <ScorePair label="Overall score" purposeFit={ours.summary.composite} standard={baseline.summary.composite} />
+        </div>
         {(() => {
           const riskKey = "turns: free-text identifier leakage";
           const fallbackKey = "conversations: free-text identifier leakage";
@@ -144,23 +162,10 @@ export function VerifyScreen({ data }: { data: Verify }) {
         })()}
       </section>
 
-      <section aria-label="Privacy, utility and combined scores">
-        <h3>Scores</h3>
-        <div className="metric-grid">
-          {(["privacy", "utility", "composite"] as const).map((key) => (
-            <ScoreTile
-              key={key}
-              label={key}
-              value={score(ours.summary[key])}
-              baselineName={data.baseline_name}
-              baselineValue={score(baseline.summary[key])}
-            />
-          ))}
-        </div>
-      </section>
 
       <section className="utility-results">
         <h3>Does the data still work?</h3>
+        <p className="section-note">Each row checks one thing the recipient needs to do with the data.</p>
         {utility.map(({ task, baseline: standard }) => (
           <article className="utility-result-row" key={task.id}>
             <p>{taskQuestion(task.id, task.description)}</p>
@@ -187,10 +192,11 @@ export function VerifyScreen({ data }: { data: Verify }) {
         ))}
       </section>
 
-      <section>
-        <h3>What could still go wrong</h3>
+      <section className="limits-section">
+        <h3>Known limits</h3>
+        <p className="section-note">No method is perfect. This is what this copy does not fully solve.</p>
         <ul className="risk-list">
-          {data.residual_risks.map((risk) => <li key={risk.id}>{riskSentence(risk.text)}</li>)}
+          {limitsFrom(data.residual_risks).map((text) => <li key={text}>{text}</li>)}
         </ul>
       </section>
 
@@ -212,9 +218,9 @@ export function VerifyScreen({ data }: { data: Verify }) {
               <TableBody>{checks.map((check) => (
                 <TableRow key={check.id}>
                   <TableCell>{check.name}</TableCell>
-                  <TableCell>{check.status}</TableCell>
-                  <TableCell>{check.value == null ? "Unavailable" : pct(check.value)}</TableCell>
-                  <TableCell>{pct(check.threshold)}</TableCell>
+                  <TableCell>{check.status === "pass" ? "Pass" : "Fail"}</TableCell>
+                  <TableCell>{gateValue(check.id, check.value, check.status === "pass")}</TableCell>
+                  <TableCell>{gateLimit(check.id, check.threshold) ?? "Lower than the standard method"}</TableCell>
                   <TableCell>{check.source}</TableCell>
                 </TableRow>
               ))}</TableBody>
